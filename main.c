@@ -32,7 +32,8 @@ void PrintList(void);
 // Control
 void initList(void);
 int isEmpty(void);
-int insertNode(const int age, const char* name, const char* phone);
+int insertNodeAtBeg(const int age, const char* name, const char* phone);
+int insertNodeAtEnd(const int age, const char* name, const char* phone);
 int deleteNode(const char* phone);
 NODE* searchNodeByPhone(const char* phone);
 NODE* searchNodeByName(const char* name);
@@ -70,23 +71,45 @@ int main(void)
 void TestControlFunc(void)
 {
 	initList();
-	insertNode(10, "Joon", "010-0000-0000");
-	insertNode(11, "Hoon", "010-0000-0001");
-	insertNode(12, "Jing", "010-0000-0002");
-
-	deleteNode("010-0000-0002");
-	deleteNode("010-0000-0001");
-	deleteNode("010-0000-0000");
-
-	insertNode(10, "Joon", "010-0000-0000");
-	insertNode(10, "Hoon", "010-0000-0001");
-	insertNode(10, "Jing", "010-0000-0002");
-
-	NODE* ptr = searchNodeByPhone("010-0000-0002");
-	if (ptr != NULL)
-		printf("%s\n", ptr->name);
-
+	insertNodeAtEnd(10, "Kim", "010-0000-0000");
+	insertNodeAtEnd(11, "Kim", "010-0000-0001");
+	insertNodeAtEnd(11, "Kim", "010-0000-0002");
+	insertNodeAtEnd(13, "Kim", "010-0000-0003");
+	insertNodeAtEnd(14, "Lee", "010-0000-0004");
+	insertNodeAtEnd(15, "Lee", "010-0000-0005");
+	insertNodeAtEnd(16, "Park", "010-0000-0006");
+	insertNodeAtEnd(17, "Jung", "010-0000-0007");
+	insertNodeAtEnd(18, "Hwang", "010-0000-0008");
+	insertNodeAtEnd(19, "Sung", "010-0000-0009");
+	printf("Before ---------------------------------\n");
 	PrintList();
+	printf("----------------------------------------\n");
+
+	deleteNode("010-0000-0000");
+	deleteNode("010-0000-0001");
+	deleteNode("010-0000-0002");
+	deleteNode("010-0000-0003");
+	deleteNode("010-0000-0004");
+	deleteNode("010-0000-0005");
+	deleteNode("010-0000-0006");
+	deleteNode("010-0000-0007");
+	deleteNode("010-0000-0008");
+	deleteNode("010-0000-0009");
+
+	insertNodeAtEnd(10, "Kim", "010-0000-0000");
+	insertNodeAtEnd(11, "Kim", "010-0000-0001");
+	insertNodeAtEnd(11, "Kim", "010-0000-0002");
+	insertNodeAtEnd(13, "Kim", "010-0000-0003");
+	insertNodeAtEnd(14, "Lee", "010-0000-0004");
+	insertNodeAtEnd(15, "Lee", "010-0000-0005");
+	insertNodeAtEnd(16, "Park", "010-0000-0006");
+	insertNodeAtEnd(17, "Jung", "010-0000-0007");
+	insertNodeAtEnd(18, "Hwang", "010-0000-0008");
+	insertNodeAtEnd(19, "Sung", "010-0000-0009");
+
+	printf("After ---------------------------------\n");
+	PrintList();
+	printf("----------------------------------------\n");
 	releaseList();
 }
 
@@ -94,9 +117,16 @@ void TestFileIO(void)
 {
 	initList();
 
-	insertNode(10, "Joon", "010-0000-0000");
-	insertNode(11, "Hoon", "010-0000-0001");
-	insertNode(12, "Jing", "010-0000-0002");
+	insertNodeAtEnd(10, "Kim", "010-0000-0000");
+	insertNodeAtEnd(11, "Kim", "010-0000-0001");
+	insertNodeAtEnd(11, "Kim", "010-0000-0002");
+	insertNodeAtEnd(13, "Kim", "010-0000-0003");
+	insertNodeAtEnd(14, "Lee", "010-0000-0004");
+	insertNodeAtEnd(15, "Lee", "010-0000-0005");
+	insertNodeAtEnd(16, "Park", "010-0000-0006");
+	insertNodeAtEnd(17, "Jung", "010-0000-0007");
+	insertNodeAtEnd(18, "Hwang", "010-0000-0008");
+	insertNodeAtEnd(19, "Sung", "010-0000-0009");
 
 	printf("Print before save -----------------------------------------------\n");
 	PrintList();
@@ -116,9 +146,9 @@ void TestFileIO(void)
 void TestEdit(void)
 {
 	initList();
-	insertNode(10, "Joon", "010-0000-0000");
-	insertNode(11, "Hoon", "010-0000-0001");
-	insertNode(12, "Jing", "010-0000-0002");
+	insertNodeAtBeg(10, "Joon", "010-0000-0000");
+	insertNodeAtBeg(11, "Hoon", "010-0000-0001");
+	insertNodeAtBeg(12, "Jing", "010-0000-0002");
 	printf("Print before edit age --------------------------------------------\n");
 	PrintList();
 	printf("----------------------------------------------------------------\n");
@@ -152,7 +182,7 @@ int InsertNode(void)
 	printf("[Phone number] ");
 	gets_s(phone, sizeof(phone));
 
-	if (!insertNode(age, name, phone))
+	if (!insertNodeAtBeg(age, name, phone))
 	{
 		printf("\nCannot insert: invalid value or same phone number already exist.\n");
 		return 0;
@@ -178,7 +208,7 @@ int DeleteNode(void)
 		printf("Deletion failed.\n");
 		return 0;
 	}
-	
+
 	saveListToFile();
 	printf("Deletion successful.\n");
 	return 1;
@@ -186,7 +216,7 @@ int DeleteNode(void)
 
 int SearchNode(void)
 {
-	if(isEmpty())
+	if (isEmpty())
 	{
 		printf("The list is already empty.\n");
 		return 0;
@@ -303,7 +333,7 @@ int isEmpty(void)
 	return 0;
 }
 
-int insertNode(const int age, const char* name, const char* phone)
+int insertNodeAtBeg(const int age, const char* name, const char* phone)
 {
 	if (searchNodeByPhone(phone))
 		return 0;
@@ -316,15 +346,33 @@ int insertNode(const int age, const char* name, const char* phone)
 	strcpy_s(newNode->phone, sizeof(newNode->phone), phone);
 
 	NODE* ptr = g_head->next;
-	if (ptr == NULL)
-		g_head->next = newNode;
-	else
-	{
-		newNode->next = ptr;
-		newNode->prev = g_head;
-		g_head->next = newNode;
-		ptr->prev = newNode;
-	}
+
+	newNode->next = ptr;
+	newNode->prev = g_head;
+	g_head->next = newNode;
+	ptr->prev = newNode;
+
+	return 1;
+}
+
+int insertNodeAtEnd(const int age, const char* name, const char* phone)
+{
+	if (searchNodeByPhone(phone))
+		return 0;
+
+	NODE* newNode = (NODE*)malloc(sizeof(NODE));
+	newNode->next = NULL;
+	newNode->prev = NULL;
+	newNode->age = age;
+	strcpy_s(newNode->name, sizeof(newNode->name), name);
+	strcpy_s(newNode->phone, sizeof(newNode->phone), phone);
+
+	NODE* ptr = g_tail->prev;
+	newNode->next = g_tail;
+	newNode->prev = ptr;
+	ptr->next = newNode;
+	g_tail->prev = newNode;
+
 	return 1;
 }
 
@@ -476,7 +524,7 @@ int loadListFromFile(void)
 		if (fread(temp->name, sizeof(char), sizeof(temp->name), fp) == 0) break;
 		if (fread(temp->phone, sizeof(char), sizeof(temp->phone), fp) == 0) break;
 
-		insertNode(temp->age, temp->name, temp->phone);
+		insertNodeAtEnd(temp->age, temp->name, temp->phone);
 		free(temp);
 	}
 
