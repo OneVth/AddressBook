@@ -72,138 +72,6 @@ void TestSearchFunc(void);
 void TestEditFunc(void);
 void TestUIFunc(void);
 
-//void StringSlice(void)
-//{
-//	char buff[200] = { "Kim" };
-//
-//	char op[4] = { 0 };
-//	char temp1[20] = { 0 };
-//	char temp2[20] = { 0 };
-//
-//	int age = 0;
-//	char name[20] = { 0 };
-//	char phone[20] = { 0 };
-//
-//	/*printf("Search: ");
-//	gets_s(buff, sizeof(buff));*/
-//
-//	printf("Origin: %s\n", buff);
-//
-//	char* temp = buff;
-//	int i = 0;
-//	while (*temp != '\0')
-//	{
-//		if (*temp == ' ')
-//		{
-//			temp++;
-//			break;
-//		}
-//
-//		temp1[i++] = *temp;
-//		temp++;
-//	}
-//	temp1[i] = '\0';
-//
-//	i = 0;
-//	while (*temp != '\0')
-//	{
-//		if (*temp == ' ')
-//		{
-//			temp++;
-//			break;
-//		}
-//
-//		op[i++] = *temp;
-//		temp++;
-//	}
-//	op[i] = '\0';
-//
-//	i = 0;
-//	while (*temp != '\0')
-//	{
-//		temp2[i++] = *temp;
-//		temp++;
-//	}
-//	temp2[i] = '\0';
-//
-//	if (strpbrk(temp1, "-") != NULL)
-//	{
-//		strcpy_s(phone, sizeof(phone), temp1);
-//	}
-//	else if (atoi(temp1) != 0)
-//	{
-//		age = atoi(temp1);
-//	}
-//	else if (*temp1 != 0)
-//	{
-//		strcpy_s(name, sizeof(name), temp1);
-//	}
-//
-//	if (strpbrk(temp2, "-") != NULL)
-//	{
-//		strcpy_s(phone, sizeof(phone), temp2);
-//
-//	}
-//	else if (atoi(temp2) != 0)
-//	{
-//		age = atoi(temp2);
-//	}
-//	else if (*temp2 != 0)
-//	{
-//		strcpy_s(name, sizeof(name), temp2);
-//	}
-//
-//	printf("%d %s %s\n", age, name, phone);
-//
-//	if (strcmp(op, "or") == 0)
-//	{
-//
-//	}
-//	else if (strcmp(op, "OR") == 0)
-//	{
-//
-//	}
-//	else if (strcmp(op, "and") == 0)
-//	{
-//
-//	}
-//	else if (strcmp(op, "AND") == 0)
-//	{
-//
-//	}
-//	else
-//	{
-//		NODE* ptr = g_head->next;
-//		if (age != 0)
-//		{
-//			while (ptr != g_tail)
-//			{
-//				if (ptr->age == age)
-//					printf("%d %s %s\n", ptr->age, ptr->name, ptr->phone);
-//				ptr = ptr->next;
-//			}
-//		}
-//		else if (name[0] != 0)
-//		{
-//			while (ptr != g_tail)
-//			{
-//				if (strcmp(ptr->name, name) == 0)
-//					printf("%d %s %s\n", ptr->age, ptr->name, ptr->phone);
-//				ptr = ptr->next;
-//			}
-//		}
-//		else if (phone[0] != 0)
-//		{
-//			while (ptr != g_tail)
-//			{
-//				if (strcmp(ptr->phone, phone) == 0)
-//					printf("%d %s %s\n", ptr->age, ptr->name, ptr->phone);
-//				ptr = ptr->next;
-//			}
-//		}
-//	}
-//}
-
 int main(void)
 {
 	TestUIFunc();
@@ -668,7 +536,7 @@ void TestUIFunc(void)
 		// ********************** OR ***************************
 		"14 OR 20",							// age OR age (both matching)
 		"10 OR 30",							// age OR age (left matching)
-		"10 OR 30",							// age OR age (right matching)
+		"30 OR 15",							// age OR age (right matching)
 		"30 OR 40",							// age OR age (non-matching)
 
 		"20 OR Hwang",						// age OR name (both matching)
