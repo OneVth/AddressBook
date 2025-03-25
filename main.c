@@ -5,6 +5,8 @@
 #include <conio.h>
 #include <ctype.h>
 
+#define UI_FUNC_COUNT 6
+#define RECORDS_PER_PAGE 10
 #define MAX_NAME_LEN 20
 #define MAX_PHONE_LEN 14	// 000-0000-0000 + '\0'
 #define BUFFSIZE 200
@@ -40,9 +42,12 @@ void ClearInputBuffer(void);
 int InsertNode(const char* PATH);
 int DeleteNode(const char* PATH);
 int GetSearchString(char* buffer);
+int convertInputToSearchString(const char* str, int* age, char* name, char* phone);
 int SearchNode(const char* input, const char* PATH);
+int UI_Search(const char* PATH);
+int UI_PrintAll(const char* PATH);
 int EditNode(const char* PATH);
-//int ExitMenu(void);
+int ExitMenu(const char* PATH);
 void PrintList(LIST* pL);
 
 // Control
@@ -54,6 +59,7 @@ int deleteNodeAtEnd(LIST* pL);
 int deleteNodeAtBeg(LIST* pL);
 int deleteNodeByPhone(LIST* pL, const char* phone);
 int deleteNodeFromFile(const char* phone, const char* path);
+int searchNodeByPhoneFromList(LIST* pL, const char* phone);
 int searchNodeByPhone(LIST* pL, const char* phone, const char* path);
 int searchNodeByName(LIST* pL, const char* name, const char* path);
 int searchNodeByAge(LIST* pL, const int age, const char* path);
@@ -74,21 +80,24 @@ void TestUIFunc(void);
 
 int main(void)
 {
-	TestUIFunc();
-	//InsertNode();
+	//TestUIFunc();
 
-	/*int (*pfMenu[5])(void) = { ExitMenu, InsertNode, DeleteNode, SearchNode, EditNode };
-
-	initList();
-	loadListFromFile();
+	int (*pfMenu[UI_FUNC_COUNT])(const char*) = {
+		ExitMenu, 
+		UI_PrintAll,
+		InsertNode, 
+		DeleteNode, 
+		UI_Search, 
+		EditNode 
+	};
 
 	OPTION option = PrintMenu();
 	do
 	{
 		system("cls");
-		pfMenu[option]();
+		pfMenu[option](FILE_PATH);
 		_getch();
-	} while ((option = PrintMenu()) != EXIT);*/
+	} while ((option = PrintMenu()) != EXIT);
 
 	return 0;
 }
@@ -580,7 +589,7 @@ void TestUIFunc(void)
 		"010-0000-2222 OR 010-0000-3333",	// phone OR phone (non-matching)
 
 		// ********************* Invalid ************************
-		"",									// empty input
+		"\n",									// empty input
 		"abc",								// invalid name
 		"999",								// invalid age
 		"010-9999-9999",					// nonexistent phone
@@ -593,9 +602,10 @@ void TestUIFunc(void)
 	int testStringCount = sizeof(testCases) / sizeof(testCases[0]);
 	for (int i = 0; i < testStringCount; i++)
 	{
-		printf("\nTest case %d: \"%s\"\n", i + 1, testCases[i]);
 		SearchNode(testCases[i], FILE_PATH_TEST);
 	}
+
+	//UI_PrintAll(FILE_PATH_TEST);
 
 	ReadTestFile();
 }
@@ -616,7 +626,6 @@ int InsertNode(const char* PATH)
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
 	initList(pList);
 
-	printf("Insert node at \"%s\"\n", PATH);
 	do
 	{
 		printf("\nEnter new data: need [Name] [Age] [Phone number]\n");
@@ -751,33 +760,135 @@ int GetSearchString(char* buffer)
 	return 1;
 }
 
-int SearchNode(const char* input, const char* PATH)
+int UI_PrintAll(const char* PATH)
 {
-	int searched = 0;
-	int age1 = 0;
-	char name1[MAX_NAME_LEN] = { 0 };
-	char phone1[MAX_PHONE_LEN] = { 0 };
-	int age2 = 0;
-	char name2[MAX_NAME_LEN] = { 0 };
-	char phone2[MAX_PHONE_LEN] = { 0 };
+	printf("Print all records ******************************\n");
 
-	LIST* pListName1 = (LIST*)malloc(sizeof(LIST));
-	LIST* pListName2 = (LIST*)malloc(sizeof(LIST));
-	LIST* pListPhone1 = (LIST*)malloc(sizeof(LIST));
-	LIST* pListPhone2 = (LIST*)malloc(sizeof(LIST));
-	LIST* pListAge1 = (LIST*)malloc(sizeof(LIST));
-	LIST* pListAge2 = (LIST*)malloc(sizeof(LIST));
-	initList(pListName1);
-	initList(pListName2);
-	initList(pListPhone1);
-	initList(pListPhone2);
-	initList(pListAge1);
-	initList(pListAge2);
+	FILE* fp = NULL;
+	fopen_s(&fp, PATH, "rb");
+	if (fp == NULL)
+	{
+		printf("Failed to open file.\n");
+		return 0;
+	}
+	char ch = 0;
+	int pageNumber = 0;
+	NODE* temp = (NODE*)malloc(sizeof(NODE));
+	memset(temp, 0, sizeof(NODE));
+	do
+	{
+		system("cls");
+		pageNumber++;
+		printf("Page #%d **************************\n", pageNumber);
+		int isEnd = 0;
+		for (int i = 0; i < RECORDS_PER_PAGE; i++)
+		{
+			if (fread(temp, sizeof(NODE), 1, fp) > 0)
+				printf("[%d]: %2d %-5s %s\n", i, 
+					temp->age, temp->name, temp->phone);
+			else
+			{
+				isEnd = 1;
+				break;
+			}
+		}
 
-	char temp1[MAX_NAME_LEN] = { 0 };
-	char temp2[MAX_NAME_LEN] = { 0 };
-	char op[4] = { 0 };
+		if (isEnd)
+		{
+			printf("\nEnd of file: Press any key to exit.\n");
+			break;
+		}
+		else
+			printf("\nPress any key to continue (or 'q' to exit) : ");
+		ch = getchar();
+	} while (ch != 'q' || ch != 'Q');
+	_getch();
 
+	free(temp);
+	fclose(fp);
+	return 0;
+}
+
+int UI_Search(const char* PATH)
+{
+	printf("You can use \"AND\" or \"OR\" to search.\n");
+	char buffer[BUFFSIZE] = { 0 };
+	if (GetSearchString(buffer))
+	{
+		SearchNode(buffer, PATH);
+	}
+	return 1;
+}
+
+int combineList(LIST* pResultList, LIST* pList1, LIST* pList2, const char* op)
+{
+	NODE* ptr1 = pList1->head.next;
+	NODE* ptr2 = pList2->head.next;
+
+	if (strcmp(op, "OR") == 0 || strcmp(op, "or") == 0)
+	{
+		while (ptr1 != &pList1->tail)
+		{
+			insertNodeAtEnd(pResultList, ptr1->age, ptr1->name, ptr1->phone);
+			ptr1 = ptr1->next;
+		}
+
+		while (ptr2 != &pList2->tail)
+		{
+			if (!searchNodeByPhoneFromList(pResultList, ptr2->phone))
+			{
+				insertNodeAtEnd(pResultList, ptr2->age, ptr2->name, ptr2->phone);
+			}
+			ptr2 = ptr2->next;
+		}
+	}
+	else if (strcmp(op, "AND") == 0 || strcmp(op, "and") == 0)
+	{
+		while (ptr1 != &pList1->tail)
+		{
+			if (searchNodeByPhoneFromList(pList2, ptr1->phone))
+			{
+				insertNodeAtEnd(pResultList, ptr1->age, ptr1->name, ptr1->phone);
+			}
+			ptr1 = ptr1->next;
+		}
+	}
+	else
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+int convertInputToSearchString(const char* str, int* age, char* name, char* phone)
+{
+	if (isAllDigit(str))
+	{
+		*age = atoi(str);
+		if (*age < 0 || *age > MAXAGE)
+		{
+			printf("Input failed: Invalid age.\n");
+			return 0;
+		}
+	}
+	else
+	{
+		if (isAllAlpha(str))
+			strcpy_s(name, MAX_NAME_LEN, str);
+		else if (isPhoneFormat(str))
+			strcpy_s(phone, MAX_PHONE_LEN, str);
+		else
+		{
+			printf("Input failed: Invalid input.\n");
+			return 0;
+		}
+	}
+	return 1;
+}
+
+int parseSearchInput(const char* input, char temp1[], char temp2[], char op[])
+{
 	int i = 0;
 	const char* ch = input;
 	while (*ch != '\0')
@@ -815,666 +926,181 @@ int SearchNode(const char* input, const char* PATH)
 	}
 	temp2[i] = '\0';
 
-	if (temp1[0] == 0)
+	return 1;
+}
+
+int SearchNode(const char* input, const char* PATH)
+{
+	printf("Input: %s\n", input);
+	if (*input == '\n')
 	{
-		printf("Input failed: Invalid input.\n");
+		printf("Input failed: Input cannot be empty.\n");
 		return 0;
 	}
 
-	if (isAllDigit(temp1))
-	{
-		age1 = atoi(temp1);
-		if (age1 < 0 || age1 > MAXAGE)
-		{
-			printf("Input failed: Invalid age.\n");
-			return 0;
-		}
-	}
-	else
-	{
-		if (isAllAlpha(temp1))
-			strcpy_s(name1, sizeof(name1), temp1);
-		else if (isPhoneFormat(temp1))
-			strcpy_s(phone1, sizeof(phone1), temp1);
-		else
-			printf("Input failed: Invalid input.\n");
-	}
+	int searched = 0;
+	int age1 = 0;
+	char name1[MAX_NAME_LEN] = { 0 };
+	char phone1[MAX_PHONE_LEN] = { 0 };
+	int age2 = 0;
+	char name2[MAX_NAME_LEN] = { 0 };
+	char phone2[MAX_PHONE_LEN] = { 0 };
+
+	LIST* pListName1 = (LIST*)malloc(sizeof(LIST));
+	LIST* pListName2 = (LIST*)malloc(sizeof(LIST));
+	LIST* pListPhone1 = (LIST*)malloc(sizeof(LIST));
+	LIST* pListPhone2 = (LIST*)malloc(sizeof(LIST));
+	LIST* pListAge1 = (LIST*)malloc(sizeof(LIST));
+	LIST* pListAge2 = (LIST*)malloc(sizeof(LIST));
+	initList(pListName1);
+	initList(pListName2);
+	initList(pListPhone1);
+	initList(pListPhone2);
+	initList(pListAge1);
+	initList(pListAge2);
+
+	char temp1[MAX_NAME_LEN] = { 0 };
+	char temp2[MAX_NAME_LEN] = { 0 };
+	char op[BUFFSIZE] = { 0 };
+	
+	int isValid = 1;
+
+	if (!parseSearchInput(input, temp1, temp2, op))
+		isValid = 0;
+
+	if (temp1[0] == 0)
+		isValid = 0;
+
+	if (!convertInputToSearchString(temp1, &age1, name1, phone1))
+		isValid = 0;
 
 	if (temp2[0] != 0)
 	{
-		if (isAllDigit(temp2))
+		if (strcmp(op, "AND") != 0 && strcmp(op, "and") != 0 &&
+			strcmp(op, "OR") != 0 && strcmp(op, "or") != 0)
 		{
-			age2 = atoi(temp2);
-			if (age2 < 0 || age2 > MAXAGE)
-			{
-				printf("Input failed: Invalid age.\n");
-				return 0;
-			}
+			printf("Input failed: Invalid operator.\n");
+			return 0;
 		}
-		else
-		{
-			if (isAllAlpha(temp2))
-				strcpy_s(name2, sizeof(name2), temp2);
-			else if (isPhoneFormat(temp2))
-				strcpy_s(phone2, sizeof(phone2), temp2);
-			else
-				printf("Input failed: Invalid input.\n");
-		}
+		convertInputToSearchString(temp2, &age2, name2, phone2);
 	}
 
-	printf("Search result **********************************\n");
-	if (op[0] == 0)
+	if (isValid)
 	{
-		if (age1 != 0)
+		printf("Search result **********************************\n");
+		LIST* pResultList = (LIST*)malloc(sizeof(LIST));
+		initList(pResultList);
+		if (op[0] == 0)
 		{
-			if (searchNodeByAge(pListAge1, age1, PATH) == 1)
-				PrintList(pListAge1);
+			if (age1 != 0)
+			{
+				searchNodeByAge(pResultList, age1, PATH);
+			}
+			else if (name1[0] != 0)
+			{
+				searchNodeByName(pResultList, name1, PATH);
+			}
+			else if (phone1[0] != 0)
+			{
+				searchNodeByPhone(pResultList, phone1, PATH);
+			}
+
+			if (!isEmpty(pResultList))
+				PrintList(pResultList);
 			else
 				printf("No matching record found.\n");
 		}
-		else if (name1[0] != 0)
+		else if (op[0] != 0)
 		{
-			if (searchNodeByName(pListName1, name1, PATH) == 1)
-				PrintList(pListName1);
-			else
-				printf("No matching record found.\n");
-		}
-		else if (phone1[0] != 0)
-		{
-			if (searchNodeByPhone(pListPhone1, phone1, PATH) == 1)
-				PrintList(pListPhone1);
-			else
-				printf("No matching record found.\n");
-		}
-	}
-	else
-	{
-		// op is "AND" or "OR"
-		int name1Searched = 0;
-		int name2Searched = 0;
-		int phone1Searched = 0;
-		int phone2Searched = 0;
-		int age1Searched = 0;
-		int age2Searched = 0;
-		if (strcmp(op, "or") == 0 || strcmp(op, "OR") == 0)
-		{
+			// op is "AND" or "OR"
 			if (age1 != 0 && age2 != 0)
 			{
-				age1Searched = searchNodeByAge(pListAge1, age1, PATH);
-				age2Searched = searchNodeByAge(pListAge2, age2, PATH);
-				if (age1Searched == 1 || age2Searched == 1)
-				{
-					PrintList(pListAge1);
-					PrintList(pListAge2);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
+				searchNodeByAge(pListAge1, age1, PATH);
+				searchNodeByAge(pListAge2, age2, PATH);
+				combineList(pResultList, pListAge1, pListAge2, op);
 			}
 			else if (age1 != 0 && name2[0] != 0)
 			{
-				age1Searched = searchNodeByAge(pListAge1, age1, PATH);
-				name2Searched = searchNodeByName(pListName2, name2, PATH);
-				if (age1Searched == 1 || name2Searched == 1)
-				{
-					NODE* ptrAge = pListAge1->head.next;
-					NODE* ptrName = pListName2->head.next;
-					if (age1Searched && name2Searched)
-					{
-						LIST* pList = (LIST*)malloc(sizeof(LIST));
-						initList(pList);
-						while (ptrAge != &pListAge1->tail)
-						{
-							int flag = 0;
-							ptrName = pListName2->head.next;
-							while (ptrName != &pListName2->tail)
-							{
-								if (strcmp(ptrAge->phone, ptrName->phone) == 0)
-								{
-									flag = 1;
-									NODE* ptr = ptrName;
-									ptrName = ptrName->next;
-									ptrAge = ptrAge->next;
-									insertNodeAtEnd(pList, ptr->age, ptr->name, ptr->phone);
-									deleteNodeByPhone(pListAge1, ptr->phone);
-									deleteNodeByPhone(pListName2, ptr->phone);
-									break;
-								}
-								else
-									ptrName = ptrName->next;
-							}
-
-							if (!flag)
-								ptrAge = ptrAge->next;
-						}
-
-						PrintList(pList);
-						PrintList(pListAge1);
-						PrintList(pListName2);
-
-						releaseList(pList);
-					}
-					else if (age1Searched)
-					{
-						PrintList(pListAge1);
-					}
-					else if (name2Searched)
-					{
-						PrintList(pListName2);
-					}
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
+				searchNodeByAge(pListAge1, age1, PATH);
+				searchNodeByName(pListName2, name2, PATH);
+				combineList(pResultList, pListAge1, pListName2, op);
 			}
 			else if (age1 != 0 && phone2[0] != 0)
 			{
-				age1Searched = searchNodeByAge(pListAge1, age1, PATH);
-				phone2Searched = searchNodeByPhone(pListPhone2, phone2, PATH);
-				if (age1Searched == 1 || phone2Searched == 1)
-				{
-					NODE* ptrAge = pListAge1->head.next;
-					NODE* ptrPhone = pListPhone2->head.next;
-
-					if (age1Searched && phone2Searched)
-					{
-						LIST* pList = (LIST*)malloc(sizeof(LIST));
-						initList(pList);
-
-						while (ptrAge != &pListAge1->tail)
-						{
-							if (strcmp(ptrAge->phone, ptrPhone->phone) == 0)
-							{
-								NODE* ptr = ptrAge;
-								ptrAge = ptrAge->next;
-								insertNodeAtEnd(pList, ptr->age, ptr->name, ptr->phone);
-								deleteNodeByPhone(pListPhone2, ptr->phone);
-								deleteNodeByPhone(pListAge1, ptr->phone);
-							}
-							else
-								ptrAge = ptrAge->next;
-						}
-
-						PrintList(pList);
-						PrintList(pListAge1);
-						PrintList(pListPhone2);
-						releaseList(pList);
-					}
-					else if (age1Searched)
-						PrintList(pListAge1);
-					else if (phone2Searched)
-						PrintList(pListPhone2);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
+				searchNodeByAge(pListAge1, age1, PATH);
+				searchNodeByPhone(pListPhone2, phone2, PATH);
+				combineList(pResultList, pListAge1, pListPhone2, op);
 			}
 			else if (name1[0] != 0 && age2 != 0)
 			{
-				name1Searched = searchNodeByName(pListName1, name1, PATH);
-				age2Searched = searchNodeByAge(pListAge2, age2, PATH);
-				if (name1Searched == 1 || age2Searched == 1)
-				{
-					NODE* ptrAge = pListAge2->head.next;
-					NODE* ptrName = pListName1->head.next;
-					if (name1Searched && age2Searched)
-					{
-						LIST* pList = (LIST*)malloc(sizeof(LIST));
-						initList(pList);
-						while (ptrAge != &pListAge2->tail)
-						{
-							int flag = 0;
-							ptrName = pListName1->head.next;
-							while (ptrName != &pListName1->tail)
-							{
-								if (strcmp(ptrAge->phone, ptrName->phone) == 0)
-								{
-									flag = 1;
-									NODE* ptr = ptrName;
-									ptrName = ptrName->next;
-									ptrAge = ptrAge->next;
-									insertNodeAtEnd(pList, ptr->age, ptr->name, ptr->phone);
-									deleteNodeByPhone(pListAge2, ptr->phone);
-									deleteNodeByPhone(pListName1, ptr->phone);
-									break;
-								}
-								else
-									ptrName = ptrName->next;
-							}
-
-							if (!flag)
-								ptrAge = ptrAge->next;
-						}
-
-						PrintList(pList);
-						PrintList(pListName1);
-						PrintList(pListAge2);
-
-						releaseList(pList);
-					}
-					else if (name1Searched)
-						PrintList(pListName1);
-					else if (age2Searched)
-						PrintList(pListAge2);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
+				searchNodeByName(pListName1, name1, PATH);
+				searchNodeByAge(pListAge2, age2, PATH);
+				combineList(pResultList, pListName1, pListAge2, op);
 			}
 			else if (name1[0] != 0 && name2[0] != 0)
 			{
-				name1Searched = searchNodeByName(pListName1, name1, PATH);
-				name2Searched = searchNodeByName(pListName2, name2, PATH);
-				if (name1Searched || name2Searched)
-				{
-					PrintList(pListName1);
-					PrintList(pListName2);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
+				searchNodeByName(pListName1, name1, PATH);
+				searchNodeByName(pListName2, name2, PATH);
+				combineList(pResultList, pListName1, pListName2, op);
 			}
 			else if (name1[0] != 0 && phone2[0] != 0)
 			{
-				name1Searched = searchNodeByName(pListName1, name1, PATH);
-				phone2Searched = searchNodeByPhone(pListPhone2, phone2, PATH);
-				if (name1Searched == 1 || phone2Searched == 1)
-				{
-					NODE* ptrName = pListName1->head.next;
-					NODE* ptrPhone = pListPhone2->head.next;
-					if (name1Searched && phone2Searched)
-					{
-						int flag = 0;
-						LIST* pList = (LIST*)malloc(sizeof(LIST));
-						initList(pList);
-						while (ptrName != &pListName1->tail)
-						{
-							if (strcmp(ptrName->phone, ptrPhone->phone) != 0)
-							{
-								NODE* ptr = ptrName;
-								ptrName = ptrName->next;
-								insertNodeAtEnd(pList, ptr->age, ptr->name, ptr->phone);
-								deleteNodeByPhone(pListPhone2, ptr->phone);
-								deleteNodeByPhone(pListName1, ptr->phone);
-							}
-							else
-								ptrName = ptrName->next;
-						}
-
-						PrintList(pList);
-						PrintList(pListName1);
-						PrintList(pListPhone2);
-						releaseList(pList);
-					}
-					else if (name1Searched)
-						PrintList(pListName1);
-					else if (phone2Searched)
-						PrintList(pListPhone2);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
+				searchNodeByName(pListName1, name1, PATH);
+				searchNodeByPhone(pListPhone2, phone2, PATH);
+				combineList(pResultList, pListName1, pListPhone2, op);
 			}
 			else if (phone1[0] != 0 && age2 != 0)
 			{
-				phone1Searched = searchNodeByPhone(pListPhone1, phone1, PATH);
-				age2Searched = searchNodeByAge(pListAge2, age2, PATH);
-				if (age2Searched == 1 || phone1Searched == 1)
-				{
-					NODE* ptrAge = pListAge2->head.next;
-					NODE* ptrPhone = pListPhone1->head.next;
-					if (age2Searched && phone1Searched)
-					{
-						LIST* pList = (LIST*)malloc(sizeof(LIST));
-						initList(pList);
-						while (ptrAge != &pListAge2->tail)
-						{
-							if (strcmp(ptrAge->phone, ptrPhone->phone) == 0)
-							{
-								NODE* ptr = ptrAge;
-								ptrAge = ptrAge->next;
-								insertNodeAtEnd(pList, ptr->age, ptr->name, ptr->phone);
-								deleteNodeByPhone(pListPhone1, ptr->phone);
-								deleteNodeByPhone(pListAge2, ptr->phone);
-							}
-							else
-								ptrAge = ptrAge->next;
-						}
-
-						PrintList(pList);
-						PrintList(pListPhone1);
-						PrintList(pListAge2);
-						releaseList(pList);
-					}
-					else if (age2Searched)
-						PrintList(pListAge2);
-					else if (phone1Searched)
-						PrintList(pListPhone1);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
+				searchNodeByPhone(pListPhone1, phone1, PATH);
+				searchNodeByAge(pListAge2, age2, PATH);
+				combineList(pResultList, pListPhone1, pListAge2, op);
 			}
 			else if (phone1[0] != 0 && name2[0] != 0)
 			{
-				phone1Searched = searchNodeByPhone(pListPhone1, phone1, PATH);
-				name2Searched = searchNodeByName(pListName2, name2, PATH);
-				if (name2Searched == 1 || phone1Searched == 1)
-				{
-					NODE* ptrName = pListName2->head.next;
-					NODE* ptrPhone = pListPhone1->head.next;
-					if (name2Searched && phone1Searched)
-					{
-						LIST* pList = (LIST*)malloc(sizeof(LIST));
-						initList(pList);
-						while (ptrName != &pListName2->tail)
-						{
-							if (strcmp(ptrName->phone, ptrPhone->phone) == 0)
-							{
-								NODE* ptr = ptrName;
-								ptrName = ptrName->next;
-								insertNodeAtEnd(pList, ptr->age, ptr->name, ptr->phone);
-								deleteNodeByPhone(pListPhone1, ptr->phone);
-								deleteNodeByPhone(pListName2, ptr->phone);
-							}
-							else
-								ptrName = ptrName->next;
-						}
-
-						PrintList(pList);
-						PrintList(pListPhone1);
-						PrintList(pListName2);
-						releaseList(pList);
-					}
-					else if (name2Searched)
-						PrintList(pListName2);
-					else if (phone1Searched)
-						PrintList(pListPhone1);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
+				searchNodeByPhone(pListPhone1, phone1, PATH);
+				searchNodeByName(pListName2, name2, PATH);
+				combineList(pResultList, pListPhone1, pListName2, op);
 			}
 			else if (phone1[0] != 0 && phone2[0] != 0)
 			{
-				phone1Searched = searchNodeByPhone(pListPhone1, phone1, PATH);
-				phone2Searched = searchNodeByPhone(pListPhone2, phone2, PATH);
-				if (phone1Searched == 1 || phone2Searched == 1)
-				{
-					PrintList(pListPhone1);
-					PrintList(pListPhone2);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
+				searchNodeByPhone(pListPhone1, phone1, PATH);
+				searchNodeByPhone(pListPhone2, phone2, PATH);
+				combineList(pResultList, pListPhone1, pListPhone2, op);
 			}
-		}
-		else if (strcmp(op, "and") == 0 || strcmp(op, "AND") == 0)
-		{
-			if (age1 != 0 && name2[0] != 0)
-			{
-				age1Searched = searchNodeByAge(pListAge1, age1, PATH);
-				name2Searched = searchNodeByName(pListName2, name2, PATH);
 
-				if (age1Searched && name2Searched)
-				{
-					LIST* pList = (LIST*)malloc(sizeof(LIST));
-					initList(pList);
-
-					NODE* ptrAge = pListAge1->head.next;
-					while (ptrAge != &pListAge1->tail)
-					{
-						int flag = 0;
-						NODE* ptrName = pListName2->head.next;
-						while (ptrName != &pListName2->tail)
-						{
-							if (strcmp(ptrAge->phone, ptrName->phone) == 0)
-							{
-								flag = 1;
-								NODE* ptr = ptrName;
-								ptrName = ptrName->next;
-								ptrAge = ptrAge->next;
-								insertNodeAtEnd(pList, ptr->age, ptr->name, ptr->phone);
-								deleteNodeByPhone(pListAge1, ptr->phone);
-								deleteNodeByPhone(pListName2, ptr->phone);
-							}
-							else
-								ptrName = ptrName->next;
-						}
-						if (!flag)
-							ptrAge = ptrAge->next;
-
-					}
-
-					if (!isEmpty(pList))
-						PrintList(pList);
-					else
-						printf("No matching record found.\n");
-
-					releaseList(pList);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
-
-			}
-			else if (age1 != 0 && phone2[0] != 0)
-			{
-				age1Searched = searchNodeByAge(pListAge1, age1, PATH);
-				phone2Searched = searchNodeByPhone(pListPhone2, phone2, PATH);
-
-				NODE* ptrAge = pListAge1->head.next;
-				NODE* ptrPhone = pListPhone2->head.next;
-				if (age1Searched && phone2Searched)
-				{
-					LIST* pList = (LIST*)malloc(sizeof(LIST));
-					initList(pList);
-					while (ptrAge != &pListAge1->tail)
-					{
-						if (strcmp(ptrAge->phone, ptrPhone->phone) == 0)
-						{
-							NODE* ptr = ptrAge;
-							ptrAge = ptrAge->next;
-							insertNodeAtEnd(pList, ptr->age, ptr->name, ptr->phone);
-							deleteNodeByPhone(pListPhone2, ptr->phone);
-							deleteNodeByPhone(pListAge1, ptr->phone);
-						}
-						else
-							ptrAge = ptrAge->next;
-					}
-
-					if (!isEmpty(pList))
-						PrintList(pList);
-					else
-						printf("No matching record found.\n");
-					releaseList(pList);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
-			}
-			else if (name1[0] != 0 && age2 != 0)
-			{
-				age2Searched = searchNodeByAge(pListAge2, age2, PATH);
-				name1Searched = searchNodeByName(pListName1, name1, PATH);
-				if (age2Searched && name1Searched)
-				{
-					LIST* pList = (LIST*)malloc(sizeof(LIST));
-					initList(pList);
-
-					NODE* ptrAge = pListAge2->head.next;
-					while (ptrAge != &pListAge2->tail)
-					{
-						int flag = 0;
-						NODE* ptrName = pListName1->head.next;
-						while (ptrName != &pListName1->tail)
-						{
-							if (strcmp(ptrAge->phone, ptrName->phone) == 0)
-							{
-								flag = 1;
-								NODE* ptr = ptrName;
-								ptrName = ptrName->next;
-								ptrAge = ptrAge->next;
-								insertNodeAtEnd(pList, ptr->age, ptr->name, ptr->phone);
-								deleteNodeByPhone(pListAge2, ptr->phone);
-								deleteNodeByPhone(pListName1, ptr->phone);
-							}
-							else
-								ptrName = ptrName->next;
-						}
-
-						if (!flag)
-							ptrAge = ptrAge->next;
-					}
-
-					if (!isEmpty(pList))
-						PrintList(pList);
-					else
-						printf("No matching record found.\n");
-					releaseList(pList);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
-			}
-			else if (name1[0] != 0 && phone2[0] != 0)
-			{
-				name1Searched = searchNodeByName(pListName1, name1, PATH);
-				phone2Searched = searchNodeByPhone(pListPhone2, phone2, PATH);
-
-				NODE* ptrName = pListName1->head.next;
-				NODE* ptrPhone = pListPhone2->head.next;
-				if (name1Searched && phone2Searched)
-				{
-					LIST* pList = (LIST*)malloc(sizeof(LIST));
-					initList(pList);
-					while (ptrName != &pListName1->tail)
-					{
-						if (strcmp(ptrName->phone, ptrPhone->phone) == 0)
-						{
-							NODE* ptr = ptrName;
-							ptrName = ptrName->next;
-							insertNodeAtEnd(pList, ptr->age, ptr->name, ptr->phone);
-							deleteNodeByPhone(pListPhone2, ptr->phone);
-							deleteNodeByPhone(pListName1, ptr->phone);
-						}
-						else
-							ptrName = ptrName->next;
-					}
-
-					if (!isEmpty(pList))
-						PrintList(pList);
-					else
-						printf("No matching record found.\n");
-					releaseList(pList);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
-			}
-			else if (phone1[0] != 0 && age2 != 0)
-			{
-				age2Searched = searchNodeByAge(pListAge2, age2, PATH);
-				phone1Searched = searchNodeByPhone(pListPhone1, phone1, PATH);
-
-				NODE* ptrAge = pListAge2->head.next;
-				NODE* ptrPhone = pListPhone1->head.next;
-				if (age2Searched && phone1Searched)
-				{
-					LIST* pList = (LIST*)malloc(sizeof(LIST));
-					initList(pList);
-					while (ptrAge != &pListAge2->tail)
-					{
-						if (strcmp(ptrAge->phone, ptrPhone->phone) == 0)
-						{
-							NODE* ptr = ptrAge;
-							ptrAge = ptrAge->next;
-							insertNodeAtEnd(pList, ptr->age, ptr->name, ptr->phone);
-							deleteNodeByPhone(pListPhone1, ptr->phone);
-							deleteNodeByPhone(pListAge2, ptr->phone);
-						}
-						else
-							ptrAge = ptrAge->next;
-					}
-
-					if (!isEmpty(pList))
-						PrintList(pList);
-					else
-						printf("No matching record found.\n");
-					releaseList(pList);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
-			}
-			else if (phone1[0] != 0 && name2[0] != 0)
-			{
-				name2Searched = searchNodeByName(pListName2, name2, PATH);
-				phone1Searched = searchNodeByPhone(pListPhone1, phone1, PATH);
-
-				NODE* ptrName = pListName2->head.next;
-				NODE* ptrPhone = pListPhone1->head.next;
-				if (name2Searched && phone1Searched)
-				{
-					LIST* pList = (LIST*)malloc(sizeof(LIST));
-					initList(pList);
-					while (ptrName != &pListName2->tail)
-					{
-						if (strcmp(ptrName->phone, ptrPhone->phone) == 0)
-						{
-							NODE* ptr = ptrName;
-							ptrName = ptrName->next;
-							insertNodeAtEnd(pList, ptr->age, ptr->name, ptr->phone);
-							deleteNodeByPhone(pListPhone1, ptr->phone);
-							deleteNodeByPhone(pListName2, ptr->phone);
-						}
-						else
-							ptrName = ptrName->next;
-					}
-
-					if (!isEmpty(pList))
-						PrintList(pList);
-					else
-						printf("No matching record found.\n");
-					releaseList(pList);
-				}
-				else
-				{
-					printf("No matching record found.\n");
-				}
-			}
+			if (!isEmpty(pResultList))
+				PrintList(pResultList);
 			else
 			{
 				printf("No matching record found.\n");
+				_getch();
 			}
+
+			releaseList(pResultList);
+			free(pResultList);
 		}
 		else
-		{
-			printf("Invalid operator.\n");
-			return 0;
-		}
-	}
+			printf("Input failed: Invalid operator.\n");
 
-	releaseList(pListAge1);
-	releaseList(pListAge2);
-	releaseList(pListName1);
-	releaseList(pListName2);
-	releaseList(pListPhone1);
-	releaseList(pListPhone2);
+		releaseList(pListAge1);
+		releaseList(pListAge2);
+		releaseList(pListName1);
+		releaseList(pListName2);
+		releaseList(pListPhone1);
+		releaseList(pListPhone2);
+		free(pListAge1);
+		free(pListAge2);
+		free(pListName1);
+		free(pListName2);
+		free(pListPhone1);
+		free(pListPhone2);
+		putchar('\n');
+	}
+	else
+	{
+		_getch();
+		return 0;
+	}
 	return 1;
 }
 
@@ -1555,9 +1181,8 @@ int EditNode(const char* PATH)
 	return 1;
 }
 
-int ExitMenu(void)
+int ExitMenu(const char* PATH)
 {
-	printf("Exit.\n");
 	return 1;
 }
 
@@ -1567,11 +1192,11 @@ OPTION PrintMenu(void)
 	while (1)
 	{
 		system("cls");
-		printf("[1] Insert [2] Delete [3] Search [4] Edit [0] Exit\n");
+		printf("[1] Print [2] Insert [3] Delete [4] Search [5] Edit [0] Exit\n");
 		printf("Enter the number: ");
 		val = getchar() - '0';
 		while (getchar() != '\n');	// clear input buffer
-		if (val <= EDIT && val >= EXIT)
+		if (val <= UI_FUNC_COUNT && val >= EXIT)
 			break;
 
 		printf("Enter valid number\n");
@@ -1636,6 +1261,20 @@ int insertNodeAtEnd(LIST* pL, const int age, const char* name, const char* phone
 	pL->tail.prev = newNode;
 
 	return 1;
+}
+
+int searchNodeByPhoneFromList(LIST* pL, const char* phone)
+{
+	NODE* ptr = pL->head.next;
+	while (ptr != &pL->tail)
+	{
+		if (strcmp(ptr->phone, phone) == 0)
+			return 1;
+
+		ptr = ptr->next;
+	}
+
+	return 0;
 }
 
 int searchNodeByPhone(LIST* pL, const char* phone, const char* path)
@@ -1897,14 +1536,39 @@ void PrintList(LIST* pL)
 	if (isEmpty(pL))
 		return;
 
-	NODE* ptr = pL->head.next;
-	while (ptr != &pL->tail)
+	char ch = 0;
+	int pageNumber = 0;
+	int isEnd = 0;
+	NODE* ptr = pL->head.next; 
+	do
 	{
-		printf("[%p] %3d - %-5s - %s [%p]\n", ptr,
-			ptr->age, ptr->name, ptr->phone,
-			ptr->next);
-		ptr = ptr->next;
-	}
+		pageNumber++;
+		printf("\nPage #%d:\n", pageNumber);
+		for (int i = 0; i < RECORDS_PER_PAGE; i++)
+		{
+			if (ptr == &pL->tail)
+			{
+				isEnd = 1;
+				break;
+			}
+
+			printf("[%p] %3d - %-5s - %s [%p]\n", ptr, ptr->age, ptr->name, ptr->phone,	ptr->next);
+			ptr = ptr->next;
+		}
+
+		printf("************************************************\n");
+		if (isEnd)
+		{
+			printf("\nEnd of file: Press any key to exit.\n");
+			break;
+		}
+		else
+			printf("\nPress any key to continue (or 'q' to exit) : ");
+		ch = getchar();
+	} while (ch != 'q' && ch != 'Q');
+	_getch();
+
+	return;
 }
 
 int saveListToFile(LIST* pL, const char* path)
@@ -1959,4 +1623,3 @@ void releaseList(LIST* pL)
 		free(del);
 	}
 }
-
