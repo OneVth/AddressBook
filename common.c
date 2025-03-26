@@ -10,7 +10,7 @@ void ClearInputBuffer(void)
 	while ((ch = getchar()) != '\n');
 }
 
-int IsAllDigit(const char* str)
+int Str_IsAllDigit(const char* str)
 {
 	if (*str == '\0')
 		return 0;
@@ -24,7 +24,7 @@ int IsAllDigit(const char* str)
 	return 1;
 }
 
-int IsAllAlpha(const char* str)
+int Str_IsAllAlpha(const char* str)
 {
 	if (*str == '\0')
 		return 0;
@@ -38,7 +38,7 @@ int IsAllAlpha(const char* str)
 	return 1;
 }
 
-int IsPhoneFormat(const char* str)
+int Str_IsPhoneFormat(const char* str)
 {
 	if (*str == '\0')
 		return 0;
@@ -46,7 +46,74 @@ int IsPhoneFormat(const char* str)
 	return ((strlen(str) == 13) && (str[3] == '-') && (str[8] == '-') ? 1 : 0);
 }
 
-void InitList(LIST* pL)
+int ConvertInputToSearchString(const char* str, int* age, char* name, char* phone)
+{
+	if (Str_IsAllDigit(str))
+	{
+		*age = atoi(str);
+		if (*age < 0 || *age > MAXAGE)
+			return 0;
+	}
+	else
+	{
+		if (Str_IsAllAlpha(str))
+			strcpy_s(name, MAX_NAME_LEN, str);
+		else if (Str_IsPhoneFormat(str))
+			strcpy_s(phone, MAX_PHONE_LEN, str);
+		else
+			return 0;
+	}
+	return 1;
+}
+
+int ParseSearchInput(const char* input, char temp1[], char temp2[], char op[])
+{
+	int i = 0;
+	const char* ch = input;
+	while (*ch != '\0')
+	{
+		if (*ch == ' ')
+		{
+			ch++;
+			break;
+		}
+		temp1[i++] = *ch;
+		ch++;
+	}
+	temp1[i] = '\0';
+
+	i = 0;
+	while (*ch != '\0')
+	{
+		if (*ch == ' ')
+		{
+			ch++;
+			break;
+		}
+
+		op[i++] = *ch;
+		ch++;
+	}
+	op[i] = '\0';
+
+	i = 0;
+	while (*ch != '\0')
+	{
+		temp2[i++] = *ch;
+		ch++;
+	}
+	temp2[i] = '\0';
+
+	if ((temp1[0] != 0 && op[0] == 0 && temp2[0] == 0) ||
+		(temp1[0] != 0 && op[0] != 0 && temp2[0] != 0))
+	{
+		return 1;
+	}
+	else
+		return 0;
+}
+
+void List_Init(LIST* pL)
 {
 	pL->head.next = &pL->tail;
 	pL->head.prev = NULL;
@@ -54,9 +121,9 @@ void InitList(LIST* pL)
 	pL->tail.prev = &pL->head;
 }
 
-void ReleaseList(LIST* pL)
+void List_Release(LIST* pL)
 {
-	if (IsEmpty(pL))
+	if (List_IsEmpty(pL))
 		return;
 
 	NODE* ptr = pL->head.next;
@@ -68,7 +135,7 @@ void ReleaseList(LIST* pL)
 	}
 }
 
-int IsEmpty(LIST* pL)
+int List_IsEmpty(LIST* pL)
 {
 	if (pL->head.next == &pL->tail)
 		return 1;
@@ -76,7 +143,7 @@ int IsEmpty(LIST* pL)
 	return 0;
 }
 
-int InsertNodeAtBeg(LIST* pL, const int age, const char* name, const char* phone)
+int List_InsertAtBeg(LIST* pL, const int age, const char* name, const char* phone)
 {
 	if (pL == NULL)
 		return 0;
@@ -97,7 +164,7 @@ int InsertNodeAtBeg(LIST* pL, const int age, const char* name, const char* phone
 	return 1;
 }
 
-int InsertNodeAtEnd(LIST* pL, const int age, const char* name, const char* phone)
+int List_InsertAtEnd(LIST* pL, const int age, const char* name, const char* phone)
 {
 	if (pL == NULL)
 		return 0;
@@ -118,9 +185,9 @@ int InsertNodeAtEnd(LIST* pL, const int age, const char* name, const char* phone
 	return 1;
 }
 
-int DeleteNodeAtEnd(LIST* pL)
+int List_DeleteAtEnd(LIST* pL)
 {
-	if (IsEmpty(pL))
+	if (List_IsEmpty(pL))
 		return 0;
 
 	NODE* ptr = pL->tail.prev;
@@ -131,9 +198,9 @@ int DeleteNodeAtEnd(LIST* pL)
 	return 1;
 }
 
-int DeleteNodeAtBeg(LIST* pL)
+int List_DeleteAtBeg(LIST* pL)
 {
-	if (IsEmpty(pL))
+	if (List_IsEmpty(pL))
 		return 0;
 
 	NODE* ptr = pL->head.next;
@@ -144,9 +211,9 @@ int DeleteNodeAtBeg(LIST* pL)
 	return 1;
 }
 
-int DeleteNodeByPhone(LIST* pL, const char* phone)
+int List_DeleteByPhone(LIST* pL, const char* phone)
 {
-	if (IsEmpty(pL))
+	if (List_IsEmpty(pL))
 		return 0;
 
 	NODE* ptr = pL->head.next;
@@ -164,7 +231,7 @@ int DeleteNodeByPhone(LIST* pL, const char* phone)
 	return 0;
 }
 
-int HasPhoneInList(LIST* pL, const char* phone)
+int List_HasPhone(LIST* pL, const char* phone)
 {
 	NODE* ptr = pL->head.next;
 	while (ptr != &pL->tail)
@@ -178,7 +245,7 @@ int HasPhoneInList(LIST* pL, const char* phone)
 	return 0;
 }
 
-int CombineList(LIST* pResultList, LIST* pList1, LIST* pList2, const char* op)
+int List_CombineByOp(LIST* pResultList, LIST* pList1, LIST* pList2, const char* op)
 {
 	NODE* ptr1 = pList1->head.next;
 	NODE* ptr2 = pList2->head.next;
@@ -187,15 +254,15 @@ int CombineList(LIST* pResultList, LIST* pList1, LIST* pList2, const char* op)
 	{
 		while (ptr1 != &pList1->tail)
 		{
-			InsertNodeAtEnd(pResultList, ptr1->age, ptr1->name, ptr1->phone);
+			List_InsertAtEnd(pResultList, ptr1->age, ptr1->name, ptr1->phone);
 			ptr1 = ptr1->next;
 		}
 
 		while (ptr2 != &pList2->tail)
 		{
-			if (!HasPhoneInList(pResultList, ptr2->phone))
+			if (!List_HasPhone(pResultList, ptr2->phone))
 			{
-				InsertNodeAtEnd(pResultList, ptr2->age, ptr2->name, ptr2->phone);
+				List_InsertAtEnd(pResultList, ptr2->age, ptr2->name, ptr2->phone);
 			}
 			ptr2 = ptr2->next;
 		}
@@ -204,9 +271,9 @@ int CombineList(LIST* pResultList, LIST* pList1, LIST* pList2, const char* op)
 	{
 		while (ptr1 != &pList1->tail)
 		{
-			if (HasPhoneInList(pList2, ptr1->phone))
+			if (List_HasPhone(pList2, ptr1->phone))
 			{
-				InsertNodeAtEnd(pResultList, ptr1->age, ptr1->name, ptr1->phone);
+				List_InsertAtEnd(pResultList, ptr1->age, ptr1->name, ptr1->phone);
 			}
 			ptr1 = ptr1->next;
 		}
@@ -218,3 +285,4 @@ int CombineList(LIST* pResultList, LIST* pList1, LIST* pList2, const char* op)
 
 	return 1;
 }
+

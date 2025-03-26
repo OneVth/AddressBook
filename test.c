@@ -6,24 +6,30 @@
 #include "ui.h"
 #include "test.h"
 
-void CreateTestFile(void)
+void Test_List_InsertAtEnd(void)
+{
+
+	return;
+}
+
+void Test_CreateFile(void)
 {
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	InitList(pList);
+	List_Init(pList);
 
-	InsertNodeAtEnd(pList, 10, "Kim", "010-0000-0000");
-	InsertNodeAtEnd(pList, 11, "Kim", "010-0000-0001");
-	InsertNodeAtEnd(pList, 12, "Kim", "010-0000-0002");
-	InsertNodeAtEnd(pList, 13, "Kim", "010-0000-0003");
-	InsertNodeAtEnd(pList, 14, "Lee", "010-0000-0004");
-	InsertNodeAtEnd(pList, 15, "Lee", "010-0000-0005");
-	InsertNodeAtEnd(pList, 16, "Park", "010-0000-0006");
-	InsertNodeAtEnd(pList, 17, "Jung", "010-0000-0007");
-	InsertNodeAtEnd(pList, 18, "Hwang", "010-0000-0008");
-	InsertNodeAtEnd(pList, 19, "Sung", "010-0000-0009");
-	InsertNodeAtEnd(pList, 20, "Kim", "010-0000-0010");
-	InsertNodeAtEnd(pList, 20, "Lee", "010-0000-0011");
-	InsertNodeAtEnd(pList, 20, "Park", "010-0000-0012");
+	List_InsertAtEnd(pList, 10, "Kim", "010-0000-0000");
+	List_InsertAtEnd(pList, 11, "Kim", "010-0000-0001");
+	List_InsertAtEnd(pList, 12, "Kim", "010-0000-0002");
+	List_InsertAtEnd(pList, 13, "Kim", "010-0000-0003");
+	List_InsertAtEnd(pList, 14, "Lee", "010-0000-0004");
+	List_InsertAtEnd(pList, 15, "Lee", "010-0000-0005");
+	List_InsertAtEnd(pList, 16, "Park", "010-0000-0006");
+	List_InsertAtEnd(pList, 17, "Jung", "010-0000-0007");
+	List_InsertAtEnd(pList, 18, "Hwang", "010-0000-0008");
+	List_InsertAtEnd(pList, 19, "Sung", "010-0000-0009");
+	List_InsertAtEnd(pList, 20, "Kim", "010-0000-0010");
+	List_InsertAtEnd(pList, 20, "Lee", "010-0000-0011");
+	List_InsertAtEnd(pList, 20, "Park", "010-0000-0012");
 
 	printf("Test file *********************\n");
 
@@ -32,6 +38,7 @@ void CreateTestFile(void)
 	if (fp == NULL)
 	{
 		printf("Failed to open file.\n");
+		return;
 	}
 
 	NODE* ptr = pList->head.next;
@@ -41,19 +48,22 @@ void CreateTestFile(void)
 		fwrite(ptr, sizeof(NODE), 1, fp);
 		ptr = ptr->next;
 	}
-	ReleaseList(pList);
+
+	List_Release(pList);
 	fclose(fp);
 	printf("*******************************\n\n");
+	return;
 }
 
-void ReadTestFile(void)
+void Test_ReadFile(void)
 {
-	printf("\nReadTestFile() ***************\n");
+	printf("ReadTestFile() ***************\n");
 	FILE* fp = NULL;
 	fopen_s(&fp, FILE_PATH_TEST, "rb");
 	if (fp == NULL)
 	{
 		printf("Failed to open file.\n");
+		return;
 	}
 
 	NODE* temp = (NODE*)malloc(sizeof(NODE));
@@ -66,96 +76,105 @@ void ReadTestFile(void)
 	free(temp);
 	fclose(fp);
 	printf("*******************************\n\n");
+	return;
 }
 
-void TestControlFunc(void)
+void Test_ListFunctions(void)
 {
-	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	InitList(pList);
+	LIST* pList1 = (LIST*)malloc(sizeof(LIST));
+	LIST* pList2 = (LIST*)malloc(sizeof(LIST));
+	LIST* pList3 = (LIST*)malloc(sizeof(LIST));
+	LIST* pList4 = (LIST*)malloc(sizeof(LIST));
+	List_Init(pList1);
+	List_Init(pList2);
+	List_Init(pList3);
+	List_Init(pList4);
 
-	InsertNodeAtEnd(pList, 10, "Kim", "010-0000-0000");
-	InsertNodeAtEnd(pList, 11, "Kim", "010-0000-0001");
-	InsertNodeAtEnd(pList, 12, "Kim", "010-0000-0002");
-	InsertNodeAtEnd(pList, 13, "Kim", "010-0000-0003");
-	InsertNodeAtEnd(pList, 14, "Lee", "010-0000-0004");
-	InsertNodeAtEnd(pList, 15, "Lee", "010-0000-0005");
-	InsertNodeAtEnd(pList, 16, "Park", "010-0000-0006");
-	InsertNodeAtEnd(pList, 17, "Jung", "010-0000-0007");
-	InsertNodeAtEnd(pList, 18, "Hwang", "010-0000-0008");
-	InsertNodeAtEnd(pList, 19, "Sung", "010-0000-0009");
+	printf("Print before insertion:\n");
+	UI_PrintList(pList1);
+	printf("\nList_IsEmpty(List1): %d\n", List_IsEmpty(pList1));
+	printf("List_HasPhone(%s): %d\n", "010-0000-0000", List_HasPhone(pList1, "010-0000-0000"));
 
-	/*InsertNodeAtBeg(pList, 10, "Kim", "010-0000-0000");
-	InsertNodeAtBeg(pList, 11, "Kim", "010-0000-0001");
-	InsertNodeAtBeg(pList, 12, "Kim", "010-0000-0002");
-	InsertNodeAtBeg(pList, 13, "Kim", "010-0000-0003");
-	InsertNodeAtBeg(pList, 14, "Lee", "010-0000-0004");
-	InsertNodeAtBeg(pList, 15, "Lee", "010-0000-0005");
-	InsertNodeAtBeg(pList, 16, "Park", "010-0000-0006");
-	InsertNodeAtBeg(pList, 17, "Jung", "010-0000-0007");
-	InsertNodeAtBeg(pList, 18, "Hwang", "010-0000-0008");
-	InsertNodeAtBeg(pList, 19, "Sung", "010-0000-0009");*/
-	printf("Before ----------------------------------------------------------\n");
-	PrintList(pList);
-	printf("-----------------------------------------------------------------\n");
+	List_InsertAtBeg(pList1, 10, "Kim", "010-0000-0000");
+	List_InsertAtBeg(pList1, 11, "Kim", "010-0000-0001");
+	List_InsertAtBeg(pList1, 12, "Kim", "010-0000-0002");
 
-	DeleteNodeAtBeg(pList);
-	DeleteNodeAtBeg(pList);
-	DeleteNodeAtBeg(pList);
-	DeleteNodeAtBeg(pList);
-	DeleteNodeAtBeg(pList);
-	DeleteNodeAtBeg(pList);
-	DeleteNodeAtBeg(pList);
-	DeleteNodeAtBeg(pList);
-	DeleteNodeAtBeg(pList);
-	DeleteNodeAtBeg(pList);
+	List_InsertAtEnd(pList2, 10, "Kim", "010-0000-0000");
+	List_InsertAtEnd(pList2, 13, "Lee", "010-0000-0003");
+	List_InsertAtEnd(pList2, 14, "Lee", "010-0000-0004");
 
-	/*DeleteNodeAtEnd(pList);
-	DeleteNodeAtEnd(pList);
-	DeleteNodeAtEnd(pList);
-	DeleteNodeAtEnd(pList);
-	DeleteNodeAtEnd(pList);
-	DeleteNodeAtEnd(pList);
-	DeleteNodeAtEnd(pList);
-	DeleteNodeAtEnd(pList);
-	DeleteNodeAtEnd(pList);
-	DeleteNodeAtEnd(pList);*/
+	printf("\nPrint List1 after insertion:\n");
+	UI_PrintList(pList1);
 
-	InsertNodeAtEnd(pList, 10, "Kim", "010-0000-0000");
-	InsertNodeAtEnd(pList, 11, "Kim", "010-0000-0001");
-	InsertNodeAtEnd(pList, 12, "Kim", "010-0000-0002");
-	InsertNodeAtEnd(pList, 13, "Kim", "010-0000-0003");
-	InsertNodeAtEnd(pList, 14, "Lee", "010-0000-0004");
-	InsertNodeAtEnd(pList, 15, "Lee", "010-0000-0005");
-	InsertNodeAtEnd(pList, 16, "Park", "010-0000-0006");
-	InsertNodeAtEnd(pList, 17, "Jung", "010-0000-0007");
-	InsertNodeAtEnd(pList, 18, "Hwang", "010-0000-0008");
-	InsertNodeAtEnd(pList, 19, "Sung", "010-0000-0009");
+	printf("\nPrint List2 after insertion:\n");
+	UI_PrintList(pList2);
+	printf("\nList_IsEmpty(List1): %d\n", List_IsEmpty(pList1));
+	printf("List_HasPhone(%s): %d\n", "010-0000-0000", List_HasPhone(pList1, "010-0000-0000"));
 
-	/*InsertNodeAtBeg(pList, 10, "Kim", "010-0000-0000");
-	InsertNodeAtBeg(pList, 12, "Kim", "010-0000-0001");
-	InsertNodeAtBeg(pList, 11, "Kim", "010-0000-0002");
-	InsertNodeAtBeg(pList, 13, "Kim", "010-0000-0003");
-	InsertNodeAtBeg(pList, 14, "Lee", "010-0000-0004");
-	InsertNodeAtBeg(pList, 15, "Lee", "010-0000-0005");
-	InsertNodeAtBeg(pList, 16, "Park", "010-0000-0006");
-	InsertNodeAtBeg(pList, 17, "Jung", "010-0000-0007");
-	InsertNodeAtBeg(pList, 18, "Hwang", "010-0000-0008");
-	InsertNodeAtBeg(pList, 19, "Sung", "010-0000-0009");*/
+	printf("\nCombine List1 with List2 into List3 by \"AND\" operator:\n");
+	List_CombineByOp(pList3, pList1, pList2, "AND");
+	UI_PrintList(pList3);
 
-	printf("After -----------------------------------------------------------\n");
-	PrintList(pList);
-	printf("-----------------------------------------------------------------\n");
+	printf("\nRelease List3:\n");
+	List_Release(pList3);
+	List_Init(pList3);
+	printf("List_IsEmpty(List3): %d\n", List_IsEmpty(pList3));
 
-	ReleaseList(pList);
-	free(pList);
+	printf("\nCombine List1 with List2 into List3 by \"and\" operator:\n");
+	List_CombineByOp(pList3, pList1, pList2, "and");
+	UI_PrintList(pList3);
+
+	printf("\nCombine List1 with List2 into List4 by \"OR\" operator:\n");
+	List_CombineByOp(pList4, pList1, pList2, "OR");
+	UI_PrintList(pList4);
+
+	printf("\nRelease List4:\n");
+	List_Release(pList4);
+	List_Init(pList4);
+	printf("List_IsEmpty(List4): %d\n", List_IsEmpty(pList4));
+
+	printf("\nCombine List1 with List2 into List4 by \"or\" operator:\n");
+	List_CombineByOp(pList4, pList1, pList2, "or");
+	UI_PrintList(pList4);
+
+	for (int i = 0; i < 3; i++)
+	{
+		List_DeleteAtBeg(pList1);
+		printf("\nPrint after %d deletion node at begin of list:\n", i + 1);
+		UI_PrintList(pList1);
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		List_DeleteAtEnd(pList2);
+		printf("\nPrint after %d deletion node at end of list:\n", i + 1);
+		UI_PrintList(pList2);
+	}
+
+	printf("\nBefore delettion of node phone number \"%s\" at List3:\n", "010-0000-0000");
+	UI_PrintList(pList3);
+
+	List_DeleteByPhone(pList3, "010-0000-0000");
+	printf("After delettion of node phone number \"%s\" at List3:\n", "010-0000-0000");
+	UI_PrintList(pList3);
+
+	List_Release(pList1);
+	List_Release(pList2);
+	List_Release(pList3);
+	List_Release(pList4);
+	free(pList1);
+	free(pList2);
+	free(pList3);
+	free(pList4);
+	return;
 }
 
-void TestSearchFunc(void)
+void Test_SearchFunctions(void)
 {
-	CreateTestFile();
+	Test_CreateFile();
 
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	InitList(pList);
+	List_Init(pList);
 
 	NODE* ptr = (NODE*)malloc(sizeof(NODE));
 	ptr->age = 15;
@@ -175,12 +194,12 @@ void TestSearchFunc(void)
 	{
 		printf("Not Found\n");
 	}
-	ReleaseList(pList);
+	List_Release(pList);
 	printf("***********************************\n\n");
 
 
 	// Test search by name ----------------------------------------------------
-	InitList(pList);
+	List_Init(pList);
 
 	printf("Search by name ********************\n");
 	printf("Origin: %2d [%s] %s\n", ptr->age, ptr->name, ptr->phone);
@@ -197,11 +216,11 @@ void TestSearchFunc(void)
 	{
 		printf("Not Found\n");
 	}
-	ReleaseList(pList);
+	List_Release(pList);
 	printf("***********************************\n\n");
 
 	// Test search by age ----------------------------------------------------
-	InitList(pList);
+	List_Init(pList);
 	printf("Search by age *********************\n");
 	printf("Origin: [%2d] %s %s\n", ptr->age, ptr->name, ptr->phone);
 	if (LoadNodeFromFileByAge(pList, ptr->age, FILE_PATH_TEST))
@@ -217,41 +236,41 @@ void TestSearchFunc(void)
 	{
 		printf("Not Found\n");
 	}
-	ReleaseList(pList);
+	List_Release(pList);
 	printf("***********************************\n\n");
 
 	free(ptr);
 	free(pList);
 }
 
-void TestFileIOFunc(void)
+void Test_FileIOFunctions(void)
 {
-	CreateTestFile();
+	Test_CreateFile();
 
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	InitList(pList);
+	List_Init(pList);
 
 	// don't exist
-	InsertNodeAtEnd(pList, 20, "Park", "010-0001-0000");
-	InsertNodeAtEnd(pList, 21, "Park", "010-0002-0000");
-	InsertNodeAtEnd(pList, 22, "Park", "010-0003-0000");
+	List_InsertAtEnd(pList, 20, "Park", "010-0001-0000");
+	List_InsertAtEnd(pList, 21, "Park", "010-0002-0000");
+	List_InsertAtEnd(pList, 22, "Park", "010-0003-0000");
 
 	// already exist
-	InsertNodeAtEnd(pList, 13, "Kim", "010-0000-0003");
-	InsertNodeAtEnd(pList, 14, "Lee", "010-0000-0004");
-	InsertNodeAtEnd(pList, 15, "Lee", "010-0000-0005");
+	List_InsertAtEnd(pList, 13, "Kim", "010-0000-0003");
+	List_InsertAtEnd(pList, 14, "Lee", "010-0000-0004");
+	List_InsertAtEnd(pList, 15, "Lee", "010-0000-0005");
 
 	SaveListToFile(pList, FILE_PATH_TEST);
 	free(pList);
 
 	printf("Test: file IO function ********\n");
-	ReadTestFile();
+	Test_ReadFile();
 	printf("*******************************\n\n");
 }
 
-void TestEditFunc(void)
+void Test_EditFunctions(void)
 {
-	CreateTestFile();
+	Test_CreateFile();
 
 	NODE* temp = (NODE*)malloc(sizeof(NODE));
 	temp->next = NULL;
@@ -261,22 +280,22 @@ void TestEditFunc(void)
 	strcpy_s(temp->phone, sizeof(temp->phone), "010-0000-0003");
 
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	InitList(pList);
+	List_Init(pList);
 	LoadNodeFromFileByPhone(pList, temp->phone, FILE_PATH_TEST);
 	EditNodeFromFileByAge(pList->head.next, 93, FILE_PATH_TEST);
 	EditNodeFromFileByName(pList->head.next, "Test", FILE_PATH_TEST);
 	EditNodeFromFileByPhone(pList->head.next, "010-1234-5678", FILE_PATH_TEST);
-	ReleaseList(pList);
+	List_Release(pList);
 	free(temp);
 
 	printf("Test: edit function ***********\n");
-	ReadTestFile();
+	Test_ReadFile();
 	printf("*******************************\n\n");
 }
 
-void TestUIFunc(void)
+void Test_UIFunctions(void)
 {
-	CreateTestFile();
+	Test_CreateFile();
 	//InsertNode(FILE_PATH_TEST);
 	//EditNode(FILE_PATH_TEST);
 	//DeleteNode(FILE_PATH_TEST);
@@ -360,12 +379,13 @@ void TestUIFunc(void)
 	};
 
 	int testStringCount = sizeof(testCases) / sizeof(testCases[0]);
+	LIST* pSearched = (LIST*)malloc(sizeof(LIST));
 	for (int i = 0; i < testStringCount; i++)
 	{
-		SearchNode(testCases[i], FILE_PATH_TEST);
+		SearchNode(pSearched, testCases[i], FILE_PATH_TEST);
 	}
 
 	//UI_PrintAll(FILE_PATH_TEST);
 
-	ReadTestFile();
+	Test_ReadFile();
 }

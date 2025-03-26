@@ -19,18 +19,28 @@ typedef struct {
 	NODE tail;
 } LIST;
 
-void ClearInputBuffer(void);
-int IsAllDigit(const char* str);
-int IsAllAlpha(const char* str);
-int IsPhoneFormat(const char* str);
+// Util functions *******************************************
 
-void InitList(LIST* pL);
-void ReleaseList(LIST* pL);
-int IsEmpty(LIST* pL);
-int InsertNodeAtBeg(LIST* pL, const int age, const char* name, const char* phone);
-int InsertNodeAtEnd(LIST* pL, const int age, const char* name, const char* phone);
-int DeleteNodeAtEnd(LIST* pL);
-int DeleteNodeAtBeg(LIST* pL);
-int DeleteNodeByPhone(LIST* pL, const char* phone);
-int HasPhoneInList(LIST* pL, const char* phone);
-int CombineList(LIST* pResultList, LIST* pList1, LIST* pList2, const char* op);
+void ClearInputBuffer(void);
+int Str_IsAllDigit(const char* str);
+int Str_IsAllAlpha(const char* str);
+int Str_IsPhoneFormat(const char* str);
+
+// These below functions are utility helpers used primarily by UI input parsing.
+// They assume input of the form: [str] [AND/OR] [str]
+
+int ConvertInputToSearchString(const char* str, int* age, char* name, char* phone);
+int ParseSearchInput(const char* input, char temp1[], char temp2[], char op[]);
+
+// Data structure functions *******************************************
+
+void List_Init(LIST* pL);
+void List_Release(LIST* pL);
+int List_IsEmpty(LIST* pL);
+int List_InsertAtBeg(LIST* pL, const int age, const char* name, const char* phone);
+int List_InsertAtEnd(LIST* pL, const int age, const char* name, const char* phone);
+int List_DeleteAtEnd(LIST* pL);
+int List_DeleteAtBeg(LIST* pL);
+int List_DeleteByPhone(LIST* pL, const char* phone);
+int List_HasPhone(LIST* pL, const char* phone);
+int List_CombineByOp(LIST* pResultList, LIST* pList1, LIST* pList2, const char* op);

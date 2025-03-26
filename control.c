@@ -19,7 +19,7 @@ int LoadNodeFromFileByPhone(LIST* pL, const char* phone, const char* path)
 	{
 		if (strcmp(phone, temp->phone) == 0)
 		{
-			InsertNodeAtEnd(pL, temp->age, temp->name, temp->phone);
+			List_InsertAtEnd(pL, temp->age, temp->name, temp->phone);
 			fclose(fp);
 			return 1;
 		}
@@ -48,7 +48,7 @@ int LoadNodeFromFileByName(LIST* pL, const char* name, const char* path)
 		if (strcmp(name, temp->name) == 0)
 		{
 			flag = 1;
-			InsertNodeAtEnd(pL, temp->age, temp->name, temp->phone);
+			List_InsertAtEnd(pL, temp->age, temp->name, temp->phone);
 		}
 	}
 
@@ -75,7 +75,7 @@ int LoadNodeFromFileByAge(LIST* pL, const int age, const char* path)
 		if (age == temp->age)
 		{
 			flag = 1;
-			InsertNodeAtEnd(pL, temp->age, temp->name, temp->phone);
+			List_InsertAtEnd(pL, temp->age, temp->name, temp->phone);
 		}
 	}
 
@@ -212,9 +212,129 @@ int DeleteNodeFromFile(const char* phone, const char* path)
 	return 1;
 }
 
+ERR_SEARCH SearchNode(LIST* pResult, const char* input, const char* PATH)
+{
+	int age1 = 0;
+	int age2 = 0;
+	char name1[MAX_NAME_LEN] = { 0 };
+	char name2[MAX_NAME_LEN] = { 0 };
+	char phone1[MAX_PHONE_LEN] = { 0 };
+	char phone2[MAX_PHONE_LEN] = { 0 };
+
+	char temp1[MAX_NAME_LEN] = { 0 };
+	char temp2[MAX_NAME_LEN] = { 0 };
+	char op[BUFFSIZE] = { 0 };
+
+	if (!ParseSearchInput(input, temp1, temp2, op))
+		return PARSE_FAILED;
+
+	if (!ConvertInputToSearchString(temp1, &age1, name1, phone1))
+		return CONVERT_FAILED;
+
+	if (temp2[0] != 0)
+	{
+		if (strcmp(op, "AND") != 0 && strcmp(op, "and") != 0 &&
+			strcmp(op, "OR") != 0 && strcmp(op, "or") != 0)
+		{
+			return CONVERT_FAILED;
+		}
+
+		if (!ConvertInputToSearchString(temp2, &age2, name2, phone2))
+			return CONVERT_FAILED;
+	}
+
+	if (op[0] == 0)
+	{
+		if (age1 != 0)
+		{
+			LoadNodeFromFileByAge(pResult, age1, PATH);
+		}
+		else if (name1[0] != 0)
+		{
+			LoadNodeFromFileByName(pResult, name1, PATH);
+		}
+		else if (phone1[0] != 0)
+		{
+			LoadNodeFromFileByPhone(pResult, phone1, PATH);
+		}
+	}
+	else if (op[0] != 0)	// op is "AND" or "OR"
+	{
+		LIST* pTempList1 = (LIST*)malloc(sizeof(LIST));
+		LIST* pTempList2 = (LIST*)malloc(sizeof(LIST));
+		List_Init(pTempList1);
+		List_Init(pTempList2);
+
+		if (age1 != 0 && age2 != 0)
+		{
+			LoadNodeFromFileByAge(pTempList1, age1, PATH);
+			LoadNodeFromFileByAge(pTempList2, age2, PATH);
+			List_CombineByOp(pResult, pTempList1, pTempList2, op);
+		}
+		else if (age1 != 0 && name2[0] != 0)
+		{
+			LoadNodeFromFileByAge(pTempList1, age1, PATH);
+			LoadNodeFromFileByName(pTempList2, name2, PATH);
+			List_CombineByOp(pResult, pTempList1, pTempList2, op);
+		}
+		else if (age1 != 0 && phone2[0] != 0)
+		{
+			LoadNodeFromFileByAge(pTempList1, age1, PATH);
+			LoadNodeFromFileByPhone(pTempList2, phone2, PATH);
+			List_CombineByOp(pResult, pTempList1, pTempList2, op);
+		}
+		else if (name1[0] != 0 && age2 != 0)
+		{
+			LoadNodeFromFileByName(pTempList1, name1, PATH);
+			LoadNodeFromFileByAge(pTempList2, age2, PATH);
+			List_CombineByOp(pResult, pTempList1, pTempList2, op);
+		}
+		else if (name1[0] != 0 && name2[0] != 0)
+		{
+			LoadNodeFromFileByName(pTempList1, name1, PATH);
+			LoadNodeFromFileByName(pTempList2, name2, PATH);
+			List_CombineByOp(pResult, pTempList1, pTempList2, op);
+		}
+		else if (name1[0] != 0 && phone2[0] != 0)
+		{
+			LoadNodeFromFileByName(pTempList1, name1, PATH);
+			LoadNodeFromFileByPhone(pTempList2, phone2, PATH);
+			List_CombineByOp(pResult, pTempList1, pTempList2, op);
+		}
+		else if (phone1[0] != 0 && age2 != 0)
+		{
+			LoadNodeFromFileByPhone(pTempList1, phone1, PATH);
+			LoadNodeFromFileByAge(pTempList2, age2, PATH);
+			List_CombineByOp(pResult, pTempList1, pTempList2, op);
+		}
+		else if (phone1[0] != 0 && name2[0] != 0)
+		{
+			LoadNodeFromFileByPhone(pTempList1, phone1, PATH);
+			LoadNodeFromFileByName(pTempList2, name2, PATH);
+			List_CombineByOp(pResult, pTempList1, pTempList2, op);
+		}
+		else if (phone1[0] != 0 && phone2[0] != 0)
+		{
+			LoadNodeFromFileByPhone(pTempList1, phone1, PATH);
+			LoadNodeFromFileByPhone(pTempList2, phone2, PATH);
+			List_CombineByOp(pResult, pTempList1, pTempList2, op);
+		}
+
+		List_Release(pTempList1);
+		List_Release(pTempList2);
+		free(pTempList1);
+		free(pTempList2);
+	}
+
+	if (!List_IsEmpty(pResult))
+		return SEARCH_SUCCESS;
+	else
+		return NO_MATCH;
+}
+
 int SaveListToFile(LIST* pL, const char* path)
 {
-	if (IsEmpty(pL))
+	if (List_IsEmpty(pL))
 		return 0;
 
 	NODE* ptr = pL->head.next;

@@ -7,26 +7,32 @@
 #include "common.h"
 #include "control.h"
 #include "ui.h"
+#include "test.h"
 
 /* MAIN FUNCTION **************************************************/
 int main(void)
 {
-	int (*pfMenu[UI_FUNC_COUNT])(const char*) = {
-		UI_ExitMenu, 
-		UI_PrintAll,
-		UI_InsertNode, 
-		UI_DeleteNode, 
-		UI_Search, 
-		UI_EditNode 
-	};
+	//Test_ListFunctions();
+	
+	Test_SearchFunctions();
 
-	OPTION option = PrintMenu();
-	do
-	{
-		system("cls");
-		pfMenu[option](FILE_PATH);
-		_getch();
-	} while ((option = PrintMenu()) != EXIT);
+	//// UI event loop handler
+	//int (*pfMenu[UI_FUNC_COUNT])(const char*) = {
+	//	UI_ExitMenu, 
+	//	UI_PrintAll,
+	//	UI_InsertNode, 
+	//	UI_DeleteNode, 
+	//	UI_Search, 
+	//	UI_EditNode 
+	//};
+
+	//OPTION option = PrintMenu();	// event loop menu
+	//do
+	//{
+	//	system("cls");
+	//	pfMenu[option](FILE_PATH);
+	//	_getch();
+	//} while ((option = PrintMenu()) != EXIT);
 
 	return 0;
 }

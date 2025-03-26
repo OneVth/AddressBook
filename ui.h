@@ -5,22 +5,65 @@
 
 typedef enum { EXIT, PRINT, INSERT, DELETE, SEARCH, EDIT } OPTION;
 
+
+// *******************************************************************
+// UI input functions
+// *******************************************************************
+
+/// <summary>
+/// Gets inputs for inserting a new record.
+/// </summary>
+/// <param name="name">Buffer to store the name.</param>
+/// <param name="age">Pointer to store the age.</param>
+/// <param name="phone">Buffer to store the phone number.</param>
+/// <returns>1 if all inputs are valid; 0 otherwise.</returns>
+int UI_GetInsertInfo(char* name, int* age, char* phone);
+
+/// <summary>
+/// Gets a valid name input from the user.
+/// </summary>
+/// <returns>1 after a successful input; 0 otherwise</returns>
+int UI_GetName(char* buffer);
+
+/// <summary>
+/// Gets a valid phone number from the user and formats it without hypens.
+/// </summary>
+/// <returns>1 if input is valid; 0 otherwise.</returns>
+int UI_GetPhone(char* buffer);
+
+/// <summary>
+/// Gets a valid age from the user and ensures it is within the allowed range.
+/// </summary>
+/// <returns>1 if the age is valid; 0 otherwise.</returns>
+int UI_GetAge(int* age);
+
+/// <summary>
+/// 
+/// </summary>
+/// <param name="buffer"></param>
+/// <returns></returns>
+int UI_GetSearchString(char* buffer);
+
+// *******************************************************************
+// UI output functions
+// *******************************************************************
+
+void UI_PrintList(LIST* pL);
+
+// *******************************************************************
+// UI event loop functions
+// *******************************************************************
+
 OPTION PrintMenu(void);		// event loop
-
-int GetName(char* buffer);
-int GetPhone(char* buffer);
-int GetAge(int* age);
-
 int UI_ExitMenu(const char* PATH);
 int UI_PrintAll(const char* PATH);
+
+/// <summary>
+/// Insert a new node into file after getting user input.
+/// </summary>
+/// <param name="PATH">The file path to insert the node into.</param>
+/// <returns>1 if insertion successful; 0 otherwise.</returns>
 int UI_InsertNode(const char* PATH);
 int UI_DeleteNode(const char* PATH);
 int UI_Search(const char* PATH);
 int UI_EditNode(const char* PATH);
-
-int GetSearchString(char* buffer);
-int ConvertInputToSearchString(const char* str, int* age, char* name, char* phone);
-int ParseSearchInput(const char* input, char temp1[], char temp2[], char op[]);
-int SearchNode(const char* input, const char* PATH);
-
-void PrintList(LIST* pL);
