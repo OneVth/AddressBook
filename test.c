@@ -6,9 +6,769 @@
 #include "ui.h"
 #include "test.h"
 
+#define NODE_MATCH(n, a, b, p) ((n)->age == a && strcmp((n)->name, b) == 0 && strcmp((n)->phone, p) == 0)
+
+void Test_Str_IsAllDigit(void)
+{
+	int pass = 1;
+
+	// Case 1: all digits
+	if (!Str_IsAllDigit("123456"))
+	{
+		printf("FAIL: Str_IsAllDigit() failed to recognize digits only string\n");
+		pass = 0;
+	}
+
+	// Case 2: contain space
+	if (Str_IsAllDigit("123 456"))
+	{
+		printf("FAIL: Str_IsAllDigit() incorrectly returned true for string with space\n");
+		pass = 0;
+	}
+
+	// Case 3: contain alphabet
+	if (Str_IsAllDigit("12a45"))
+	{
+		printf("FAIL: Str_IsAllDigit() incorrectly returned true for string with alphabet\n");
+		pass = 0;
+	}
+
+	// Case 4: contain special character
+	if (Str_IsAllDigit("123-456"))
+	{
+		printf("FAIL: Str_IsAllDigit() incorrectly returned true for string with special character\n");
+		pass = 0;
+	}
+
+	// Case 5: empty string
+	if (Str_IsAllDigit(""))
+	{
+		printf("FAIL: Str_IsAllDigit() incorrectly returned true for empty string\n");
+		pass = 0;
+	}
+
+	// Case 6: leading zero
+	if (!Str_IsAllDigit("012345"))
+	{
+		printf("FAIL: Str_IsAllDigit() failed to recognize digits with leading zero\n");
+		pass = 0;
+	}
+
+	if (pass)
+	{
+		printf("PASS: Str_IsAllDigit() with with only digits\n");
+		printf("PASS: Str_IsAllDigit() returns false for string with space\n");
+		printf("PASS: Str_IsAllDigit() returns false for string with alphabet\n");
+		printf("PASS: Str_IsAllDigit() returns false for string with special character\n");
+		printf("PASS: Str_IsAllDigit() returns false for empty string\n");
+		printf("PASS: Str_IsAllDigit() with digits including leading zero\n");
+	}
+
+	putchar('\n');
+	return ;
+}
+
+void Test_Str_IsAllAlpha(void)
+{
+	int pass = 1;
+
+	// Case 1: all alphabet
+	if (!Str_IsAllAlpha("abcde"))
+	{
+		printf("FAIL: Str_IsAllAlpha() with only alphabet\n");
+		pass = 0;
+	}
+
+	// Case 2: contain space
+	if (Str_IsAllAlpha("ab cde"))
+	{
+		printf("FAIL: Str_IsAllAlpha() incorrectly returned true for string with space\n");
+		pass = 0;
+	}
+
+	// Case 3: contain digit
+	if (Str_IsAllAlpha("ab1de"))
+	{
+		printf("FAIL: Str_IsAllAlpha() incorrectly returned true for string with digit\n");
+		pass = 0;
+	}
+
+	// Case 4: contain special character
+	if (Str_IsAllAlpha("ab@de"))
+	{
+		printf("FAIL: Str_IsAllAlpha() incorrectly returned true for string with special character\n");
+		pass = 0;
+	}
+
+	// Case 5: empty string
+	if (Str_IsAllAlpha(""))
+	{
+		printf("FAIL: Str_IsAllAlpha() incorrectly returned true for empty string\n");
+		pass = 0;
+	}
+
+	if (pass)
+	{
+		printf("PASS: Str_IsAllAlpha() with with only alphabet\n");
+		printf("PASS: Str_IsAllAlpha() returns false for string with space\n");
+		printf("PASS: Str_IsAllAlpha() returns false for string with digit\n");
+		printf("PASS: Str_IsAllAlpha() returns false for string with special character\n");
+		printf("PASS: Str_IsAllAlpha() returns false for empty string\n");
+	}
+
+	putchar('\n');
+	return;
+}
+
+void Test_Str_IsPhoneFormat(void)
+{
+	int pass = 1;
+
+	// Case 1: phone format
+	if (!Str_IsPhoneFormat("000-0000-0000"))
+	{
+		printf("FAIL: Str_IsPhoneFormat() with valid format\n");
+		pass = 0;
+	}
+
+	// Case 2: conatin alphabet
+	if (Str_IsPhoneFormat("000-aaaa-0000"))
+	{
+		printf("FAIL: Str_IsPhoneFormat() incorrectly returned true for string with alphabets\n");
+		pass = 0;
+	}
+
+	// Case 3: contain space
+	if (Str_IsPhoneFormat("000-0000 -0000"))
+	{
+		printf("FAIL: Str_IsPhoneFormat() incorrectly returned true for string with space\n");
+		pass = 0;
+	}
+
+	// Case 4: contain special character
+	if (Str_IsPhoneFormat("000-@000-0000"))
+	{
+		printf("FAIL: Str_IsPhoneFormat() incorrectly returned true for string with specail characters\n");
+		pass = 0;
+	}
+
+	// Case 5: invalid hyphen position
+	if (Str_IsPhoneFormat("0000-000-0000"))
+	{
+		printf("FAIL: Str_IsPhoneFormat() incorrectly returned true for string with invalid hyphen position\n");
+		pass = 0;
+	}
+
+	// Case 6: empty string
+	if (Str_IsPhoneFormat(""))
+	{
+		printf("FAIL: Str_IsPhoneFormat() incorrectly returned true for empty string\n");
+		pass = 0;
+	}
+
+	if (pass)
+	{
+		printf("PASS: Str_IsPhoneFormat() with with valid format\n");
+		printf("PASS: Str_IsPhoneFormat() returns false for string with alphabets\n");
+		printf("PASS: Str_IsPhoneFormat() returns false for string with space\n");
+		printf("PASS: Str_IsPhoneFormat() returns false for string with special character\n");
+		printf("PASS: Str_IsPhoneFormat() returns false for string with invalid hyphen position\n");
+		printf("PASS: Str_IsPhoneFormat() returns false for empty string\n");
+	}
+
+	putchar('\n');
+	return;
+}
+
+void Test_SplitSearchExpression(void)
+{
+	return;
+}
+
+void Test_ClassifyToken(void)
+{
+	return;
+}
+
+void Test_List_Init(void)
+{
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	if (pList == NULL)
+	{
+		printf("FAIL: malloc()\n");
+		return;
+	}
+	List_Init(pList);
+
+	if (pList->head.next == &pList->tail &&
+		pList->tail.prev == &pList->head &&
+		pList->head.prev == NULL &&
+		pList->tail.next == NULL)
+		printf("PASS: List_Init\n");
+	else
+		printf("FAIL: List_Init\n");
+
+	free(pList);
+	putchar('\n');
+	return;
+}
+
+void Test_List_IsEmpty(void)
+{
+	int pass = 1;
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	if (pList == NULL)
+	{
+		printf("FAIL: malloc()\n");
+		return;
+	}
+	List_Init(pList);
+
+	// Case 1: empty list
+	if (!List_IsEmpty(pList))
+		printf("FAIL: List_IsEmpty(empty list)\n");
+
+	// Case 2: non-empty list
+	List_InsertAtEnd(pList, 10, "TestName", "010-0000-0000");
+
+	if (List_IsEmpty(pList))
+		printf("FAIL: List_IsEmpty(non-empty list)\n");
+
+	if (pass)
+	{
+		printf("PASS: List_IsEmpty(empty list)\n");
+		printf("PASS: List_IsEmpty(non-empty list)\n");
+	}
+
+	List_Release(pList);
+	free(pList);
+	putchar('\n');
+	return;
+}
+
+void Test_List_HasPhone(void)
+{
+	int pass = 1;
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	if (pList == NULL)
+	{
+		printf("FAIL: malloc()\n");
+		return;
+	}
+	List_Init(pList);
+
+	// Case 1: phone number doesn't exist
+	if (List_HasPhone(pList, "010-0000-0000"))
+		printf("FAIL: List_HasPhone() returned true for nonexistent phone\n");
+
+	NODE* pNewNode = (NODE*)malloc(sizeof(NODE));
+	pNewNode->next = NULL;
+	pNewNode->prev = NULL;
+	pNewNode->age = 10;
+	strcpy_s(pNewNode->name, sizeof(pNewNode->name), "TestName");
+	strcpy_s(pNewNode->phone, sizeof(pNewNode->phone), "010-0000-0000");
+
+	pList->head.next = pNewNode;
+	pNewNode->prev = &pList->head;
+	pNewNode->next = &pList->tail;
+	pList->tail.prev = pNewNode;
+
+	// Case 2: phone number exits
+	if (!List_HasPhone(pList, "010-0000-0000"))
+		printf("FAIL: List_HasPhone()\n");
+
+	if (pass)
+	{
+		printf("PASS: List_HasPhone() correctly returns false for nonexistent phone\n");
+		printf("PASS: List_HasPhone()\n");
+
+	}
+
+	free(pNewNode);
+	free(pList);
+	putchar('\n');
+	return;
+}
+
+void Test_List_Release(void)
+{
+	int pass = 1;
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	if (pList == NULL)
+	{
+		printf("FAIL: malloc()\n");
+		return;
+	}
+	List_Init(pList);
+
+	NODE* pNewNode = (NODE*)malloc(sizeof(NODE));
+	pNewNode->next = NULL;
+	pNewNode->prev = NULL;
+	pNewNode->age = 10;
+	strcpy_s(pNewNode->name, sizeof(pNewNode->name), "TestName");
+	strcpy_s(pNewNode->phone, sizeof(pNewNode->phone), "010-0000-0000");
+
+	pList->head.next = pNewNode;
+	pNewNode->prev = &pList->head;
+	pNewNode->next = &pList->tail;
+	pList->tail.prev = pNewNode;
+
+	if (List_IsEmpty(pList))
+	{
+		printf("FAIL: List_Release(before release: not empty)\n");
+		pass = 0;
+	}
+
+	List_Release(pList);
+
+	if (!List_IsEmpty(pList))
+	{
+		printf("FAIL: List_Release(after release: empty)\n");
+		free(pNewNode);
+	}
+
+	if (pass)
+	{
+		printf("PASS: List_Release(before release: not empty)\n");
+		printf("PASS: List_Release(after release: empty)\n");
+	}
+
+	free(pList);
+	putchar('\n');
+	return;
+}
+
 void Test_List_InsertAtEnd(void)
 {
+	int pass = 1;
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	if (pList == NULL)
+	{
+		printf("FAIL: malloc()\n");
+		return;
+	}
+	List_Init(pList);
 
+	// Case 1: check insertion
+	if (!List_InsertAtEnd(pList, 10, "A", "010-0000-0001"))
+	{
+		printf("FAIL: List_InsertAtEnd()\n");
+		pass = 0;
+	}
+
+	// Case 2: check order of list with several insertion
+	List_InsertAtEnd(pList, 20, "B", "010-0000-0002");
+
+	// Expect: head -> A -> B -> tail
+	NODE* first = pList->head.next;
+	NODE* second = first->next;
+	int firstCorrect = first->age == 10 &&
+		strcmp(first->name, "A") == 0 &&
+		strcmp(first->phone, "010-0000-0001") == 0 &&
+		first->next == second;
+
+	int secondCorrect = second->age == 20 &&
+		strcmp(second->name, "B") == 0 &&
+		strcmp(second->phone, "010-0000-0002") == 0 &&
+		second->next == &pList->tail;
+
+	if (!firstCorrect || !secondCorrect)
+	{
+		printf("FAIL: List_InsertAtEnd() did not maintain expected A->B order or node contents\n");
+		pass = 0;
+	}
+
+	if (pass)
+	{
+		printf("PASS: List_InsertAtEnd() inserted first node successfully\n");
+		printf("PASS: List_InsertAtEnd() maintains correct insertion order (A->B)\n");
+	}
+
+	List_Release(pList);
+	free(pList);
+	putchar('\n');
+	return;
+}
+
+void Test_List_InsertAtBeg(void)
+{
+	int pass = 1;
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	if (pList == NULL)
+	{
+		printf("FAIL: malloc()\n");
+		return;
+	}
+	List_Init(pList);
+
+	// Case 1: check insertion
+	if (!List_InsertAtBeg(pList, 10, "A", "010-0000-0001"))
+	{
+		printf("FAIL: List_InsertAtBeg()\n");
+		pass = 0;
+	}
+
+	// Case 2: check order of list with several insertion
+	List_InsertAtBeg(pList, 20, "B", "010-0000-0002");
+
+	// Expect: head -> B -> A -> tail
+	NODE* first = pList->head.next;
+	NODE* second = first->next;
+	int firstCorrect = first->age == 20 &&
+		strcmp(first->name, "B") == 0 &&
+		strcmp(first->phone, "010-0000-0002") == 0 &&
+		first->next == second;
+		
+	int secondCorrect = (second->age == 10 &&
+		strcmp(second->name, "A") == 0 &&
+		strcmp(second->phone, "010-0000-0001") == 0 &&
+		second->next == &pList->tail);
+
+	if (!firstCorrect || !secondCorrect)
+	{
+		printf("FAIL: List_InsertAtBeg() did not maintain expected B->A order or node contents\n");
+	}
+
+	if (pass)
+	{
+		printf("PASS: List_InsertAtBeg() inserted first node successfully\n");
+		printf("PASS: List_InsertAtBeg() maintains order B -> A\n");
+	}
+
+	List_Release(pList);
+	free(pList);
+	putchar('\n');
+	return;
+}
+
+void Test_List_DeleteAtEnd(void)
+{
+	int pass = 1;
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	if (pList == NULL)
+	{
+		printf("FAIL: malloc()\n");
+		return;
+	}
+	List_Init(pList);
+
+	// Case 1: delete node at empty list
+	if (List_DeleteAtEnd(pList))
+	{
+		printf("FAIL: List_DeleteAtEnd() return true for empty list\n");
+		pass = 0;
+	}
+
+	// Case 2: delete node
+	List_InsertAtEnd(pList, 10, "A", "010-0000-0001");
+	if (!List_DeleteAtEnd(pList))
+	{
+		printf("FAIL: List_DeleteAtEnd()\n");
+		pass = 0;
+	}
+
+	// Case 3: delete correct order
+	// Expect order: head -> A -> B -> tail
+	List_InsertAtEnd(pList, 10, "A", "010-0000-0001");
+	List_InsertAtEnd(pList, 11, "B", "010-0000-0002");
+	List_DeleteAtEnd(pList);
+	NODE* ptr = pList->head.next;
+	if (strcmp(ptr->name, "A") != 0 || ptr->next != &pList->tail)
+	{
+		printf("FAIL: List_DeleteAtEnd() did not maintain expected head -> A -> tail order or node contents\n");
+		pass = 0;
+	}
+
+	if (pass)
+	{
+		printf("PASS: List_DeleteAtEnd() on empty list\n");
+		printf("PASS: List_DeleteAtEnd() on valid list\n");
+		printf("PASS: List_DeleteAtEnd() maintains correct head -> A -> tail structure\n");
+	}
+
+	List_Release(pList);
+	free(pList);
+	putchar('\n');
+	return;
+}
+
+void Test_List_DeleteAtBeg(void)
+{
+	int pass = 1;
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	if (pList == NULL)
+	{
+		printf("FAIL: malloc()\n");
+		return;
+	}
+	List_Init(pList);
+
+	// Case 1: delete node at empty list
+	if (List_DeleteAtBeg(pList))
+	{
+		printf("FAIL: List_DeleteAtBeg() returns true for empty list\n");
+		pass = 0;
+	}
+
+	// Case 2: delete node
+	List_InsertAtBeg(pList, 10, "A", "010-0000-0001");
+	if (!List_DeleteAtBeg(pList))
+	{
+		printf("FAIL: List_DeleteAtBeg()\n");
+		pass = 0;
+	}
+
+	// Case 3: delete correct order
+	// Expect order: head -> B -> A -> tail
+	List_InsertAtBeg(pList, 10, "A", "010-0000-0001");
+	List_InsertAtBeg(pList, 11, "B", "010-0000-0002");
+	List_DeleteAtBeg(pList);
+	NODE* ptr = pList->head.next;
+	if (strcmp(ptr->name, "A") != 0 || ptr->next != &pList->tail)
+	{
+		printf("FAIL: List_DeleteAtBeg() did not maintain expected head -> A -> tail order or node contents\n");
+		pass = 0;
+	}
+
+	if (pass)
+	{
+		printf("PASS: List_DeleteAtBeg() on empty list\n");
+		printf("PASS: List_DeleteAtBeg() on valid list\n");
+		printf("PASS: List_DeleteAtBeg() maintains correct head -> A -> tail structure\n");
+	}
+
+	List_Release(pList);
+	free(pList);
+	putchar('\n');
+	return;
+}
+
+void Test_List_DeleteByPhone(void)
+{
+	int pass = 1;
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	if (pList == NULL)
+	{
+		printf("FAIL: malloc()\n");
+		return;
+	}
+	List_Init(pList);
+
+	// Case 1: delete on empty list
+	if (List_DeleteByPhone(pList, "010-0000-0000"))
+	{
+		printf("FAIL: List_DeleteByPhone() returns true for empty list\n");
+		pass = 0;
+	}
+	// Case 2: delete non-existence node
+	List_InsertAtBeg(pList, 10, "TestName", "010-0000-0000");
+	if (List_DeleteByPhone(pList, "010-0000-0001"))
+	{
+		printf("FAIL: List_DeleteByPhone() returns true for non-existent pohone number\n");
+		pass = 0;
+	}
+
+	// Case 3: delete existence node
+	if (!List_DeleteByPhone(pList, "010-0000-0000"))
+	{
+		printf("FAIL: List_DeleteByPhone() returns false for existent phone number\n");
+		pass = 0;
+	}
+
+	if (pass)
+	{
+		printf("PASS: List_DeleteByPhone() fails on empty list as expected\n");
+		printf("PASS: List_DeleteByPhone() on non-existent phone number\n");
+		printf("PASS: List_DeleteByPhone() on existent phone number\n");
+	}
+
+	List_Release(pList);
+	free(pList);
+	putchar('\n');
+	return;
+}
+
+void Test_List_CombineByOp(void)
+{
+	int pass = 1;
+	int firstCorrect = 0;
+	int secondCorrect = 0;
+	int thirdCorrect = 0;
+	int fourthCorrect = 0;
+	NODE* firstNode = NULL;
+	NODE* secondNode = NULL;
+	NODE* thirdNode = NULL;
+	NODE* fourthNode = NULL;
+
+	LIST* pLeftList = (LIST*)malloc(sizeof(LIST));
+	LIST* pRightList = (LIST*)malloc(sizeof(LIST));
+	LIST* pCombinedList = (LIST*)malloc(sizeof(LIST));
+	if (pLeftList == NULL || pRightList == NULL || pCombinedList == NULL)
+	{
+		printf("FAIL: malloc()\n");
+		return;
+	}
+	List_Init(pLeftList);
+	List_Init(pRightList);
+	List_Init(pCombinedList);
+
+	// Case 1: combine both lists are empty by "AND"
+	// Expect: head -> tail
+	List_CombineByOp(pCombinedList, pLeftList, pRightList, "AND");
+	if (!List_IsEmpty(pCombinedList))
+	{
+		printf("FAIL: List_CombineByOp(Result, Empty, Empty, \"AND\")\n");
+		pass = 0;
+	}
+	List_Release(pCombinedList);
+
+	// Case 2: combine both lists are valid and have one duplication by "AND"
+	// Expect: head -> A -> tail
+	List_InsertAtEnd(pLeftList, 10, "A", "010-0000-0001");
+	List_InsertAtEnd(pLeftList, 11, "B", "010-0000-0002");
+	List_InsertAtEnd(pRightList, 10, "A", "010-0000-0001");
+	List_InsertAtEnd(pRightList, 12, "C", "010-0000-0003");
+
+	List_CombineByOp(pCombinedList, pLeftList, pRightList, "AND");
+	firstNode = pCombinedList->head.next;
+	firstCorrect = NODE_MATCH(firstNode, 10, "A", "010-0000-0001") &&
+		firstNode->next == &pCombinedList->tail;
+
+	if (!firstCorrect)
+	{
+		printf("FAIL: List_CombineByOp(Result, Valid, Valid, \"AND\") with one duplication\n");
+		pass = 0;
+	}
+
+	List_Release(pCombinedList);
+	List_Release(pLeftList);
+	List_Release(pRightList);
+	
+	// Case 3: combine both lists are valid and have no duplication by "AND"
+	// Expect: head -> tail
+	List_InsertAtEnd(pLeftList, 10, "A", "010-0000-0001");
+	List_InsertAtEnd(pLeftList, 11, "B", "010-0000-0002");
+	List_InsertAtEnd(pRightList, 12, "C", "010-0000-0003");
+	List_InsertAtEnd(pRightList, 13, "D", "010-0000-0004");
+	
+	List_CombineByOp(pCombinedList, pLeftList, pRightList, "AND");
+	firstNode = pCombinedList->head.next;
+	firstCorrect = firstNode == &pCombinedList->tail;
+
+	if (!firstCorrect)
+	{
+		printf("FAIL: List_CombineByOp(Result, Valid, Valid, \"AND\") with no duplication\n");
+		pass = 0;
+	}
+
+	List_Release(pCombinedList);
+	List_Release(pLeftList);
+	List_Release(pRightList);
+
+	// Case 4: combine when only left list valid by "OR"
+	// Expect: head -> A -> B -> tail
+	List_InsertAtEnd(pLeftList, 10, "A", "010-0000-0001");
+	List_InsertAtEnd(pLeftList, 11, "B", "010-0000-0002");
+
+	List_CombineByOp(pCombinedList, pLeftList, pRightList, "OR");
+	firstNode = pCombinedList->head.next;
+	secondNode = firstNode->next;
+
+	firstCorrect = NODE_MATCH(firstNode, 10, "A", "010-0000-0001") &&
+		firstNode->next == secondNode;
+
+	secondCorrect = NODE_MATCH(secondNode, 11, "B", "010-0000-0002") &&
+		secondNode->next == &pCombinedList->tail;
+
+	if (!firstCorrect || !secondCorrect)
+	{
+		printf("FAIL: List_CombineByOp(Result, Valid, Invalid, \"OR\")\n");
+		pass = 0;
+	}
+
+	List_Release(pCombinedList);
+	List_Release(pLeftList);
+	List_Release(pRightList);
+
+	// Case 5: combine both lists are valid and have one duplication by "OR"
+	// Expect: head -> A -> B -> C -> tail
+	List_InsertAtEnd(pLeftList, 10, "A", "010-0000-0001");
+	List_InsertAtEnd(pLeftList, 11, "B", "010-0000-0002");
+	List_InsertAtEnd(pRightList, 10, "A", "010-0000-0001");
+	List_InsertAtEnd(pRightList, 12, "C", "010-0000-0003");
+
+	List_CombineByOp(pCombinedList, pLeftList, pRightList, "OR");
+	firstNode = pCombinedList->head.next;
+	secondNode = firstNode->next;
+	thirdNode = secondNode->next;
+
+	firstCorrect = NODE_MATCH(firstNode, 10, "A", "010-0000-0001") &&
+		firstNode->next == secondNode;
+
+	secondCorrect = NODE_MATCH(secondNode, 11, "B", "010-0000-0002") &&
+		secondNode->next == thirdNode;
+
+	thirdCorrect = NODE_MATCH(thirdNode, 12, "C", "010-0000-0003") &&
+		thirdNode->next == &pCombinedList->tail;
+
+	if (!firstCorrect || !secondCorrect || !thirdCorrect)
+	{
+		printf("FAIL: List_CombineByOp(Result, Valid, Valid, \"OR\") with one duplication\n");
+		pass = 0;
+	}
+
+	List_Release(pCombinedList);
+	List_Release(pLeftList);
+	List_Release(pRightList);
+
+	// Case 6: combine both lists are valid and have no duplication by "OR"
+	// Expect: head -> A -> B -> C -> D -> tail
+	List_InsertAtEnd(pLeftList, 10, "A", "010-0000-0001");
+	List_InsertAtEnd(pLeftList, 11, "B", "010-0000-0002");
+	List_InsertAtEnd(pRightList, 12, "C", "010-0000-0003");
+	List_InsertAtEnd(pRightList, 13, "D", "010-0000-0004");
+
+	List_CombineByOp(pCombinedList, pLeftList, pRightList, "OR");
+	firstNode = pCombinedList->head.next;
+	secondNode = firstNode->next;
+	thirdNode = secondNode->next;
+	fourthNode = thirdNode->next;
+
+	firstCorrect = NODE_MATCH(firstNode, 10, "A", "010-0000-0001") &&
+		firstNode->next == secondNode;
+
+	secondCorrect = NODE_MATCH(secondNode, 11, "B", "010-0000-0002") &&
+		secondNode->next == thirdNode;
+
+	thirdCorrect = NODE_MATCH(thirdNode, 12, "C", "010-0000-0003") &&
+		thirdNode->next == fourthNode;
+
+	fourthCorrect = NODE_MATCH(fourthNode, 13, "D", "010-0000-0004") &&
+		fourthNode->next == &pCombinedList->tail;
+
+	if (!firstCorrect || !secondCorrect || !thirdCorrect || !fourthCorrect)
+	{
+		printf("FAIL: List_CombineByOp(Result, Valid, Valid, \"OR\") with no duplication\n");
+		pass = 0;
+	}
+
+	if (pass)
+	{
+		printf("PASS: List_CombineByOp(Result, Empty, Empty, \"AND\")\n");
+		printf("PASS: List_CombineByOp(Result, Valid, Valid, \"AND\") with one duplication\n");
+		printf("PASS: List_CombineByOp(Result, Valid, Valid, \"AND\") with no duplication\n");
+		printf("PASS: List_CombineByOp(Result, Valid, Empty, \"OR\")\n");
+		printf("PASS: List_CombineByOp(Result, Valid, Valid, \"OR\") with one duplication\n");
+		printf("PASS: List_CombineByOp(Result, Valid, Valid, \"OR\") with no duplication\n");
+	}
+
+	List_Release(pCombinedList);
+	List_Release(pLeftList);
+	List_Release(pRightList);
+	free(pCombinedList);
+	free(pLeftList);
+	free(pRightList);
+	putchar('\n');
 	return;
 }
 

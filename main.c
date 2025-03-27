@@ -12,9 +12,20 @@
 /* MAIN FUNCTION **************************************************/
 int main(void)
 {
-	//Test_ListFunctions();
-	
-	Test_SearchFunctions();
+	Test_Str_IsAllDigit();
+	Test_Str_IsAllAlpha();
+	Test_Str_IsPhoneFormat();
+
+	Test_List_Init();
+	Test_List_IsEmpty();
+	Test_List_HasPhone();
+	Test_List_Release();
+	Test_List_InsertAtEnd();
+	Test_List_InsertAtBeg();
+	Test_List_DeleteAtEnd();
+	Test_List_DeleteAtBeg();
+	Test_List_DeleteByPhone();
+	Test_List_CombineByOp();
 
 	//// UI event loop handler
 	//int (*pfMenu[UI_FUNC_COUNT])(const char*) = {

@@ -12,6 +12,9 @@ void ClearInputBuffer(void)
 
 int Str_IsAllDigit(const char* str)
 {
+	if (str == NULL)
+		return 0;
+
 	if (*str == '\0')
 		return 0;
 
@@ -26,6 +29,9 @@ int Str_IsAllDigit(const char* str)
 
 int Str_IsAllAlpha(const char* str)
 {
+	if (str == NULL)
+		return 0;
+
 	if (*str == '\0')
 		return 0;
 
@@ -40,33 +46,52 @@ int Str_IsAllAlpha(const char* str)
 
 int Str_IsPhoneFormat(const char* str)
 {
+	if (str == NULL)
+		return 0;
+
 	if (*str == '\0')
 		return 0;
 
-	return ((strlen(str) == 13) && (str[3] == '-') && (str[8] == '-') ? 1 : 0);
+	if (strlen(str) != 13)
+		return 0;
+
+	int i = 0;
+	while (i != 12)
+	{
+		if (i == 3 || i == 8)
+		{
+			if (str[i++] != '-')
+				return 0;
+		}
+
+		if (!isdigit(str[i++]))
+			return 0;
+	}
+
+	return 1;
 }
 
-int ConvertInputToSearchString(const char* str, int* age, char* name, char* phone)
+int ClassifyToken(const char* token, int* age, char* name, char* phone)
 {
-	if (Str_IsAllDigit(str))
+	if (Str_IsAllDigit(token))
 	{
-		*age = atoi(str);
+		*age = atoi(token);
 		if (*age < 0 || *age > MAXAGE)
 			return 0;
 	}
 	else
 	{
-		if (Str_IsAllAlpha(str))
-			strcpy_s(name, MAX_NAME_LEN, str);
-		else if (Str_IsPhoneFormat(str))
-			strcpy_s(phone, MAX_PHONE_LEN, str);
+		if (Str_IsAllAlpha(token))
+			strcpy_s(name, MAX_NAME_LEN, token);
+		else if (Str_IsPhoneFormat(token))
+			strcpy_s(phone, MAX_PHONE_LEN, token);
 		else
 			return 0;
 	}
 	return 1;
 }
 
-int ParseSearchInput(const char* input, char temp1[], char temp2[], char op[])
+int SplitSearchExpression(const char* input, char token1[], char token2[], char op[])
 {
 	int i = 0;
 	const char* ch = input;
@@ -77,10 +102,10 @@ int ParseSearchInput(const char* input, char temp1[], char temp2[], char op[])
 			ch++;
 			break;
 		}
-		temp1[i++] = *ch;
+		token1[i++] = *ch;
 		ch++;
 	}
-	temp1[i] = '\0';
+	token1[i] = '\0';
 
 	i = 0;
 	while (*ch != '\0')
@@ -99,13 +124,13 @@ int ParseSearchInput(const char* input, char temp1[], char temp2[], char op[])
 	i = 0;
 	while (*ch != '\0')
 	{
-		temp2[i++] = *ch;
+		token2[i++] = *ch;
 		ch++;
 	}
-	temp2[i] = '\0';
+	token2[i] = '\0';
 
-	if ((temp1[0] != 0 && op[0] == 0 && temp2[0] == 0) ||
-		(temp1[0] != 0 && op[0] != 0 && temp2[0] != 0))
+	if ((token1[0] != 0 && op[0] == 0 && token2[0] == 0) ||
+		(token1[0] != 0 && op[0] != 0 && token2[0] != 0))
 	{
 		return 1;
 	}
@@ -133,6 +158,8 @@ void List_Release(LIST* pL)
 		ptr = ptr->next;
 		free(del);
 	}
+
+	List_Init(pL);
 }
 
 int List_IsEmpty(LIST* pL)

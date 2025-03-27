@@ -225,10 +225,10 @@ ERR_SEARCH SearchNode(LIST* pResult, const char* input, const char* PATH)
 	char temp2[MAX_NAME_LEN] = { 0 };
 	char op[BUFFSIZE] = { 0 };
 
-	if (!ParseSearchInput(input, temp1, temp2, op))
+	if (!SplitSearchExpression(input, temp1, temp2, op))
 		return PARSE_FAILED;
 
-	if (!ConvertInputToSearchString(temp1, &age1, name1, phone1))
+	if (!ClassifyToken(temp1, &age1, name1, phone1))
 		return CONVERT_FAILED;
 
 	if (temp2[0] != 0)
@@ -239,7 +239,7 @@ ERR_SEARCH SearchNode(LIST* pResult, const char* input, const char* PATH)
 			return CONVERT_FAILED;
 		}
 
-		if (!ConvertInputToSearchString(temp2, &age2, name2, phone2))
+		if (!ClassifyToken(temp2, &age2, name2, phone2))
 			return CONVERT_FAILED;
 	}
 
@@ -370,4 +370,3 @@ int SaveListToFile(LIST* pL, const char* path)
 	free(temp);
 	return 1;
 }
-
