@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <direct.h>
 #include "common.h"
 #include "control.h"
 #include "ui.h"
@@ -182,11 +183,249 @@ void Test_Str_IsPhoneFormat(void)
 
 void Test_SplitSearchExpression(void)
 {
+	int pass = 1;
+
+	char token1[BUFFSIZE] = { 0 };
+	char token2[BUFFSIZE] = { 0 };
+	char op[BUFFSIZE] = { 0 };
+
+	// Case 1: single item input
+	if (!SplitSearchExpression("10", token1, token2, op))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid input\n");
+	}
+	else
+	{
+		if (strcmp(token1, "10") != 0)
+		{
+			pass = 0;
+			printf("FAIL: SplitSearchExpression() returned incorrect token for valid input\n");
+		}
+	}
+
+	if (!SplitSearchExpression("Test", token1, token2, op))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid input\n");
+	}
+	else
+	{
+		if (strcmp(token1, "Test") != 0)
+		{
+			pass = 0;
+			printf("FAIL: SplitSearchExpression() returned incorrect token for valid input\n");
+		}
+	}
+
+	if (!SplitSearchExpression("010-0000-0000", token1, token2, op))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid input\n");
+	}
+	else
+	{
+		if (strcmp(token1, "010-0000-0000") != 0)
+		{
+			pass = 0;
+			printf("FAIL: SplitSearchExpression() returned incorrect token for valid input\n");
+		}
+	}
+
+	// Case 2: two items with operator(AND, OR)
+	int token1Correct = 0;
+	int token2Correct = 0;
+	int opCorrect = 0;
+
+	if (!SplitSearchExpression("10 OR 20", token1, token2, op))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid input\n");
+	}
+	else
+	{
+		token1Correct = strcmp(token1, "10") == 0;
+		token2Correct = strcmp(token2, "20") == 0;
+		opCorrect = strcmp(op, "OR") == 0; 
+		if (!token1Correct || !token2Correct || !opCorrect)
+		{
+			pass = 0;
+			printf("FAIL: SplitSearchExpression() returned incorrect token for valid input\n");
+		}
+	}
+
+	if (!SplitSearchExpression("10 OR 010-0000-0000", token1, token2, op))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid input\n");
+	}
+	else
+	{
+		token1Correct = strcmp(token1, "10") == 0;
+		token2Correct = strcmp(token2, "010-0000-0000") == 0;
+		opCorrect = strcmp(op, "OR") == 0;
+		if (!token1Correct || !token2Correct || !opCorrect)
+		{
+			pass = 0;
+			printf("FAIL: SplitSearchExpression() returned incorrect token for valid input\n");
+		}
+	}
+
+	if (!SplitSearchExpression("Test AND 10", token1, token2, op))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid input\n");
+	}
+	else
+	{
+		token1Correct = strcmp(token1, "Test") == 0;
+		token2Correct = strcmp(token2, "10") == 0;
+		opCorrect = strcmp(op, "AND") == 0;
+		if (!token1Correct || !token2Correct || !opCorrect)
+		{
+			pass = 0;
+			printf("FAIL: SplitSearchExpression() returned incorrect token for valid input\n");
+		}
+	}
+
+	if (!SplitSearchExpression("010-0000-0000 AND Test", token1, token2, op))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid input\n");
+	}
+	else
+	{
+		token1Correct = strcmp(token1, "010-0000-0000") == 0;
+		token2Correct = strcmp(token2, "Test") == 0;
+		opCorrect = strcmp(op, "AND") == 0;
+		if (!token1Correct || !token2Correct || !opCorrect)
+		{
+			pass = 0;
+			printf("FAIL: SplitSearchExpression() returned incorrect token for valid input\n");
+		}
+	}
+
+	// Case 3: failures
+	if (SplitSearchExpression("10 20", token1, token2, op))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned true for invalid input\n");
+	}
+	
+	if (SplitSearchExpression("OR 20", token1, token2, op))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned true for invalid input\n");
+	}
+
+	if (SplitSearchExpression("", token1, token2, op))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned true for invalid input\n");
+	}
+
+	if (pass)
+	{
+		printf("PASS: SplitSearchExpression() correctly parsed single token for valid input\n");
+		printf("PASS: SplitSearchExpression() correctly parsed single token for valid input\n");
+		printf("PASS: SplitSearchExpression() correctly parsed single token for valid input\n");
+		printf("PASS: SplitSearchExpression() correctly parsed double token for valid input\n");
+		printf("PASS: SplitSearchExpression() correctly parsed double token for valid input\n");
+		printf("PASS: SplitSearchExpression() correctly parsed double token for valid input\n");
+		printf("PASS: SplitSearchExpression() correctly parsed double token for valid input\n");
+		printf("PASS: SplitSearchExpression() correctly returned false for invalid input\n");
+		printf("PASS: SplitSearchExpression() correctly returned false for invalid input\n");
+		printf("PASS: SplitSearchExpression() correctly returned false for invalid input\n");
+	}
+	putchar('\n');
 	return;
 }
 
 void Test_ClassifyToken(void)
 {
+	int pass = 1;
+	int age = 0;
+	char name[MAX_NAME_LEN] = { 0 };
+	char phone[MAX_PHONE_LEN] = { 0 };
+
+	// Case 1: classify token to numeric
+	if (!ClassifyToken("10", &age, NULL, NULL))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid string\n");
+	}
+	else
+	{
+		if (age != 10)
+		{
+			pass = 0;
+			printf("FAIL: SplitSearchExpression() returned incorrect age for valid string\n");
+		}
+	}
+
+	// Case 2: classify token to alphabetical string
+	age = 0; memset(name, 0, sizeof(name)); memset(phone, 0, sizeof(phone));
+	if (!ClassifyToken("Test", NULL, name, NULL))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid string\n");
+	}
+	else
+	{
+		if (strcmp(name, "Test") != 0)
+		{
+			pass = 0;
+			printf("FAIL: SplitSearchExpression() returned incorrect name for valid string\n");
+		}
+	}
+
+	// Case 3: classify token to phone number format string
+	age = 0; memset(name, 0, sizeof(name)); memset(phone, 0, sizeof(phone));
+	if (!ClassifyToken("010-0000-0000", NULL, NULL, phone))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid string\n");
+	}
+	else
+	{
+		if (strcmp(phone, "010-0000-0000") != 0)
+		{
+			pass = 0;
+			printf("FAIL: SplitSearchExpression() returned incorrect phone for valid string\n");
+		}
+	}
+
+	// Case 4: invalid string
+	if (ClassifyToken("", NULL, NULL, NULL))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid string\n");
+	}
+
+	if (ClassifyToken("10Test", NULL, NULL, NULL))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid string\n");
+	}
+
+	if (ClassifyToken("010-aaaa-0000", NULL, NULL, NULL))
+	{
+		pass = 0;
+		printf("FAIL: SplitSearchExpression() returned false for valid string\n");
+	}
+	
+
+	if (pass)
+	{
+		printf("PASS: ClassifyToken() correctly classify token for valid string\n");
+		printf("PASS: ClassifyToken() correctly classify token for valid string\n");
+		printf("PASS: ClassifyToken() correctly classify token for valid string\n");
+		printf("PASS: ClassifyToken() correctly returned false for invalid string\n");
+		printf("PASS: ClassifyToken() correctly returned false for invalid string\n");
+		printf("PASS: ClassifyToken() correctly returned false for invalid string\n");
+	}
+
+	putchar('\n');
 	return;
 }
 
@@ -772,6 +1011,124 @@ void Test_List_CombineByOp(void)
 	return;
 }
 
+int CreateTestDataFile(void)
+{
+	_mkdir("Test");
+
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	List_Init(pList);
+
+	List_InsertAtEnd(pList, 10, "Test1", "010-0000-0001");
+	List_InsertAtEnd(pList, 20, "Test2", "010-0000-0002");
+	List_InsertAtEnd(pList, 30, "Test3", "010-0000-0003");
+
+	FILE* fp = NULL;
+	fopen_s(&fp, "./Test/test.dat", "wb");
+	if (fp == NULL)
+	{
+		return 0;
+	}
+
+	NODE* ptr = pList->head.next;
+	while (ptr != &pList->tail)
+	{
+		fwrite(ptr, sizeof(NODE), 1, fp);
+		ptr = ptr->next;
+	}
+
+	fclose(fp);
+	List_Release(pList);
+	free(pList);
+	return 1;
+}
+
+void Test_CreateTestDataFile(void)
+{
+	int pass = 1;
+
+	int firstCorrect = 0;
+	int secondCorrect = 0;
+	int thirdCorrect = 0;
+	if (!CreateTestDataFile())
+	{
+		pass = 0;
+		printf("FAIL: CreateTestDataFile() failed to create test file\n");
+	}
+	else
+	{
+		FILE* fp = NULL;
+		fopen_s(&fp, "./Test/test.dat", "rb");
+		if (fp == NULL)
+		{
+			pass = 0;
+		}
+
+		NODE* ptr = (NODE*)malloc(sizeof(NODE));
+		memset(ptr, 0, sizeof(NODE));
+		if(fread(ptr, sizeof(NODE), 1, fp) > 0)
+		{
+			firstCorrect = ptr->age == 10;
+			secondCorrect = strcmp(ptr->name, "Test1") == 0;
+			thirdCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
+			if (!firstCorrect || !secondCorrect || !thirdCorrect)
+			{
+				pass = 0;
+				printf("FAIL: ");
+			}
+			else
+			{
+				firstCorrect = 0;
+				secondCorrect = 0;
+				thirdCorrect = 0;
+				memset(ptr, 0, sizeof(NODE));
+				if (fread(ptr, sizeof(NODE), 1, fp) > 0)
+				{
+					firstCorrect = ptr->age == 20;
+					secondCorrect = strcmp(ptr->name, "Test2") == 0;
+					thirdCorrect = strcmp(ptr->phone, "010-0000-0002") == 0;
+					if (!firstCorrect || !secondCorrect || !thirdCorrect)
+					{
+						pass = 0;
+						printf("FAIL: ");
+					}
+					else
+					{
+						firstCorrect = 0;
+						secondCorrect = 0;
+						thirdCorrect = 0;
+						memset(ptr, 0, sizeof(NODE));
+						if (fread(ptr, sizeof(NODE), 1, fp) > 0)
+						{
+							firstCorrect = ptr->age == 30;
+							secondCorrect = strcmp(ptr->name, "Test3") == 0;
+							thirdCorrect = strcmp(ptr->phone, "010-0000-0003") == 0;
+							if (!firstCorrect || !secondCorrect || !thirdCorrect)
+							{
+								pass = 0;
+								printf("FAIL: ");
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (pass)
+	{
+		printf("PASS: CreateTestDataFile() correctly created test file\n");
+	}
+
+	putchar('\n');
+	return;
+}
+
+void Test_LoadRecordsFromFileByPhone(void)
+{
+
+	return;
+}
+
 void Test_CreateFile(void)
 {
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
@@ -944,7 +1301,7 @@ void Test_SearchFunctions(void)
 	// Test search by phone ----------------------------------------------------
 	printf("Search by phone number ************\n");
 	printf("Origin: %2d %s [%s]\n", ptr->age, ptr->name, ptr->phone);
-	if (LoadNodeFromFileByPhone(pList, ptr->phone, FILE_PATH_TEST))
+	if (LoadRecordsFromFileByPhone(pList, ptr->phone, FILE_PATH_TEST))
 	{
 		// Phone number duplication doesn't exist
 		NODE* temp = pList->head.next;
@@ -963,7 +1320,7 @@ void Test_SearchFunctions(void)
 
 	printf("Search by name ********************\n");
 	printf("Origin: %2d [%s] %s\n", ptr->age, ptr->name, ptr->phone);
-	if (LoadNodeFromFileByName(pList, ptr->name, FILE_PATH_TEST))
+	if (LoadRecordsFromFileByName(pList, ptr->name, FILE_PATH_TEST))
 	{
 		NODE* temp = pList->head.next;
 		while (temp != &pList->tail)
@@ -983,7 +1340,7 @@ void Test_SearchFunctions(void)
 	List_Init(pList);
 	printf("Search by age *********************\n");
 	printf("Origin: [%2d] %s %s\n", ptr->age, ptr->name, ptr->phone);
-	if (LoadNodeFromFileByAge(pList, ptr->age, FILE_PATH_TEST))
+	if (LoadRecordsFromFileByAge(pList, ptr->age, FILE_PATH_TEST))
 	{
 		NODE* temp = pList->head.next;
 		while (temp != &pList->tail)
@@ -1041,10 +1398,10 @@ void Test_EditFunctions(void)
 
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
 	List_Init(pList);
-	LoadNodeFromFileByPhone(pList, temp->phone, FILE_PATH_TEST);
-	EditNodeFromFileByAge(pList->head.next, 93, FILE_PATH_TEST);
-	EditNodeFromFileByName(pList->head.next, "Test", FILE_PATH_TEST);
-	EditNodeFromFileByPhone(pList->head.next, "010-1234-5678", FILE_PATH_TEST);
+	LoadRecordsFromFileByPhone(pList, temp->phone, FILE_PATH_TEST);
+	EditRecordFromFileByAge(pList->head.next, 93, FILE_PATH_TEST);
+	EditRecordFromFileByName(pList->head.next, "Test", FILE_PATH_TEST);
+	EditRecordFromFileByPhone(pList->head.next, "010-1234-5678", FILE_PATH_TEST);
 	List_Release(pList);
 	free(temp);
 
@@ -1142,7 +1499,7 @@ void Test_UIFunctions(void)
 	LIST* pSearched = (LIST*)malloc(sizeof(LIST));
 	for (int i = 0; i < testStringCount; i++)
 	{
-		SearchNode(pSearched, testCases[i], FILE_PATH_TEST);
+		SearchRecordsFromFile(pSearched, testCases[i], FILE_PATH_TEST);
 	}
 
 	//UI_PrintAll(FILE_PATH_TEST);

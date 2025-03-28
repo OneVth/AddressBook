@@ -26,6 +26,12 @@ void Test_List_DeleteAtBeg(void);
 void Test_List_DeleteByPhone(void);
 void Test_List_CombineByOp(void);
 
+// Control functions *******************************************
+
+int CreateTestDataFile(void);
+void Test_CreateTestDataFile(void);
+void Test_LoadRecordsFromFileByPhone(void);
+
 // ********************************************************************
 
 void Test_CreateFile(void);

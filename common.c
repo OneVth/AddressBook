@@ -73,6 +73,9 @@ int Str_IsPhoneFormat(const char* str)
 
 int ClassifyToken(const char* token, int* age, char* name, char* phone)
 {
+	if (token == NULL)
+		return 0;
+
 	if (Str_IsAllDigit(token))
 	{
 		*age = atoi(token);
@@ -93,6 +96,9 @@ int ClassifyToken(const char* token, int* age, char* name, char* phone)
 
 int SplitSearchExpression(const char* input, char token1[], char token2[], char op[])
 {
+	if (input == NULL)
+		return 0;
+
 	int i = 0;
 	const char* ch = input;
 	while (*ch != '\0')

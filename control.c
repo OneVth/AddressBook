@@ -4,7 +4,7 @@
 #include "common.h"
 #include "control.h"
 
-int LoadNodeFromFileByPhone(LIST* pL, const char* phone, const char* path)
+int LoadRecordsFromFileByPhone(LIST* pL, const char* phone, const char* path)
 {
 	FILE* fp = NULL;
 	fopen_s(&fp, path, "rb");
@@ -30,7 +30,7 @@ int LoadNodeFromFileByPhone(LIST* pL, const char* phone, const char* path)
 	return 0;
 }
 
-int LoadNodeFromFileByName(LIST* pL, const char* name, const char* path)
+int LoadRecordsFromFileByName(LIST* pL, const char* name, const char* path)
 {
 	int flag = 0;
 
@@ -57,7 +57,7 @@ int LoadNodeFromFileByName(LIST* pL, const char* name, const char* path)
 	return flag;
 }
 
-int LoadNodeFromFileByAge(LIST* pL, const int age, const char* path)
+int LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
 {
 	int flag = 0;
 
@@ -84,7 +84,7 @@ int LoadNodeFromFileByAge(LIST* pL, const int age, const char* path)
 	return flag;
 }
 
-int EditNodeFromFileByAge(NODE* ptr, const int age, const char* path)
+int EditRecordFromFileByAge(NODE* ptr, const int age, const char* path)
 {
 	FILE* fp = NULL;
 	fopen_s(&fp, path, "rb+");
@@ -115,7 +115,7 @@ int EditNodeFromFileByAge(NODE* ptr, const int age, const char* path)
 	return 1;
 }
 
-int EditNodeFromFileByName(NODE* ptr, const char* name, const char* path)
+int EditRecordFromFileByName(NODE* ptr, const char* name, const char* path)
 {
 	FILE* fp = NULL;
 	fopen_s(&fp, path, "rb+");
@@ -145,7 +145,7 @@ int EditNodeFromFileByName(NODE* ptr, const char* name, const char* path)
 	return 1;
 }
 
-int EditNodeFromFileByPhone(NODE* ptr, const char* phone, const char* path)
+int EditRecordFromFileByPhone(NODE* ptr, const char* phone, const char* path)
 {
 	FILE* fp = NULL;
 	fopen_s(&fp, path, "rb+");
@@ -175,7 +175,7 @@ int EditNodeFromFileByPhone(NODE* ptr, const char* phone, const char* path)
 	return 1;
 }
 
-int DeleteNodeFromFile(const char* phone, const char* path)
+int DeleteRecordByPhoneFromFile(const char* phone, const char* path)
 {
 	FILE* fp = NULL;
 	FILE* fpTmp = NULL;
@@ -212,7 +212,7 @@ int DeleteNodeFromFile(const char* phone, const char* path)
 	return 1;
 }
 
-ERR_SEARCH SearchNode(LIST* pResult, const char* input, const char* PATH)
+ERR_SEARCH SearchRecordsFromFile(LIST* pResult, const char* input, const char* PATH)
 {
 	int age1 = 0;
 	int age2 = 0;
@@ -221,17 +221,17 @@ ERR_SEARCH SearchNode(LIST* pResult, const char* input, const char* PATH)
 	char phone1[MAX_PHONE_LEN] = { 0 };
 	char phone2[MAX_PHONE_LEN] = { 0 };
 
-	char temp1[MAX_NAME_LEN] = { 0 };
-	char temp2[MAX_NAME_LEN] = { 0 };
+	char token1[BUFFSIZE] = { 0 };
+	char token2[BUFFSIZE] = { 0 };
 	char op[BUFFSIZE] = { 0 };
 
-	if (!SplitSearchExpression(input, temp1, temp2, op))
+	if (!SplitSearchExpression(input, token1, token2, op))
 		return PARSE_FAILED;
 
-	if (!ClassifyToken(temp1, &age1, name1, phone1))
+	if (!ClassifyToken(token1, &age1, name1, phone1))
 		return CONVERT_FAILED;
 
-	if (temp2[0] != 0)
+	if (token2[0] != 0)
 	{
 		if (strcmp(op, "AND") != 0 && strcmp(op, "and") != 0 &&
 			strcmp(op, "OR") != 0 && strcmp(op, "or") != 0)
@@ -239,7 +239,7 @@ ERR_SEARCH SearchNode(LIST* pResult, const char* input, const char* PATH)
 			return CONVERT_FAILED;
 		}
 
-		if (!ClassifyToken(temp2, &age2, name2, phone2))
+		if (!ClassifyToken(token2, &age2, name2, phone2))
 			return CONVERT_FAILED;
 	}
 
@@ -247,15 +247,15 @@ ERR_SEARCH SearchNode(LIST* pResult, const char* input, const char* PATH)
 	{
 		if (age1 != 0)
 		{
-			LoadNodeFromFileByAge(pResult, age1, PATH);
+			LoadRecordsFromFileByAge(pResult, age1, PATH);
 		}
 		else if (name1[0] != 0)
 		{
-			LoadNodeFromFileByName(pResult, name1, PATH);
+			LoadRecordsFromFileByName(pResult, name1, PATH);
 		}
 		else if (phone1[0] != 0)
 		{
-			LoadNodeFromFileByPhone(pResult, phone1, PATH);
+			LoadRecordsFromFileByPhone(pResult, phone1, PATH);
 		}
 	}
 	else if (op[0] != 0)	// op is "AND" or "OR"
@@ -267,56 +267,56 @@ ERR_SEARCH SearchNode(LIST* pResult, const char* input, const char* PATH)
 
 		if (age1 != 0 && age2 != 0)
 		{
-			LoadNodeFromFileByAge(pTempList1, age1, PATH);
-			LoadNodeFromFileByAge(pTempList2, age2, PATH);
+			LoadRecordsFromFileByAge(pTempList1, age1, PATH);
+			LoadRecordsFromFileByAge(pTempList2, age2, PATH);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (age1 != 0 && name2[0] != 0)
 		{
-			LoadNodeFromFileByAge(pTempList1, age1, PATH);
-			LoadNodeFromFileByName(pTempList2, name2, PATH);
+			LoadRecordsFromFileByAge(pTempList1, age1, PATH);
+			LoadRecordsFromFileByName(pTempList2, name2, PATH);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (age1 != 0 && phone2[0] != 0)
 		{
-			LoadNodeFromFileByAge(pTempList1, age1, PATH);
-			LoadNodeFromFileByPhone(pTempList2, phone2, PATH);
+			LoadRecordsFromFileByAge(pTempList1, age1, PATH);
+			LoadRecordsFromFileByPhone(pTempList2, phone2, PATH);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (name1[0] != 0 && age2 != 0)
 		{
-			LoadNodeFromFileByName(pTempList1, name1, PATH);
-			LoadNodeFromFileByAge(pTempList2, age2, PATH);
+			LoadRecordsFromFileByName(pTempList1, name1, PATH);
+			LoadRecordsFromFileByAge(pTempList2, age2, PATH);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (name1[0] != 0 && name2[0] != 0)
 		{
-			LoadNodeFromFileByName(pTempList1, name1, PATH);
-			LoadNodeFromFileByName(pTempList2, name2, PATH);
+			LoadRecordsFromFileByName(pTempList1, name1, PATH);
+			LoadRecordsFromFileByName(pTempList2, name2, PATH);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (name1[0] != 0 && phone2[0] != 0)
 		{
-			LoadNodeFromFileByName(pTempList1, name1, PATH);
-			LoadNodeFromFileByPhone(pTempList2, phone2, PATH);
+			LoadRecordsFromFileByName(pTempList1, name1, PATH);
+			LoadRecordsFromFileByPhone(pTempList2, phone2, PATH);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (phone1[0] != 0 && age2 != 0)
 		{
-			LoadNodeFromFileByPhone(pTempList1, phone1, PATH);
-			LoadNodeFromFileByAge(pTempList2, age2, PATH);
+			LoadRecordsFromFileByPhone(pTempList1, phone1, PATH);
+			LoadRecordsFromFileByAge(pTempList2, age2, PATH);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (phone1[0] != 0 && name2[0] != 0)
 		{
-			LoadNodeFromFileByPhone(pTempList1, phone1, PATH);
-			LoadNodeFromFileByName(pTempList2, name2, PATH);
+			LoadRecordsFromFileByPhone(pTempList1, phone1, PATH);
+			LoadRecordsFromFileByName(pTempList2, name2, PATH);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (phone1[0] != 0 && phone2[0] != 0)
 		{
-			LoadNodeFromFileByPhone(pTempList1, phone1, PATH);
-			LoadNodeFromFileByPhone(pTempList2, phone2, PATH);
+			LoadRecordsFromFileByPhone(pTempList1, phone1, PATH);
+			LoadRecordsFromFileByPhone(pTempList2, phone2, PATH);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 
@@ -343,7 +343,7 @@ int SaveListToFile(LIST* pL, const char* path)
 	while (ptr != &pL->tail)
 	{
 		int flag = 1;
-		if (LoadNodeFromFileByPhone(NULL, ptr->phone, path) == 1)
+		if (LoadRecordsFromFileByPhone(NULL, ptr->phone, path) == 1)
 			flag = 0;
 
 		if (flag)

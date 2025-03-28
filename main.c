@@ -15,6 +15,9 @@ int main(void)
 	Test_Str_IsAllDigit();
 	Test_Str_IsAllAlpha();
 	Test_Str_IsPhoneFormat();
+	Test_SplitSearchExpression();
+	Test_ClassifyToken();
+	Test_CreateTestDataFile();
 
 	Test_List_Init();
 	Test_List_IsEmpty();

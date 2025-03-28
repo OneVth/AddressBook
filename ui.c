@@ -336,7 +336,7 @@ int UI_InsertNode(const char* PATH)
 
 	if (UI_GetInsertInfo(name, &age, phone))
 	{
-		if (!LoadNodeFromFileByPhone(NULL, phone, PATH))
+		if (!LoadRecordsFromFileByPhone(NULL, phone, PATH))
 		{
 			List_InsertAtEnd(pList, age, name, phone);
 			SaveListToFile(pList, PATH);
@@ -372,14 +372,14 @@ int UI_DeleteNode(const char* PATH)
 		printf("Need the phone number to delete **************\n");
 		UI_GetPhone(phone);
 
-		if (LoadNodeFromFileByPhone(NULL, phone, PATH) != 1)
+		if (LoadRecordsFromFileByPhone(NULL, phone, PATH) != 1)
 		{
 			printf("Deletion failed: No matching record found.\n");
 			return 0;
 		}
 		else
 		{
-			if (DeleteNodeFromFile(phone, PATH) == 1)
+			if (DeleteRecordByPhoneFromFile(phone, PATH) == 1)
 			{
 				printf("Deletion successful.\n");
 			}
@@ -413,7 +413,7 @@ int UI_Search(const char* PATH)
 	char buffer[BUFFSIZE] = { 0 };
 	if (UI_GetSearchString(buffer))
 	{
-		err_no = SearchNode(pResult, buffer, PATH);
+		err_no = SearchRecordsFromFile(pResult, buffer, PATH);
 		if (err_no == SEARCH_SUCCESS)
 		{
 			printf("Search result **********************************\n");
@@ -457,7 +457,7 @@ int UI_EditNode(const char* PATH)
 	printf("Need phone number of the node to edit **************\n");
 	UI_GetPhone(phone);
 
-	if (LoadNodeFromFileByPhone(pList, phone, PATH) != 1)
+	if (LoadRecordsFromFileByPhone(pList, phone, PATH) != 1)
 	{
 		printf("Cannot find the node.\n");
 		return 0;
@@ -482,23 +482,23 @@ int UI_EditNode(const char* PATH)
 				break;
 			case 1:
 				UI_GetAge(&age);
-				EditNodeFromFileByAge(ptr, age, PATH);
+				EditRecordFromFileByAge(ptr, age, PATH);
 
 				break;
 			case 2:
 				UI_GetName(name);
-				EditNodeFromFileByName(ptr, name, PATH);
+				EditRecordFromFileByName(ptr, name, PATH);
 
 				break;
 			case 3:
 				UI_GetPhone(phone);
 
-				if (LoadNodeFromFileByPhone(NULL, phone, PATH) == 1)
+				if (LoadRecordsFromFileByPhone(NULL, phone, PATH) == 1)
 				{
 					printf("Edit failed: Phone number is already exist.\n");
 				}
 				else
-					EditNodeFromFileByPhone(ptr, phone, PATH);
+					EditRecordFromFileByPhone(ptr, phone, PATH);
 				break;
 			default:
 				break;
