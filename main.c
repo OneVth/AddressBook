@@ -1,3 +1,5 @@
+// Entry point of the Address Book program.
+
 /* INCLUDES	*******************************************************/
 #include <stdio.h>
 #include <stdlib.h>

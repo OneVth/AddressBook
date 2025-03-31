@@ -1,3 +1,5 @@
+// Contains utility functions used throughout the program.
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

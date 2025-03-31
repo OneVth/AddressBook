@@ -1,3 +1,5 @@
+// Handles all user interface interactions.
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

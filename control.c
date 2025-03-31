@@ -1,3 +1,5 @@
+// Provides core logic for file-based data manipulation.
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

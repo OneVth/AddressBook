@@ -1,3 +1,5 @@
+// Contains unit tests for all core mudules (list, utility, control).
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

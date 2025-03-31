@@ -28,6 +28,7 @@ int Str_IsPhoneFormat(const char* str);
 
 // These below functions are utility helpers used primarily by UI input parsing.
 // They assume input of the form: [str] [AND/OR] [str]
+// Header file for common module.
 
 /// <summary>
 /// Splits a composite search input into two tokens and an operator.

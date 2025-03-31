@@ -25,6 +25,8 @@ int UI_GetInsertInfo(char* name, int* age, char* phone);
 /// <returns>1 after a successful input; 0 otherwise</returns>
 int UI_GetName(char* buffer);
 
+// Header file for ui module.
+
 /// <summary>
 /// Gets a valid phone number from the user and formats it without hypens.
 /// </summary>

@@ -1,3 +1,5 @@
+// Header file for control module.
+
 #pragma once
 
 typedef enum {
