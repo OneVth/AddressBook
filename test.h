@@ -1,6 +1,11 @@
 #pragma once
 
-#define FILE_PATH_TEST "test.dat"
+#define FILE_PATH_TEST "./Test/test.dat"
+
+void RunAllTests(void);
+void Test_ListFunctions(void);
+void Test_UtilFunctions(void);
+void Test_ControlFunctions(void);
 
 // Util functions *******************************************
 
@@ -28,16 +33,14 @@ void Test_List_CombineByOp(void);
 
 // Control functions *******************************************
 
-int CreateTestDataFile(void);
-void Test_CreateTestDataFile(void);
+int CreateTestDataFile_Minimal(void);
+void Test_CreateTestDataFile_Minimal(void);
 void Test_LoadRecordsFromFileByPhone(void);
-
-// ********************************************************************
-
-void Test_CreateFile(void);
-void Test_ReadFile(void);
-void Test_ListFunctions(void);
-void Test_FileIOFunctions(void);
-void Test_SearchFunctions(void);
-void Test_EditFunctions(void);
-void Test_UIFunctions(void);
+void Test_SaveListToFile(void);
+void Test_LoadRecordsFromFileByName(void);
+void Test_LoadRecordsFromFileByAge(void);
+void Test_EditRecordPhoneFromFile(void);
+void Test_EditRecordAgeFromFile(void);
+void Test_EditRecordNameFromFile(void);
+void Test_DeleteRecordByPhoneFromFile(void);
+void Test_SearchRecordsFromFile(void);

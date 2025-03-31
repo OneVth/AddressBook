@@ -4,6 +4,45 @@
 #include "common.h"
 #include "control.h"
 
+int SaveListToFile(LIST* pL, const char* path)
+{
+	if (List_IsEmpty(pL))
+		return 0;
+
+	NODE* ptr = pL->head.next;
+	NODE* temp = (NODE*)malloc(sizeof(NODE));
+	memset(temp, 0, sizeof(NODE));
+	while (ptr != &pL->tail)
+	{
+		int flag = 1;
+		if (LoadRecordsFromFileByPhone(NULL, ptr->phone, path) == 1)
+			flag = 0;
+
+		if (flag)
+		{
+			FILE* fp = NULL;
+			fopen_s(&fp, path, "ab+");
+			if (fp == NULL)
+			{
+				free(temp);
+				return -1;
+			}
+
+			if (fwrite(ptr, sizeof(NODE), 1, fp) != 1)
+			{
+				fclose(fp);
+				free(temp);
+				return -1;
+			}
+			fclose(fp);
+		}
+		ptr = ptr->next;
+	}
+
+	free(temp);
+	return 1;
+}
+
 int LoadRecordsFromFileByPhone(LIST* pL, const char* phone, const char* path)
 {
 	FILE* fp = NULL;
@@ -84,8 +123,11 @@ int LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
 	return flag;
 }
 
-int EditRecordFromFileByAge(NODE* ptr, const int age, const char* path)
+int EditRecordAgeFromFile(NODE* ptr, const int age, const char* path)
 {
+	if (age < 0 || age >= MAXAGE)
+		return -1;
+
 	FILE* fp = NULL;
 	fopen_s(&fp, path, "rb+");
 	if (fp == NULL)
@@ -115,8 +157,13 @@ int EditRecordFromFileByAge(NODE* ptr, const int age, const char* path)
 	return 1;
 }
 
-int EditRecordFromFileByName(NODE* ptr, const char* name, const char* path)
+int EditRecordNameFromFile(NODE* ptr, const char* name, const char* path)
 {
+	if (!Str_IsAllAlpha(name) || (strlen(name) >= MAX_NAME_LEN - 1))
+	{
+		return -1;
+	}
+
 	FILE* fp = NULL;
 	fopen_s(&fp, path, "rb+");
 	if (fp == NULL)
@@ -145,8 +192,11 @@ int EditRecordFromFileByName(NODE* ptr, const char* name, const char* path)
 	return 1;
 }
 
-int EditRecordFromFileByPhone(NODE* ptr, const char* phone, const char* path)
+int EditRecordPhoneFromFile(NODE* ptr, const char* phone, const char* path)
 {
+	if (!Str_IsPhoneFormat(phone))
+		return -1;
+
 	FILE* fp = NULL;
 	fopen_s(&fp, path, "rb+");
 	if (fp == NULL)
@@ -175,8 +225,12 @@ int EditRecordFromFileByPhone(NODE* ptr, const char* phone, const char* path)
 	return 1;
 }
 
-int DeleteRecordByPhoneFromFile(const char* phone, const char* path)
+int DeleteRecordFromFileByPhone(const char* phone, const char* path)
 {
+	if (!Str_IsPhoneFormat(phone))
+		return -1;
+
+	int recordFound = 0;
 	FILE* fp = NULL;
 	FILE* fpTmp = NULL;
 	fopen_s(&fp, path, "rb");
@@ -201,15 +255,20 @@ int DeleteRecordByPhoneFromFile(const char* phone, const char* path)
 				return 0;
 			}
 		}
+		else
+			recordFound = 1;
 	}
 
 	free(temp);
 	fclose(fpTmp);
 	fclose(fp);
 
-	remove(path);
-	rename("temp.dat", path);
-	return 1;
+	
+	if (remove(path) != 0)
+		return -1;
+	if (rename("temp.dat", path) != 0)
+		return -1;
+	return recordFound;
 }
 
 ERR_SEARCH SearchRecordsFromFile(LIST* pResult, const char* input, const char* PATH)
@@ -330,43 +389,4 @@ ERR_SEARCH SearchRecordsFromFile(LIST* pResult, const char* input, const char* P
 		return SEARCH_SUCCESS;
 	else
 		return NO_MATCH;
-}
-
-int SaveListToFile(LIST* pL, const char* path)
-{
-	if (List_IsEmpty(pL))
-		return 0;
-
-	NODE* ptr = pL->head.next;
-	NODE* temp = (NODE*)malloc(sizeof(NODE));
-	memset(temp, 0, sizeof(NODE));
-	while (ptr != &pL->tail)
-	{
-		int flag = 1;
-		if (LoadRecordsFromFileByPhone(NULL, ptr->phone, path) == 1)
-			flag = 0;
-
-		if (flag)
-		{
-			FILE* fp = NULL;
-			fopen_s(&fp, path, "ab+");
-			if (fp == NULL)
-			{
-				free(temp);
-				return -1;
-			}
-
-			if (fwrite(ptr, sizeof(NODE), 1, fp) != 1)
-			{
-				fclose(fp);
-				free(temp);
-				return -1;
-			}
-			fclose(fp);
-		}
-		ptr = ptr->next;
-	}
-
-	free(temp);
-	return 1;
 }

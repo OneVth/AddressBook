@@ -318,4 +318,3 @@ int List_CombineByOp(LIST* pResultList, LIST* pList1, LIST* pList2, const char* 
 
 	return 1;
 }
-

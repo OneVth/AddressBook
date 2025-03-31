@@ -379,7 +379,7 @@ int UI_DeleteNode(const char* PATH)
 		}
 		else
 		{
-			if (DeleteRecordByPhoneFromFile(phone, PATH) == 1)
+			if (DeleteRecordFromFileByPhone(phone, PATH) == 1)
 			{
 				printf("Deletion successful.\n");
 			}
@@ -482,12 +482,12 @@ int UI_EditNode(const char* PATH)
 				break;
 			case 1:
 				UI_GetAge(&age);
-				EditRecordFromFileByAge(ptr, age, PATH);
+				EditRecordAgeFromFile(ptr, age, PATH);
 
 				break;
 			case 2:
 				UI_GetName(name);
-				EditRecordFromFileByName(ptr, name, PATH);
+				EditRecordNameFromFile(ptr, name, PATH);
 
 				break;
 			case 3:
@@ -498,7 +498,7 @@ int UI_EditNode(const char* PATH)
 					printf("Edit failed: Phone number is already exist.\n");
 				}
 				else
-					EditRecordFromFileByPhone(ptr, phone, PATH);
+					EditRecordPhoneFromFile(ptr, phone, PATH);
 				break;
 			default:
 				break;

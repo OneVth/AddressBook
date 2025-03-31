@@ -8,6 +8,54 @@
 #include "test.h"
 
 #define NODE_MATCH(n, a, b, p) ((n)->age == a && strcmp((n)->name, b) == 0 && strcmp((n)->phone, p) == 0)
+#define NUM_TEST_NODE 5
+
+void RunAllTests(void)
+{
+	Test_ListFunctions();
+	Test_UtilFunctions();
+	Test_ControlFunctions();
+}
+
+void Test_ListFunctions(void)
+{
+	Test_List_Init();
+	Test_List_IsEmpty();
+	Test_List_HasPhone();
+	Test_List_Release();
+	Test_List_InsertAtEnd();
+	Test_List_InsertAtBeg();
+	Test_List_DeleteAtEnd();
+	Test_List_DeleteAtBeg();
+	Test_List_DeleteByPhone();
+	Test_List_CombineByOp();
+}
+
+void Test_UtilFunctions(void)
+{
+	Test_Str_IsAllDigit();
+	Test_Str_IsAllAlpha();
+	Test_Str_IsPhoneFormat();
+	Test_ClassifyToken();
+	Test_SplitSearchExpression();
+}
+
+void Test_ControlFunctions(void)
+{
+	CreateTestDataFile_Minimal();
+	Test_CreateTestDataFile_Minimal();
+	Test_LoadRecordsFromFileByPhone();
+	Test_SaveListToFile();
+	Test_LoadRecordsFromFileByName();
+	Test_LoadRecordsFromFileByAge();
+	Test_EditRecordPhoneFromFile();
+	Test_EditRecordAgeFromFile();
+	Test_EditRecordNameFromFile();
+	Test_DeleteRecordByPhoneFromFile();
+	Test_SearchRecordsFromFile();
+}
+
+// ***********************************************
 
 void Test_Str_IsAllDigit(void)
 {
@@ -66,7 +114,7 @@ void Test_Str_IsAllDigit(void)
 	}
 
 	putchar('\n');
-	return ;
+	return;
 }
 
 void Test_Str_IsAllAlpha(void)
@@ -246,7 +294,7 @@ void Test_SplitSearchExpression(void)
 	{
 		token1Correct = strcmp(token1, "10") == 0;
 		token2Correct = strcmp(token2, "20") == 0;
-		opCorrect = strcmp(op, "OR") == 0; 
+		opCorrect = strcmp(op, "OR") == 0;
 		if (!token1Correct || !token2Correct || !opCorrect)
 		{
 			pass = 0;
@@ -311,7 +359,7 @@ void Test_SplitSearchExpression(void)
 		pass = 0;
 		printf("FAIL: SplitSearchExpression() returned true for invalid input\n");
 	}
-	
+
 	if (SplitSearchExpression("OR 20", token1, token2, op))
 	{
 		pass = 0;
@@ -413,7 +461,7 @@ void Test_ClassifyToken(void)
 		pass = 0;
 		printf("FAIL: SplitSearchExpression() returned false for valid string\n");
 	}
-	
+
 
 	if (pass)
 	{
@@ -657,7 +705,7 @@ void Test_List_InsertAtBeg(void)
 		strcmp(first->name, "B") == 0 &&
 		strcmp(first->phone, "010-0000-0002") == 0 &&
 		first->next == second;
-		
+
 	int secondCorrect = (second->age == 10 &&
 		strcmp(second->name, "A") == 0 &&
 		strcmp(second->phone, "010-0000-0001") == 0 &&
@@ -882,14 +930,14 @@ void Test_List_CombineByOp(void)
 	List_Release(pCombinedList);
 	List_Release(pLeftList);
 	List_Release(pRightList);
-	
+
 	// Case 3: combine both lists are valid and have no duplication by "AND"
 	// Expect: head -> tail
 	List_InsertAtEnd(pLeftList, 10, "A", "010-0000-0001");
 	List_InsertAtEnd(pLeftList, 11, "B", "010-0000-0002");
 	List_InsertAtEnd(pRightList, 12, "C", "010-0000-0003");
 	List_InsertAtEnd(pRightList, 13, "D", "010-0000-0004");
-	
+
 	List_CombineByOp(pCombinedList, pLeftList, pRightList, "AND");
 	firstNode = pCombinedList->head.next;
 	firstCorrect = firstNode == &pCombinedList->tail;
@@ -1011,19 +1059,21 @@ void Test_List_CombineByOp(void)
 	return;
 }
 
-int CreateTestDataFile(void)
+int CreateTestDataFile_Minimal(void)
 {
 	_mkdir("Test");
 
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
 	List_Init(pList);
 
-	List_InsertAtEnd(pList, 10, "Test1", "010-0000-0001");
-	List_InsertAtEnd(pList, 20, "Test2", "010-0000-0002");
-	List_InsertAtEnd(pList, 30, "Test3", "010-0000-0003");
+	List_InsertAtEnd(pList, 10, "A", "010-0000-0001");
+	List_InsertAtEnd(pList, 11, "A", "010-0000-0011");
+	List_InsertAtEnd(pList, 20, "B", "010-0000-0002");
+	List_InsertAtEnd(pList, 20, "C", "010-0000-0022");
+	List_InsertAtEnd(pList, 30, "D", "010-0000-0003");
 
 	FILE* fp = NULL;
-	fopen_s(&fp, "./Test/test.dat", "wb");
+	fopen_s(&fp, FILE_PATH_TEST, "wb");
 	if (fp == NULL)
 	{
 		return 0;
@@ -1032,7 +1082,10 @@ int CreateTestDataFile(void)
 	NODE* ptr = pList->head.next;
 	while (ptr != &pList->tail)
 	{
-		fwrite(ptr, sizeof(NODE), 1, fp);
+		if (fwrite(ptr, sizeof(NODE), 1, fp) != 1)
+		{
+			return 0;
+		}
 		ptr = ptr->next;
 	}
 
@@ -1042,38 +1095,39 @@ int CreateTestDataFile(void)
 	return 1;
 }
 
-void Test_CreateTestDataFile(void)
+void Test_CreateTestDataFile_Minimal(void)
 {
 	int pass = 1;
 
 	int firstCorrect = 0;
 	int secondCorrect = 0;
 	int thirdCorrect = 0;
-	if (!CreateTestDataFile())
+	if (!CreateTestDataFile_Minimal())
 	{
 		pass = 0;
-		printf("FAIL: CreateTestDataFile() failed to create test file\n");
+		printf("FAIL: CreateTestDataFile_Minimal() failed to create test file\n");
 	}
 	else
 	{
 		FILE* fp = NULL;
-		fopen_s(&fp, "./Test/test.dat", "rb");
+		fopen_s(&fp, FILE_PATH_TEST, "rb");
 		if (fp == NULL)
 		{
 			pass = 0;
+			printf("FAIL: CreateTestDataFile_Minimal() could not open test data file\n");
 		}
 
 		NODE* ptr = (NODE*)malloc(sizeof(NODE));
 		memset(ptr, 0, sizeof(NODE));
-		if(fread(ptr, sizeof(NODE), 1, fp) > 0)
+		if (fread(ptr, sizeof(NODE), 1, fp) > 0)
 		{
 			firstCorrect = ptr->age == 10;
-			secondCorrect = strcmp(ptr->name, "Test1") == 0;
+			secondCorrect = strcmp(ptr->name, "A") == 0;
 			thirdCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
 			if (!firstCorrect || !secondCorrect || !thirdCorrect)
 			{
 				pass = 0;
-				printf("FAIL: ");
+				printf("FAIL: CreateTestDataFile_Minimal() test file doesn't match with first expected data\n");
 			}
 			else
 			{
@@ -1083,13 +1137,13 @@ void Test_CreateTestDataFile(void)
 				memset(ptr, 0, sizeof(NODE));
 				if (fread(ptr, sizeof(NODE), 1, fp) > 0)
 				{
-					firstCorrect = ptr->age == 20;
-					secondCorrect = strcmp(ptr->name, "Test2") == 0;
-					thirdCorrect = strcmp(ptr->phone, "010-0000-0002") == 0;
+					firstCorrect = ptr->age == 11;
+					secondCorrect = strcmp(ptr->name, "A") == 0;
+					thirdCorrect = strcmp(ptr->phone, "010-0000-0011") == 0;
 					if (!firstCorrect || !secondCorrect || !thirdCorrect)
 					{
 						pass = 0;
-						printf("FAIL: ");
+						printf("FAIL: CreateTestDataFile_Minimal() test file doesn't match with second expected data\n");
 					}
 					else
 					{
@@ -1099,24 +1153,68 @@ void Test_CreateTestDataFile(void)
 						memset(ptr, 0, sizeof(NODE));
 						if (fread(ptr, sizeof(NODE), 1, fp) > 0)
 						{
-							firstCorrect = ptr->age == 30;
-							secondCorrect = strcmp(ptr->name, "Test3") == 0;
-							thirdCorrect = strcmp(ptr->phone, "010-0000-0003") == 0;
+							firstCorrect = ptr->age == 20;
+							secondCorrect = strcmp(ptr->name, "B") == 0;
+							thirdCorrect = strcmp(ptr->phone, "010-0000-0002") == 0;
 							if (!firstCorrect || !secondCorrect || !thirdCorrect)
 							{
 								pass = 0;
-								printf("FAIL: ");
+								printf("FAIL: CreateTestDataFile_Minimal() test file doesn't match with third expected data\n");
+							}
+							else
+							{
+								firstCorrect = 0;
+								secondCorrect = 0;
+								thirdCorrect = 0;
+								memset(ptr, 0, sizeof(NODE));
+								if (fread(ptr, sizeof(NODE), 1, fp) > 0)
+								{
+									firstCorrect = ptr->age == 20;
+									secondCorrect = strcmp(ptr->name, "C") == 0;
+									thirdCorrect = strcmp(ptr->phone, "010-0000-0022") == 0;
+
+									if (!firstCorrect || !secondCorrect || !thirdCorrect)
+									{
+										pass = 0;
+										printf("FAIL: CreateTestDataFile_Minimal() test file doesn't match with fourth expected data\n");
+									}
+									else
+									{
+										firstCorrect = 0;
+										secondCorrect = 0;
+										thirdCorrect = 0;
+										memset(ptr, 0, sizeof(NODE));
+										if (fread(ptr, sizeof(NODE), 1, fp) > 0)
+										{
+											firstCorrect = ptr->age == 30;
+											secondCorrect = strcmp(ptr->name, "D") == 0;
+											thirdCorrect = strcmp(ptr->phone, "010-0000-0003") == 0;
+
+											if (!firstCorrect || !secondCorrect || !thirdCorrect)
+											{
+												pass = 0;
+												printf("FAIL: CreateTestDataFile_Minimal() test file doesn't match with fifth expected data\n");
+											}
+
+											if (ftell(fp) != sizeof(NODE) * NUM_TEST_NODE)
+											{
+												printf("FAIL: CreateTestDataFile_Minimal() file size doesn't match with expected size\n");
+											}
+										}
+									}
+								}
 							}
 						}
 					}
 				}
 			}
 		}
+		fclose(fp);
 	}
 
 	if (pass)
 	{
-		printf("PASS: CreateTestDataFile() correctly created test file\n");
+		printf("PASS: CreateTestDataFile_Minimal() correctly created test file\n");
 	}
 
 	putchar('\n');
@@ -1125,384 +1223,622 @@ void Test_CreateTestDataFile(void)
 
 void Test_LoadRecordsFromFileByPhone(void)
 {
-
-	return;
-}
-
-void Test_CreateFile(void)
-{
-	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	List_Init(pList);
-
-	List_InsertAtEnd(pList, 10, "Kim", "010-0000-0000");
-	List_InsertAtEnd(pList, 11, "Kim", "010-0000-0001");
-	List_InsertAtEnd(pList, 12, "Kim", "010-0000-0002");
-	List_InsertAtEnd(pList, 13, "Kim", "010-0000-0003");
-	List_InsertAtEnd(pList, 14, "Lee", "010-0000-0004");
-	List_InsertAtEnd(pList, 15, "Lee", "010-0000-0005");
-	List_InsertAtEnd(pList, 16, "Park", "010-0000-0006");
-	List_InsertAtEnd(pList, 17, "Jung", "010-0000-0007");
-	List_InsertAtEnd(pList, 18, "Hwang", "010-0000-0008");
-	List_InsertAtEnd(pList, 19, "Sung", "010-0000-0009");
-	List_InsertAtEnd(pList, 20, "Kim", "010-0000-0010");
-	List_InsertAtEnd(pList, 20, "Lee", "010-0000-0011");
-	List_InsertAtEnd(pList, 20, "Park", "010-0000-0012");
-
-	printf("Test file *********************\n");
-
-	FILE* fp = NULL;
-	fopen_s(&fp, FILE_PATH_TEST, "wb");
-	if (fp == NULL)
+	if (!CreateTestDataFile_Minimal())
 	{
-		printf("Failed to open file.\n");
+		printf("FAIL: Test_LoadRecordsFromFileByPhone() failed to create test file\n");
+		putchar('\n');
 		return;
 	}
 
-	NODE* ptr = pList->head.next;
-	while (ptr != &pList->tail)
+	int pass = 1;
+
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	List_Init(pList);
+
+	// Case 1: valid phone number
+	if (!LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST))
 	{
-		printf("%2d %-5s %s\n", ptr->age, ptr->name, ptr->phone);
-		fwrite(ptr, sizeof(NODE), 1, fp);
-		ptr = ptr->next;
+		pass = 0;
+		printf("FAIL: LoadRecordsFromFileByPhone() returned false for valid phone number\n");
+	}
+	else
+	{
+		NODE* ptr = pList->head.next;
+		int ageCorrect = ptr->age == 10;
+		int nameCorrect = strcmp(ptr->name, "A") == 0;
+		int phoneCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
+		if (!ageCorrect || !nameCorrect || !phoneCorrect)
+		{
+			pass = 0;
+			printf("FAIL: LoadRecordsFromFileByPhone() failed to load expected data\n");
+		}
 	}
 
-	List_Release(pList);
-	fclose(fp);
-	printf("*******************************\n\n");
+	// Case 2: invalid phone number
+	if (LoadRecordsFromFileByPhone(pList, "010-9999-9999", FILE_PATH_TEST))
+	{
+		pass = 0;
+		printf("FAIL: LoadRecordsFromFileByPhone() returned true for invalid phone number\n");
+	}
+
+	if (pass)
+	{
+		printf("PASS: LoadRecordsFromFileByPhone() correctly load record\n");
+		printf("PASS: LoadRecordsFromFileByPhone() correctly returned false for invalid phone number\n");
+	}
+
+	putchar('\n');
 	return;
 }
 
-void Test_ReadFile(void)
+void Test_SaveListToFile(void)
 {
-	printf("ReadTestFile() ***************\n");
-	FILE* fp = NULL;
-	fopen_s(&fp, FILE_PATH_TEST, "rb");
-	if (fp == NULL)
+	if (!CreateTestDataFile_Minimal())
 	{
-		printf("Failed to open file.\n");
+		printf("FAIL: Test_SaveListToFile() file creation failed\n");
 		return;
 	}
 
-	NODE* temp = (NODE*)malloc(sizeof(NODE));
-	memset(temp, 0, sizeof(NODE));
-	while (fread(temp, sizeof(NODE), 1, fp) > 0)
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	List_Init(pList);
+
+	if (!List_InsertAtEnd(pList, 10, "A", "010-0000-0001"))
 	{
-		printf("%2d %-5s %s\n", temp->age, temp->name, temp->phone);
+		printf("FAIL: Test_SaveListToFile() failed to call List_InsertAtEnd()\n");
+		putchar('\n');
+		return;
 	}
 
-	free(temp);
-	fclose(fp);
-	printf("*******************************\n\n");
+	if (!List_InsertAtEnd(pList, 99, "Z", "010-9999-9999"))
+	{
+		printf("FAIL: Test_SaveListToFile() failed to call List_InsertAtEnd()\n");
+		putchar('\n');
+		return;
+	}
+
+	if (!List_InsertAtEnd(pList, 98, "Y", "010-9999-9998"))
+	{
+		printf("FAIL: Test_SaveListToFile() failed to call List_InsertAtEnd()\n");
+		putchar('\n');
+		return;
+	}
+
+	if (!List_InsertAtEnd(pList, 97, "X", "010-9999-9997"))
+	{
+		printf("FAIL: Test_SaveListToFile() failed to call List_InsertAtEnd()\n");
+		putchar('\n');
+		return;
+	}
+
+	int pass = 1;
+	if (!SaveListToFile(pList, FILE_PATH_TEST))
+	{
+		pass = 0;
+		printf("FAIL: Test_SaveListToFile() returned false for valid list\n");
+	}
+	else
+	{
+		FILE* fp = NULL;
+		fopen_s(&fp, FILE_PATH_TEST, "rb");
+		if (fp == NULL)
+		{
+			printf("FAIL: Test_SaveListToFile() failed to open file\n");
+			return;
+		}
+
+		fseek(fp, 0, SEEK_END);
+		if (ftell(fp) != (NUM_TEST_NODE + 3) * sizeof(NODE))	// number of (Test node + new node)
+		{
+			pass = 0;
+			printf("FAIL: Test_SaveListToFile() file size doesn't match with expected size\n");
+		}
+
+		if (!LoadRecordsFromFileByPhone(NULL, "010-9999-9999", FILE_PATH_TEST))
+		{
+			pass = 0;
+			printf("FAIL: Test_SaveListToFile() didn't save the list properly\n");
+		}
+		fclose(fp);
+	}
+
+	if (pass)
+	{
+		printf("PASS: Test_SaveListToFile() correctly save list to file\n");
+		printf("PASS: Test_SaveListToFile() wrote correct number of bytes\n");
+		printf("PASS: Test_SaveListToFile() created file successfully\n");
+	}
+
+	List_Release(pList);
+	free(pList);
+	putchar('\n');
 	return;
 }
 
-void Test_ListFunctions(void)
+void Test_LoadRecordsFromFileByName(void)
 {
-	LIST* pList1 = (LIST*)malloc(sizeof(LIST));
-	LIST* pList2 = (LIST*)malloc(sizeof(LIST));
-	LIST* pList3 = (LIST*)malloc(sizeof(LIST));
-	LIST* pList4 = (LIST*)malloc(sizeof(LIST));
-	List_Init(pList1);
-	List_Init(pList2);
-	List_Init(pList3);
-	List_Init(pList4);
-
-	printf("Print before insertion:\n");
-	UI_PrintList(pList1);
-	printf("\nList_IsEmpty(List1): %d\n", List_IsEmpty(pList1));
-	printf("List_HasPhone(%s): %d\n", "010-0000-0000", List_HasPhone(pList1, "010-0000-0000"));
-
-	List_InsertAtBeg(pList1, 10, "Kim", "010-0000-0000");
-	List_InsertAtBeg(pList1, 11, "Kim", "010-0000-0001");
-	List_InsertAtBeg(pList1, 12, "Kim", "010-0000-0002");
-
-	List_InsertAtEnd(pList2, 10, "Kim", "010-0000-0000");
-	List_InsertAtEnd(pList2, 13, "Lee", "010-0000-0003");
-	List_InsertAtEnd(pList2, 14, "Lee", "010-0000-0004");
-
-	printf("\nPrint List1 after insertion:\n");
-	UI_PrintList(pList1);
-
-	printf("\nPrint List2 after insertion:\n");
-	UI_PrintList(pList2);
-	printf("\nList_IsEmpty(List1): %d\n", List_IsEmpty(pList1));
-	printf("List_HasPhone(%s): %d\n", "010-0000-0000", List_HasPhone(pList1, "010-0000-0000"));
-
-	printf("\nCombine List1 with List2 into List3 by \"AND\" operator:\n");
-	List_CombineByOp(pList3, pList1, pList2, "AND");
-	UI_PrintList(pList3);
-
-	printf("\nRelease List3:\n");
-	List_Release(pList3);
-	List_Init(pList3);
-	printf("List_IsEmpty(List3): %d\n", List_IsEmpty(pList3));
-
-	printf("\nCombine List1 with List2 into List3 by \"and\" operator:\n");
-	List_CombineByOp(pList3, pList1, pList2, "and");
-	UI_PrintList(pList3);
-
-	printf("\nCombine List1 with List2 into List4 by \"OR\" operator:\n");
-	List_CombineByOp(pList4, pList1, pList2, "OR");
-	UI_PrintList(pList4);
-
-	printf("\nRelease List4:\n");
-	List_Release(pList4);
-	List_Init(pList4);
-	printf("List_IsEmpty(List4): %d\n", List_IsEmpty(pList4));
-
-	printf("\nCombine List1 with List2 into List4 by \"or\" operator:\n");
-	List_CombineByOp(pList4, pList1, pList2, "or");
-	UI_PrintList(pList4);
-
-	for (int i = 0; i < 3; i++)
+	if (!CreateTestDataFile_Minimal())
 	{
-		List_DeleteAtBeg(pList1);
-		printf("\nPrint after %d deletion node at begin of list:\n", i + 1);
-		UI_PrintList(pList1);
+		printf("FAIL: Test_LoadRecordsFromFileByName() failed to create test file\n");
+		putchar('\n');
+		return;
 	}
 
-	for (int i = 0; i < 3; i++)
+	int pass = 1;
+
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	List_Init(pList);
+
+	// Case 1: valid name
+	if (!LoadRecordsFromFileByName(pList, "A", FILE_PATH_TEST))
 	{
-		List_DeleteAtEnd(pList2);
-		printf("\nPrint after %d deletion node at end of list:\n", i + 1);
-		UI_PrintList(pList2);
+		pass = 0;
+		printf("FAIL: LoadRecordsFromFileByName() returned false for valid name\n");
+	}
+	else
+	{
+		NODE* ptr = pList->head.next;
+		int ageCorrect = ptr->age == 10;
+		int nameCorrect = strcmp(ptr->name, "A") == 0;
+		int phoneCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
+		if (!ageCorrect || !nameCorrect || !phoneCorrect)
+		{
+			pass = 0;
+			printf("FAIL: LoadRecordsFromFileByName() failed to load first expected record\n");
+		}
+		else
+		{
+			ptr = ptr->next;
+			ageCorrect = ptr->age == 11;
+			nameCorrect = strcmp(ptr->name, "A") == 0;
+			phoneCorrect = strcmp(ptr->phone, "010-0000-0011") == 0;
+			if (!ageCorrect || !nameCorrect || !phoneCorrect)
+			{
+				pass = 0;
+				printf("FAIL: LoadRecordsFromFileByName() failed to load second expected record\n");
+			}
+			else
+			{
+				if (!(ptr->next == &pList->tail))
+				{
+					pass = 0;
+					printf("FAIL: LoadRecordsFromFileByName() \n");
+				}
+			}
+		}
 	}
 
-	printf("\nBefore delettion of node phone number \"%s\" at List3:\n", "010-0000-0000");
-	UI_PrintList(pList3);
+	// Case 2: invalid name
+	if (LoadRecordsFromFileByName(pList, "Z", FILE_PATH_TEST))
+	{
+		pass = 0;
+		printf("FAIL: LoadRecordsFromFileByName() returned true for invalid name\n");
+	}
 
-	List_DeleteByPhone(pList3, "010-0000-0000");
-	printf("After delettion of node phone number \"%s\" at List3:\n", "010-0000-0000");
-	UI_PrintList(pList3);
-
-	List_Release(pList1);
-	List_Release(pList2);
-	List_Release(pList3);
-	List_Release(pList4);
-	free(pList1);
-	free(pList2);
-	free(pList3);
-	free(pList4);
+	if (pass)
+	{
+		printf("PASS: LoadRecordsFromFileByName() correctly load first record\n");
+		printf("PASS: LoadRecordsFromFileByName() correctly load second record\n");
+		printf("PASS: LoadRecordsFromFileByName() correctly returned false for invalid name\n");
+	}
+	putchar('\n');
 	return;
 }
 
-void Test_SearchFunctions(void)
+void Test_LoadRecordsFromFileByAge(void)
 {
-	Test_CreateFile();
+	if (!CreateTestDataFile_Minimal())
+	{
+		printf("FAIL: Test_LoadRecordsFromFileByAge() failed to create test file\n");
+		putchar('\n');
+		return;
+	}
+
+	int pass = 1;
 
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
 	List_Init(pList);
 
-	NODE* ptr = (NODE*)malloc(sizeof(NODE));
-	ptr->age = 15;
-	strcpy_s(ptr->name, sizeof(ptr->name), "Kim");
-	strcpy_s(ptr->phone, sizeof(ptr->phone), "010-9999-9999");
-
-	// Test search by phone ----------------------------------------------------
-	printf("Search by phone number ************\n");
-	printf("Origin: %2d %s [%s]\n", ptr->age, ptr->name, ptr->phone);
-	if (LoadRecordsFromFileByPhone(pList, ptr->phone, FILE_PATH_TEST))
+	// Case 1: valid age
+	if (!LoadRecordsFromFileByAge(pList, 20, FILE_PATH_TEST))
 	{
-		// Phone number duplication doesn't exist
-		NODE* temp = pList->head.next;
-		printf("Found: %3d %-5s [%s]\n", temp->age, temp->name, temp->phone);
+		pass = 0;
+		printf("FAIL: LoadRecordsFromFileByAge() returned false for valid age\n");
 	}
 	else
 	{
-		printf("Not Found\n");
-	}
-	List_Release(pList);
-	printf("***********************************\n\n");
-
-
-	// Test search by name ----------------------------------------------------
-	List_Init(pList);
-
-	printf("Search by name ********************\n");
-	printf("Origin: %2d [%s] %s\n", ptr->age, ptr->name, ptr->phone);
-	if (LoadRecordsFromFileByName(pList, ptr->name, FILE_PATH_TEST))
-	{
-		NODE* temp = pList->head.next;
-		while (temp != &pList->tail)
+		NODE* ptr = pList->head.next;
+		int ageCorrect = ptr->age == 20;
+		int nameCorrect = strcmp(ptr->name, "B") == 0;
+		int phoneCorrect = strcmp(ptr->phone, "010-0000-0002") == 0;
+		if (!ageCorrect || !nameCorrect || !phoneCorrect)
 		{
-			printf("Found: %2d - [%s] - %s\n", temp->age, temp->name, temp->phone);
-			temp = temp->next;
+			pass = 0;
+			printf("FAIL: LoadRecordsFromFileByAge() failed to load first expected record\n");
+		}
+		else
+		{
+			ptr = ptr->next;
+			ageCorrect = ptr->age == 20;
+			nameCorrect = strcmp(ptr->name, "C") == 0;
+			phoneCorrect = strcmp(ptr->phone, "010-0000-0022") == 0;
+			if (!ageCorrect || !nameCorrect || !phoneCorrect)
+			{
+				pass = 0;
+				printf("FAIL: LoadRecordsFromFileByAge() failed to load second expected record\n");
+			}
+			else
+			{
+				if (!(ptr->next == &pList->tail))
+				{
+					pass = 0;
+					printf("FAIL: LoadRecordsFromFileByAge() \n");
+				}
+			}
 		}
 	}
+
+	// Case 2: invalid age
+	if (LoadRecordsFromFileByAge(pList, 99, FILE_PATH_TEST))
+	{
+		pass = 0;
+		printf("FAIL: LoadRecordsFromFileByAge() returned true for invalid age\n");
+	}
+
+	if (pass)
+	{
+		printf("PASS: LoadRecordsFromFileByAge() correctly load first record\n");
+		printf("PASS: LoadRecordsFromFileByAge() correctly load second record\n");
+		printf("PASS: LoadRecordsFromFileByAge() correctly returned false for invalid age\n");
+	}
+	putchar('\n');
+	return;
+}
+
+void Test_EditRecordPhoneFromFile(void)
+{
+	if (!CreateTestDataFile_Minimal())
+	{
+		printf("FAIL: Test_EditRecordPhoneFromFile() failed to create test file\n");
+		putchar('\n');
+		return;
+	}
+
+	int pass = 1;
+
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	List_Init(pList);
+
+	if (LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST) != 1)
+	{
+		pass = 0;
+		printf("FAIL: Test_EditRecordPhoneFromFile() failed to load test records");
+	}
 	else
 	{
-		printf("Not Found\n");
-	}
-	List_Release(pList);
-	printf("***********************************\n\n");
-
-	// Test search by age ----------------------------------------------------
-	List_Init(pList);
-	printf("Search by age *********************\n");
-	printf("Origin: [%2d] %s %s\n", ptr->age, ptr->name, ptr->phone);
-	if (LoadRecordsFromFileByAge(pList, ptr->age, FILE_PATH_TEST))
-	{
-		NODE* temp = pList->head.next;
-		while (temp != &pList->tail)
+		NODE* ptr = pList->head.next;
+		if (EditRecordPhoneFromFile(ptr, "010-0000-9999", FILE_PATH_TEST) != 1)
 		{
-			printf("Found: [%2d] - %s - %s\n", temp->age, temp->name, temp->phone);
-			temp = temp->next;
+			pass = 0;
+			printf("FAIL: Test_EditRecordPhoneFromFile() properly open/write to file\n");
+		}
+		else
+		{
+			List_Release(pList);
+			if (LoadRecordsFromFileByPhone(pList, "010-0000-9999", FILE_PATH_TEST) != 1)
+			{
+				pass = 0;
+				printf("FAIL: Test_EditRecordPhoneFromFile() failed to load edited record\n");
+			}
+			else
+			{
+				ptr = pList->head.next;
+				int ageCorrect = ptr->age == 10;
+				int nameCorrect = strcmp(ptr->name, "A") == 0;
+				int phoneCorrect = strcmp(ptr->phone, "010-0000-9999") == 0;
+				if (!ageCorrect || !nameCorrect || !phoneCorrect)
+				{
+					pass = 0;
+					printf("FAIL: Test_EditRecordPhoneFromFile() didn't correctly edit record\n");
+				}
+			}
 		}
 	}
+
+	if (pass)
+	{
+		printf("PASS: Test_EditRecordPhoneFromFile() correctly edit record for valid phone number\n");
+	}
+	putchar('\n');
+	return;
+}
+
+void Test_EditRecordAgeFromFile(void)
+{
+	if (!CreateTestDataFile_Minimal())
+	{
+		printf("FAIL: Test_EditRecordAgeFromFile() failed to create test file\n");
+		putchar('\n');
+		return;
+	}
+
+	int pass = 1;
+
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	List_Init(pList);
+
+	if (LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST) != 1)
+	{
+		pass = 0;
+		printf("FAIL: Test_EditRecordAgeFromFile() failed to load test records");
+	}
 	else
 	{
-		printf("Not Found\n");
+		NODE* ptr = pList->head.next;
+		if (EditRecordAgeFromFile(ptr, 99, FILE_PATH_TEST) != 1)
+		{
+			pass = 0;
+			printf("FAIL: Test_EditRecordAgeFromFile() properly open/write to file\n");
+		}
+		else
+		{
+			List_Release(pList);
+			if (LoadRecordsFromFileByAge(pList, 99, FILE_PATH_TEST) != 1)
+			{
+				pass = 0;
+				printf("FAIL: Test_EditRecordAgeFromFile() failed to load edited record\n");
+			}
+			else
+			{
+				ptr = pList->head.next;
+				int ageCorrect = ptr->age == 99;
+				int nameCorrect = strcmp(ptr->name, "A") == 0;
+				int phoneCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
+				if (!ageCorrect || !nameCorrect || !phoneCorrect)
+				{
+					pass = 0;
+					printf("FAIL: Test_EditRecordAgeFromFile() didn't correctly edit record\n");
+				}
+			}
+		}
 	}
-	List_Release(pList);
-	printf("***********************************\n\n");
 
-	free(ptr);
-	free(pList);
-}
-
-void Test_FileIOFunctions(void)
-{
-	Test_CreateFile();
-
-	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	List_Init(pList);
-
-	// don't exist
-	List_InsertAtEnd(pList, 20, "Park", "010-0001-0000");
-	List_InsertAtEnd(pList, 21, "Park", "010-0002-0000");
-	List_InsertAtEnd(pList, 22, "Park", "010-0003-0000");
-
-	// already exist
-	List_InsertAtEnd(pList, 13, "Kim", "010-0000-0003");
-	List_InsertAtEnd(pList, 14, "Lee", "010-0000-0004");
-	List_InsertAtEnd(pList, 15, "Lee", "010-0000-0005");
-
-	SaveListToFile(pList, FILE_PATH_TEST);
-	free(pList);
-
-	printf("Test: file IO function ********\n");
-	Test_ReadFile();
-	printf("*******************************\n\n");
-}
-
-void Test_EditFunctions(void)
-{
-	Test_CreateFile();
-
-	NODE* temp = (NODE*)malloc(sizeof(NODE));
-	temp->next = NULL;
-	temp->prev = NULL;
-	temp->age = 13;
-	strcpy_s(temp->name, sizeof(temp->name), "Kim");
-	strcpy_s(temp->phone, sizeof(temp->phone), "010-0000-0003");
-
-	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	List_Init(pList);
-	LoadRecordsFromFileByPhone(pList, temp->phone, FILE_PATH_TEST);
-	EditRecordFromFileByAge(pList->head.next, 93, FILE_PATH_TEST);
-	EditRecordFromFileByName(pList->head.next, "Test", FILE_PATH_TEST);
-	EditRecordFromFileByPhone(pList->head.next, "010-1234-5678", FILE_PATH_TEST);
-	List_Release(pList);
-	free(temp);
-
-	printf("Test: edit function ***********\n");
-	Test_ReadFile();
-	printf("*******************************\n\n");
-}
-
-void Test_UIFunctions(void)
-{
-	Test_CreateFile();
-	//InsertNode(FILE_PATH_TEST);
-	//EditNode(FILE_PATH_TEST);
-	//DeleteNode(FILE_PATH_TEST);
-
-	const char* testCases[] = {
-		// ********************** Single ***********************
-		"Lee",								// name (multiple matching)
-		"Sung",								// name (single matching)
-		"20",								// age (multiple matching)
-		"10",								// age (single matching)
-		"010-0000-0000",					// phone (single matching)
-		"010-0000-0012",					// phone (single matching)
-
-		// ********************** AND **************************
-		"20 AND Kim",						// age AND name (matching)
-		"20 AND Lee",						// age AND name (non-matching)
-		"12 AND 010-0000-0002",				// age AND phone (matching)
-		"12 AND 010-0000-0001",				// age AND phone (non-matching)
-		"Jung AND 17",						// name AND age (matching)
-		"Lee AND 10",						// name AND age (non-matching)
-		"Lee AND 010-0000-0011",			// name AND phone (matching)
-		"Kim AND 010-0000-0007",			// name AND phone (non-matching)
-		"010-0000-0000 AND 10",				// phone AND age (matching)
-		"010-0000-0001 AND 15",				// phone AND age (non-matching)
-
-		// ********************** OR ***************************
-		"14 OR 20",							// age OR age (both matching)
-		"10 OR 30",							// age OR age (left matching)
-		"30 OR 15",							// age OR age (right matching)
-		"30 OR 40",							// age OR age (non-matching)
-
-		"20 OR Hwang",						// age OR name (both matching)
-		"18 OR Kwon",						// age OR name (left matching) 
-		"30 OR Kim",						// age OR name (right matching) 
-		"30 OR Jeon",						// age OR name (non-matching) 
-
-		"15 OR 010-0000-0012",				// age OR phone (both matching)
-		"19 OR 010-0000-1111",				// age OR phone (left matching)
-		"30 OR 010-0000-0008",				// age OR phone (right matching)
-		"40 OR 010-0000-2222",				// age OR phone (non-matching)
-
-		"Kim OR 14",						// name OR age (both matching)
-		"Lee OR 30",						// name OR age (left matching)
-		"Kwon OR 17",						// name OR age (right matching)
-		"Kwon OR 30",						// name OR age (non-matching)
-
-		"Kim OR Park",						// name OR name (both matching)
-		"Kim OR Kwon",						// name OR name (left matching)
-		"Kwon OR Lee",						// name OR name (right matching)
-		"Kwon OR Jeon",						// name OR name (non-matching)
-
-		"Park OR 010-0000-0006",			// name OR phone (both matching)
-		"Lee OR 010-0000-3333",				// name OR phone (left matching)
-		"Kwon OR 010-0000-0011",			// name OR phone (right matching)
-		"Jeon OR 010-0000-4444",			// name OR phone (non-matching)
-
-		"010-0000-0000 OR 10",				// phone OR age (both matching) 
-		"010-0000-0004 OR 30",				// phone OR age (left matching) 
-		"010-0000-5555 OR 20",				// phone OR age (right matching)
-		"010-0000-6666 OR 40",				// phone OR age (non-matching)
-
-		"010-0000-0003 OR Kim",				// phone OR name (both matching)
-		"010-0000-0006 OR Kwon",			// phone OR name (left matching) 
-		"010-0000-7777 OR Lee",				// phone OR name (right matching) 
-		"010-0000-8888 OR Jeon",			// phone OR name (non-matching) 
-
-		"010-0000-0003 OR 010-0000-0005",	// phone OR phone (both matching)
-		"010-0000-0004 OR 010-0000-9999",	// phone OR phone (left matching)
-		"010-0000-1111 OR 010-0000-0007",	// phone OR phone (right matching)
-		"010-0000-2222 OR 010-0000-3333",	// phone OR phone (non-matching)
-
-		// ********************* Invalid ************************
-		"\n",									// empty input
-		"abc",								// invalid name
-		"999",								// invalid age
-		"010-9999-9999",					// nonexistent phone
-		"Kim XOR Park",						// invalid operator
-		"Kim AND",							// incomplete expression
-		"AND Kim Lee",						// misplaced operator
-		"20 AND abc@"						// special characters
-	};
-
-	int testStringCount = sizeof(testCases) / sizeof(testCases[0]);
-	LIST* pSearched = (LIST*)malloc(sizeof(LIST));
-	for (int i = 0; i < testStringCount; i++)
+	if (pass)
 	{
-		SearchRecordsFromFile(pSearched, testCases[i], FILE_PATH_TEST);
+		printf("PASS: Test_EditRecordAgeFromFile() correctly edit record for valid age\n");
+	}
+	putchar('\n');
+	return;
+}
+
+void Test_EditRecordNameFromFile(void)
+{
+	if (!CreateTestDataFile_Minimal())
+	{
+		printf("FAIL: Test_EditRecordNameFromFile() failed to create test file\n");
+		putchar('\n');
+		return;
 	}
 
-	//UI_PrintAll(FILE_PATH_TEST);
+	int pass = 1;
 
-	Test_ReadFile();
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	List_Init(pList);
+
+	if (LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST) != 1)
+	{
+		pass = 0;
+		printf("FAIL: Test_EditRecordNameFromFile() failed to load test records");
+	}
+	else
+	{
+		NODE* ptr = pList->head.next;
+		if (EditRecordNameFromFile(ptr, "Z", FILE_PATH_TEST) != 1)
+		{
+			pass = 0;
+			printf("FAIL: Test_EditRecordNameFromFile() properly open/write to file\n");
+		}
+		else
+		{
+			List_Release(pList);
+			if (LoadRecordsFromFileByName(pList, "Z", FILE_PATH_TEST) != 1)
+			{
+				pass = 0;
+				printf("FAIL: Test_EditRecordNameFromFile() failed to load edited record\n");
+			}
+			else
+			{
+				ptr = pList->head.next;
+				int ageCorrect = ptr->age == 10;
+				int nameCorrect = strcmp(ptr->name, "Z") == 0;
+				int phoneCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
+				if (!ageCorrect || !nameCorrect || !phoneCorrect)
+				{
+					pass = 0;
+					printf("FAIL: Test_EditRecordNameFromFile() didn't correctly edit record\n");
+				}
+			}
+		}
+	}
+
+	if (pass)
+	{
+		printf("PASS: Test_EditRecordNameFromFile() correctly edit record for valid name\n");
+	}
+	putchar('\n');
+	return;
 }
+
+void Test_DeleteRecordByPhoneFromFile(void)
+{
+	if (!CreateTestDataFile_Minimal())
+	{
+		printf("FAIL: Test_EditRecordNameFromFile() failed to create test file\n");
+		putchar('\n');
+		return;
+	}
+
+	int pass = 1;
+
+	// Case 1: invalid phone number
+	if (DeleteRecordFromFileByPhone("010-0000-9999", FILE_PATH_TEST) == 1)
+	{
+		pass = 0;
+		printf("FAIL: Test_DeleteRecordByPhoneFromFile() returned true for invalid phone number\n");
+	}
+
+	// Case 2: valid phone number
+	if (DeleteRecordFromFileByPhone("010-0000-0001", FILE_PATH_TEST) != 1)
+	{
+		pass = 0;
+		printf("FAIL: Test_DeleteRecordByPhoneFromFile() properly open/write to file\n");
+	}
+	else
+	{
+		LIST* pList = (LIST*)malloc(sizeof(LIST));
+		List_Init(pList);
+
+		FILE* fp = NULL;
+		fopen_s(&fp, FILE_PATH_TEST, "rb");
+		if (fp == NULL)
+		{
+			printf("FAIL: Test_DeleteRecordByPhoneFromFile() failed to open file\n");
+			return;
+		}
+		fseek(fp, 0, SEEK_END);
+
+		if (LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST) == 1 || ftell(fp) != sizeof(NODE) * (NUM_TEST_NODE - 1))
+		{
+			pass = 0;
+			printf("FAIL: Test_DeleteRecordByPhoneFromFile() failed to remove existing record\n");
+			List_Release(pList);
+		}
+
+		fclose(fp);
+		free(pList);
+	}
+
+	if (pass)
+	{
+		printf("PASS: Test_DeleteRecordByPhoneFromFile() successfully removed the record with given phone\n");
+		printf("PASS: Test_DeleteRecordByPhoneFromFile() correctly return flase for invalid phone number\n");
+	}
+
+	putchar('\n');
+	return;
+}
+
+void Test_SearchRecordsFromFile(void)
+{
+	if (!CreateTestDataFile_Minimal())
+	{
+		printf("FAIL: Test_EditRecordNameFromFile() failed to create test file\n");
+		putchar('\n');
+		return;
+	}
+
+	int pass = 1;
+
+	LIST* pResult = (LIST*)malloc(sizeof(LIST));
+	List_Init(pResult);
+
+	NODE* ptr = NULL;
+	int ageCorrect = 0;
+	int nameCorrect = 0;
+	int phoneCorrect = 0;
+
+	// Case 1: single result
+	if (SearchRecordsFromFile(pResult, "10", FILE_PATH_TEST) != SEARCH_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_SearchRecordsFromFile() failed to search record for valid input\n");
+	}
+	else
+	{
+		ptr = pResult->head.next;
+		ageCorrect = ptr->age == 10;
+		nameCorrect = strcmp(ptr->name, "A") == 0;
+		phoneCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
+		if (!ageCorrect || !nameCorrect || !phoneCorrect)
+		{
+			pass = 0;
+			printf("FAIL: Test_SearchRecordsFromFile() failed to search from given record\n");
+		}
+		List_Release(pResult);
+	}
+
+
+	// Case 2: multiple result
+	if (SearchRecordsFromFile(pResult, "A", FILE_PATH_TEST) != SEARCH_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_SearchRecordsFromFile() failed to search record for valid input\n");
+	}
+	else
+	{
+		ptr = pResult->head.next;
+		ageCorrect = ptr->age == 10;
+		nameCorrect = strcmp(ptr->name, "A") == 0;
+		phoneCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
+		if (!ageCorrect || !nameCorrect || !phoneCorrect)
+		{
+			pass = 0;
+			printf("FAIL: Test_SearchRecordsFromFile() failed to search for first expected record\n");
+		}
+		else
+		{
+			ptr = ptr->next;
+			ageCorrect = ptr->age == 11;
+			nameCorrect = strcmp(ptr->name, "A") == 0;
+			phoneCorrect = strcmp(ptr->phone, "010-0000-0011") == 0;
+			if (!ageCorrect || !nameCorrect || !phoneCorrect)
+			{
+				pass = 0;
+				printf("FAIL: Test_SearchRecordsFromFile() failed to search for second expected record\n");
+			}
+		}
+		List_Release(pResult);
+	}
+
+	// Case 3: search with operator
+	if (SearchRecordsFromFile(pResult, "10 OR 010-0000-0003", FILE_PATH_TEST) != SEARCH_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_SearchRecordsFromFile() failed to search record for valid input\n");
+	}
+	else
+	{
+		ptr = pResult->head.next;
+		ageCorrect = ptr->age == 10;
+		nameCorrect = strcmp(ptr->name, "A") == 0;
+		phoneCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
+		if (!ageCorrect || !nameCorrect || !phoneCorrect)
+		{
+			pass = 0;
+			printf("FAIL: Test_SearchRecordsFromFile() failed to search for first expected record\n");
+		}
+		else
+		{
+			ptr = ptr->next;
+			ageCorrect = ptr->age == 30;
+			nameCorrect = strcmp(ptr->name, "D") == 0;
+			phoneCorrect = strcmp(ptr->phone, "010-0000-0003") == 0;
+			if (!ageCorrect || !nameCorrect || !phoneCorrect)
+			{
+				pass = 0;
+				printf("FAIL: Test_SearchRecordsFromFile() failed to search for second expected record\n");
+			}
+		}
+		List_Release(pResult);
+	}
+	free(pResult);
+
+	if (pass)
+	{
+		printf("PASS: Test_SearchRecordsFromFile() correctly search single record\n");
+		printf("PASS: Test_SearchRecordsFromFile() correctly search multiple record\n");
+		printf("PASS: Test_SearchRecordsFromFile() correctly search single record with operator\n");
+	}
+	putchar('\n');
+	return;
+}
+
