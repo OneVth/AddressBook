@@ -3,7 +3,7 @@
 #define MAX_NAME_LEN 32
 #define MAX_PHONE_LEN 14	// 000-0000-0000 + '\0'
 #define BUFFSIZE 200
-#define MAXAGE 150
+#define MAXAGE 120
 #define FILE_PATH "Data.dat"
 
 typedef struct node {
