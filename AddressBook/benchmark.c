@@ -43,20 +43,21 @@ int main(void)
 	{
 		clock_t start = clock();
 
-		LoadRecordsFromFileByPhone(pList, ptr->phone, FILE_PATH);
+		//LoadRecordsFromFileByPhone(pList, ptr->phone, FILE_PATH);
+		//DeleteRecordFromFileByPhone(ptr->phone, FILE_PATH);
+		SearchRecordsFromFile(pList, ptr->phone, FILE_PATH);
 
 		clock_t end = clock();
 		if (i == 0)
 		{
 			initDuration = (double)(end - start) / CLOCKS_PER_SEC;
-			//printf("Initial load time: %.6f sec\n", initDuration);
 		}
 		total += (double)(end - start) / CLOCKS_PER_SEC;
 	}
 
 	// log file
 	char logFileName[64] = { 0 };
-	snprintf(logFileName, sizeof(logFileName), "%s/benchmark_%d.log", LOG_DIR, nNodes);
+	snprintf(logFileName, sizeof(logFileName), "%s/benchmark_SearchRecord_%d.log", LOG_DIR, nNodes);
 
 	FILE* logFile = NULL;
 	fopen_s(&logFile, logFileName, "wb");
@@ -65,7 +66,6 @@ int main(void)
 		fprintf(logFile, "Number of nodes: %d\n", nNodes);
 		fprintf(logFile, "Initial load time: %.6f sec\n", initDuration);
 		fprintf(logFile, "Avg time: %.6f sec\n", total / BENCH_ITERATION);
-		printf("Initial load time: %.6f sec\n", initDuration);
 		printf("Benchmark result saved to: %s\n", logFileName);
 	}
 	else
