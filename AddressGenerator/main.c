@@ -6,7 +6,7 @@
 #include "../AddressBook/control.h"
 
 #define NAME_POOL_SIZE 50
-#define	GENERATE_NUM 10
+#define	GENERATE_NUM 1000
 
 const char* g_namePool[NAME_POOL_SIZE] = {
 		"James", "Mary", "John", "Patricia", "Robert",

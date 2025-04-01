@@ -399,3 +399,6 @@ FodyWeavers.xsd
 
 # Ignore data file
 /Data/
+
+# Ignore log file
+/Logs/
