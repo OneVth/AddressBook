@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <direct.h>
 #include "common.h"
 #include "control.h"
 
@@ -10,6 +11,8 @@ int SaveListToFile(LIST* pL, const char* path)
 {
 	if (List_IsEmpty(pL))
 		return 0;
+
+	_mkdir("../Data");
 
 	NODE* ptr = pL->head.next;
 	NODE* temp = (NODE*)malloc(sizeof(NODE));

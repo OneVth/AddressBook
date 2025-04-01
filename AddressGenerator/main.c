@@ -3,8 +3,10 @@
 #include <string.h>
 #include <time.h>
 #include "../AddressBook/common.h"
+#include "../AddressBook/control.h"
 
 #define NAME_POOL_SIZE 50
+#define	GENERATE_NUM 10
 
 const char* g_namePool[NAME_POOL_SIZE] = {
 		"James", "Mary", "John", "Patricia", "Robert",
@@ -32,12 +34,16 @@ int main(void)
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
 	List_Init(pList);
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < GENERATE_NUM; i++)
 	{
 		CreateRandomFields(&age, name, phone);
 		List_InsertAtEnd(pList, age, name, phone);
 	}
-	
+	if (SaveListToFile(pList, FILE_PATH) == 1)
+		printf("Saved generated addresses to data.dat\n");
+	else
+		printf("Failed to save to data.dat\n");
+
 	List_Release(pList);
 	free(pList);
 	return 0;
