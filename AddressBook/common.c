@@ -208,8 +208,8 @@ int List_InsertAtEnd(LIST* pL, const int age, const char* name, const char* phon
 	newNode->next = NULL;
 	newNode->prev = NULL;
 	newNode->age = age;
-	strcpy_s(newNode->name, sizeof(newNode->name), name);
-	strcpy_s(newNode->phone, sizeof(newNode->phone), phone);
+	strcpy_s(newNode->name, MAX_NAME_LEN, name);
+	strcpy_s(newNode->phone, MAX_PHONE_LEN, phone);
 
 	NODE* ptr = pL->tail.prev;
 	newNode->next = &pL->tail;
