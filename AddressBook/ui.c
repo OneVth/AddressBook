@@ -5,10 +5,16 @@
 #include <string.h>
 #include <conio.h>
 #include <ctype.h>
+#include <windows.h>
+#include <process.h>
 #include "common.h"
 #include "control.h"
 #include "ui.h"
 
+typedef struct {
+	char phone[MAX_PHONE_LEN];
+	int result;	// 0 = fail / 1 = success
+} DELETEPARAM;
 
 int UI_GetInsertInfo(char* name, int* age, char* phone)
 {
@@ -79,7 +85,6 @@ int UI_GetName(char* buffer)
 		printf("Input failed: Try again.\n");
 		return 0;
 	}
-	_getch();
 	return 1;
 }
 
@@ -109,7 +114,7 @@ int UI_GetPhone(char* buffer)
 				}
 				buffer[i] = '\0';
 
-				if (!Str_IsPhoneFormat(temp))
+				if (!Str_IsPhoneFormat(buffer))
 				{
 					printf("Input failed: Invalid format.\n");
 					return 0;
@@ -137,7 +142,6 @@ int UI_GetPhone(char* buffer)
 		printf("Input failed. Try again.\n");
 		return 0;
 	}
-	_getch();
 	return 1;
 }
 
@@ -181,7 +185,6 @@ int UI_GetAge(int* age)
 		printf("Input failed. Try again.\n");
 		return 0;
 	}
-	_getch();
 	return 1;
 }
 
@@ -264,7 +267,7 @@ OPTION PrintMenu(void)
 		printf("Enter the number: ");
 		val = getchar() - '0';
 		while (getchar() != '\n');	// clear input buffer
-		if (val <= UI_FUNC_COUNT && val >= EXIT)
+		if (val <= UI_FUNC_COUNT && val >= MENU_EXIT)
 			break;
 
 		printf("Enter valid number\n");
@@ -364,33 +367,65 @@ int UI_InsertNode(const char* PATH)
 	return 1;
 }
 
+DWORD WINAPI Thread_DeleteRecord(void* param)
+{
+	DELETEPARAM* params = (DELETEPARAM*)param;
+	if (LoadRecordsFromFileByPhone(NULL, params->phone, FILE_PATH) != 1)
+	{
+		return 0;
+	}
+	else
+	{
+		if ((params->result = DeleteRecordFromFileByPhone(params->phone, FILE_PATH)) != 1)
+		{
+			return 0;
+		}
+	}
+	return 1;
+}
+
 int UI_DeleteNode(const char* PATH)
 {
 	int flag = 1;
 	char phone[MAX_PHONE_LEN] = { 0 };
 
+	
+	const char* dots[] = { " ", ".", "..", "..." };
+	int dotIndex = 0;
+	DELETEPARAM* param = (DELETEPARAM*)malloc(sizeof(DELETEPARAM));
+
 	do
 	{
 		printf("Need the phone number to delete **************\n");
 		UI_GetPhone(phone);
-
-		if (LoadRecordsFromFileByPhone(NULL, phone, PATH) != 1)
+		
+		param->result = -1;
+		strcpy_s(param->phone, sizeof(param->phone), phone);
+		HANDLE hThread = (HANDLE)_beginthreadex(
+			NULL, 
+			0, 
+			Thread_DeleteRecord, 
+			(LPVOID)param, 
+			0, 
+			NULL);
+		if (hThread == 0)
 		{
-			printf("Deletion failed: No matching record found.\n");
+			printf("Failed to create thread.\n");
 			return 0;
 		}
-		else
+
+		while (WaitForSingleObject(hThread, 300) == WAIT_TIMEOUT)
 		{
-			if (DeleteRecordFromFileByPhone(phone, PATH) == 1)
-			{
-				printf("Deletion successful.\n");
-			}
-			else
-			{
-				printf("Deletion failed.\n");
-				return 0;
-			}
+			printf("\rDeleting%s  ", dots[dotIndex]);
+			fflush(stdout);
+			dotIndex = (dotIndex + 1) % 4;	// Console animation
 		}
+		CloseHandle((HANDLE)hThread);
+		
+		if (param->result == 1)
+			printf("Record deleted successfully.\n");
+		else
+			printf("Failed to delete record.\n");
 
 		char ch = 0;
 		printf("Press any key to continue (or 'q' to exit) : ");
@@ -400,6 +435,7 @@ int UI_DeleteNode(const char* PATH)
 			flag = 0;
 		}
 		ClearInputBuffer();
+		putchar('\n');
 	} while (flag);
 
 	return 1;

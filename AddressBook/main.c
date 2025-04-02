@@ -12,25 +12,24 @@
 #include "test.h"
 
 /* MAIN FUNCTION **************************************************/
-//int main(void)
-//{
-//	// UI event loop handler
-//	int (*pfMenu[UI_FUNC_COUNT])(const char*) = {
-//		UI_ExitMenu, 
-//		UI_PrintAll,
-//		UI_InsertNode, 
-//		UI_DeleteNode, 
-//		UI_Search, 
-//		UI_EditNode 
-//	};
-//
-//	OPTION option = PrintMenu();	// event loop menu
-//	do
-//	{
-//		system("cls");
-//		pfMenu[option](FILE_PATH);
-//		_getch();
-//	} while ((option = PrintMenu()) != EXIT);
-//
-//	return 0;
-//}
+int main(void)
+{
+	// UI event loop handler
+	int (*pfMenu[UI_FUNC_COUNT])(const char*) = {
+		UI_ExitMenu, 
+		UI_PrintAll,
+		UI_InsertNode, 
+		UI_DeleteNode, 
+		UI_Search, 
+		UI_EditNode 
+	};
+
+	OPTION option = MENU_EXIT;
+	while ((option = PrintMenu()) != MENU_EXIT)
+	{
+		system("cls");
+		pfMenu[option](FILE_PATH);
+		_getch();
+	}
+	return 0;
+}

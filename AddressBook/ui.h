@@ -3,7 +3,9 @@
 #define UI_FUNC_COUNT 6
 #define RECORDS_PER_PAGE 10
 
-typedef enum { EXIT, PRINT, INSERT, DELETE, SEARCH, EDIT } OPTION;
+typedef enum { 
+	MENU_EXIT, MENU_PRINT, MENU_INSERT, MENU_DELETE, MENU_SEARCH, MENU_EDIT 
+} OPTION;
 
 
 // *******************************************************************
