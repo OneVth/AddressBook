@@ -121,6 +121,9 @@ LOADRESULT LoadRecordsFromFileByPhone(LIST* pL, const char* phone, const char* p
 
 LOADRESULT LoadRecordsFromFileByName(LIST* pL, const char* name, const char* path)
 {
+	if (!Str_IsAllAlpha(name))
+		return LOAD_ERROR;
+
 	LOADRESULT flag = LOAD_NOT_FOUND;
 
 	DWORD dwRead = 0;
@@ -182,6 +185,9 @@ LOADRESULT LoadRecordsFromFileByName(LIST* pL, const char* name, const char* pat
 
 LOADRESULT LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
 {
+	if (age < 0 || age >= MAXAGE)
+		return LOAD_ERROR;
+
 	LOADRESULT flag = LOAD_NOT_FOUND;
 
 	DWORD dwRead = 0;
@@ -310,11 +316,11 @@ EDITRESULT EditRecordAgeFromFile(NODE* ptr, const int age, const char* path)
 	return EDIT_NOT_FOUND;
 }
 
-int EditRecordNameFromFile(NODE* ptr, const char* name, const char* path)
+EDITRESULT EditRecordNameFromFile(NODE* ptr, const char* name, const char* path)
 {
 	if (!Str_IsAllAlpha(name) || (strlen(name) >= MAX_NAME_LEN - 1))
 	{
-		return -1;
+		return EDIT_ERROR;
 	}
 
 	FILE* fp = NULL;
