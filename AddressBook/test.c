@@ -1383,7 +1383,7 @@ void Test_LoadRecordsFromFileByName(void)
 	List_Init(pList);
 
 	// Case 1: valid name
-	if (!LoadRecordsFromFileByName(pList, "A", FILE_PATH_TEST))
+	if (LoadRecordsFromFileByName(pList, "A", FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
 		printf("FAIL: LoadRecordsFromFileByName() returned false for valid name\n");
@@ -1391,10 +1391,7 @@ void Test_LoadRecordsFromFileByName(void)
 	else
 	{
 		NODE* ptr = pList->head.next;
-		int ageCorrect = ptr->age == 10;
-		int nameCorrect = strcmp(ptr->name, "A") == 0;
-		int phoneCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
-		if (!ageCorrect || !nameCorrect || !phoneCorrect)
+		if (!CheckNode(ptr, 10, "A", "010-0000-0001"))
 		{
 			pass = 0;
 			printf("FAIL: LoadRecordsFromFileByName() failed to load first expected record\n");
@@ -1402,10 +1399,7 @@ void Test_LoadRecordsFromFileByName(void)
 		else
 		{
 			ptr = ptr->next;
-			ageCorrect = ptr->age == 11;
-			nameCorrect = strcmp(ptr->name, "A") == 0;
-			phoneCorrect = strcmp(ptr->phone, "010-0000-0011") == 0;
-			if (!ageCorrect || !nameCorrect || !phoneCorrect)
+			if (!CheckNode(ptr, 11, "A", "010-0000-0011"))
 			{
 				pass = 0;
 				printf("FAIL: LoadRecordsFromFileByName() failed to load second expected record\n");
@@ -1415,14 +1409,14 @@ void Test_LoadRecordsFromFileByName(void)
 				if (!(ptr->next == &pList->tail))
 				{
 					pass = 0;
-					printf("FAIL: LoadRecordsFromFileByName() \n");
+					printf("FAIL: LoadRecordsFromFileByName() loaded more nodes than expected\n");
 				}
 			}
 		}
 	}
 
 	// Case 2: invalid name
-	if (LoadRecordsFromFileByName(pList, "Z", FILE_PATH_TEST))
+	if (LoadRecordsFromFileByName(pList, "Z", FILE_PATH_TEST) == LOAD_SUCCESS)
 	{
 		pass = 0;
 		printf("FAIL: LoadRecordsFromFileByName() returned true for invalid name\n");
@@ -1434,6 +1428,9 @@ void Test_LoadRecordsFromFileByName(void)
 		printf("PASS: LoadRecordsFromFileByName() correctly load second record\n");
 		printf("PASS: LoadRecordsFromFileByName() correctly returned false for invalid name\n");
 	}
+
+	List_Release(pList);
+	free(pList);
 	putchar('\n');
 	return;
 }

@@ -119,30 +119,64 @@ LOADRESULT LoadRecordsFromFileByPhone(LIST* pL, const char* phone, const char* p
 	return LOAD_NOT_FOUND;
 }
 
-int LoadRecordsFromFileByName(LIST* pL, const char* name, const char* path)
+LOADRESULT LoadRecordsFromFileByName(LIST* pL, const char* name, const char* path)
 {
-	int flag = 0;
+	LOADRESULT flag = LOAD_NOT_FOUND;
 
-	FILE* fp = NULL;
-	fopen_s(&fp, path, "rb");
-	if (fp == NULL)
-		return -1;
+	DWORD dwRead = 0;
+	BOOL bResult = FALSE;
+	wchar_t wPath[MAX_PATH] = { 0 };
+	MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
+	HANDLE hFile = CreateFile(
+		wPath,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return LOAD_ERROR;
+	}
 
 	NODE* temp = (NODE*)malloc(sizeof(NODE));
-	memset(temp, 0, sizeof(NODE));
-
-	fseek(fp, 0, SEEK_SET);
-	while (fread(temp, sizeof(NODE), 1, fp) > 0)
+	if (temp == NULL)
 	{
-		if (strcmp(name, temp->name) == 0)
+		CloseHandle(hFile);
+		return LOAD_ERROR;
+	}
+	while (1)
+	{
+		ZeroMemory(temp, sizeof(NODE));
+		bResult = ReadFile(hFile, temp, sizeof(NODE), &dwRead, NULL);
+		if (!bResult)
 		{
-			flag = 1;
+			free(temp);
+			CloseHandle(hFile);
+			return LOAD_ERROR;
+		}
+
+		if (dwRead == 0)	// EOF
+			break;
+
+		if (dwRead < sizeof(NODE))
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return LOAD_ERROR;
+		}
+
+		if (strcmp(temp->name, name) == 0)
+		{
+			flag = LOAD_SUCCESS;
 			List_InsertAtEnd(pL, temp->age, temp->name, temp->phone);
 		}
 	}
 
-	fclose(fp);
 	free(temp);
+	CloseHandle(hFile);
 	return flag;
 }
 
