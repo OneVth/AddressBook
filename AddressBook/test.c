@@ -1450,10 +1450,16 @@ void Test_LoadRecordsFromFileByAge(void)
 	int pass = 1;
 
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	if (pList == NULL)
+	{
+		printf("FAIL: Test_LoadRecordsFromFileByAge() failed to allocate memory\n");
+		putchar('\n');
+		return;
+	}
 	List_Init(pList);
 
 	// Case 1: valid age
-	if (!LoadRecordsFromFileByAge(pList, 20, FILE_PATH_TEST))
+	if (LoadRecordsFromFileByAge(pList, 20, FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
 		printf("FAIL: LoadRecordsFromFileByAge() returned false for valid age\n");
@@ -1461,10 +1467,7 @@ void Test_LoadRecordsFromFileByAge(void)
 	else
 	{
 		NODE* ptr = pList->head.next;
-		int ageCorrect = ptr->age == 20;
-		int nameCorrect = strcmp(ptr->name, "B") == 0;
-		int phoneCorrect = strcmp(ptr->phone, "010-0000-0002") == 0;
-		if (!ageCorrect || !nameCorrect || !phoneCorrect)
+		if (!CheckNode(ptr, 20, "B", "010-0000-0002"))
 		{
 			pass = 0;
 			printf("FAIL: LoadRecordsFromFileByAge() failed to load first expected record\n");
@@ -1472,10 +1475,7 @@ void Test_LoadRecordsFromFileByAge(void)
 		else
 		{
 			ptr = ptr->next;
-			ageCorrect = ptr->age == 20;
-			nameCorrect = strcmp(ptr->name, "C") == 0;
-			phoneCorrect = strcmp(ptr->phone, "010-0000-0022") == 0;
-			if (!ageCorrect || !nameCorrect || !phoneCorrect)
+			if (!CheckNode(ptr, 20, "C", "010-0000-0022"))
 			{
 				pass = 0;
 				printf("FAIL: LoadRecordsFromFileByAge() failed to load second expected record\n");
@@ -1485,14 +1485,14 @@ void Test_LoadRecordsFromFileByAge(void)
 				if (!(ptr->next == &pList->tail))
 				{
 					pass = 0;
-					printf("FAIL: LoadRecordsFromFileByAge() \n");
+					printf("FAIL: LoadRecordsFromFileByAge() loaded more nodes than expected\n");
 				}
 			}
 		}
 	}
 
 	// Case 2: invalid age
-	if (LoadRecordsFromFileByAge(pList, 99, FILE_PATH_TEST))
+	if (LoadRecordsFromFileByAge(pList, 99, FILE_PATH_TEST) == LOAD_SUCCESS)
 	{
 		pass = 0;
 		printf("FAIL: LoadRecordsFromFileByAge() returned true for invalid age\n");
@@ -1504,6 +1504,8 @@ void Test_LoadRecordsFromFileByAge(void)
 		printf("PASS: LoadRecordsFromFileByAge() correctly load second record\n");
 		printf("PASS: LoadRecordsFromFileByAge() correctly returned false for invalid age\n");
 	}
+	List_Release(pList);
+	free(pList);
 	putchar('\n');
 	return;
 }

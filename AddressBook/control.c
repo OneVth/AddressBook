@@ -146,9 +146,9 @@ int LoadRecordsFromFileByName(LIST* pL, const char* name, const char* path)
 	return flag;
 }
 
-int LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
+LOADRESULT LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
 {
-	int flag = 0;
+	LOADRESULT flag = LOAD_NOT_FOUND;
 
 	DWORD dwRead = 0;
 	BOOL bResult = FALSE;
@@ -165,10 +165,15 @@ int LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
 	);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
-		return -1;
+		return LOAD_ERROR;
 	}
 
 	NODE* temp = (NODE*)malloc(sizeof(NODE));
+	if (temp == NULL)
+	{
+		CloseHandle(hFile);
+		return LOAD_ERROR;
+	}
 	while (1)
 	{
 		ZeroMemory(temp, sizeof(NODE));
@@ -177,7 +182,7 @@ int LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
 		{
 			free(temp);
 			CloseHandle(hFile);
-			return -1;
+			return LOAD_ERROR;
 		}
 
 		if (dwRead == 0)	// EOF
@@ -187,12 +192,12 @@ int LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
 		{
 			free(temp);
 			CloseHandle(hFile);
-			return -1;
+			return LOAD_ERROR;
 		}
 
 		if (temp->age == age)
 		{
-			flag = 1;
+			flag = LOAD_SUCCESS;
 			List_InsertAtEnd(pL, temp->age, temp->name, temp->phone);
 		}
 	}
