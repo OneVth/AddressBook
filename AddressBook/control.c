@@ -150,18 +150,47 @@ int LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
 {
 	int flag = 0;
 
-	FILE* fp = NULL;
-	fopen_s(&fp, path, "rb");
-	if (fp == NULL)
+	DWORD dwRead = 0;
+	BOOL bResult = FALSE;
+	wchar_t wPath[MAX_PATH] = { 0 };
+	MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
+	HANDLE hFile = CreateFile(
+		wPath,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
 		return -1;
+	}
 
 	NODE* temp = (NODE*)malloc(sizeof(NODE));
-	memset(temp, 0, sizeof(NODE));
-
-	fseek(fp, 0, SEEK_SET);
-	while (fread(temp, sizeof(NODE), 1, fp) > 0)
+	while (1)
 	{
-		if (age == temp->age)
+		ZeroMemory(temp, sizeof(NODE));
+		bResult = ReadFile(hFile, temp, sizeof(NODE), &dwRead, NULL);
+		if (!bResult)
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return -1;
+		}
+
+		if (dwRead == 0)	// EOF
+			break;
+
+		if (dwRead < sizeof(NODE))
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return -1;
+		}
+
+		if (temp->age == age)
 		{
 			flag = 1;
 			List_InsertAtEnd(pL, temp->age, temp->name, temp->phone);
@@ -169,7 +198,7 @@ int LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
 	}
 
 	free(temp);
-	fclose(fp);
+	CloseHandle(hFile);
 	return flag;
 }
 
