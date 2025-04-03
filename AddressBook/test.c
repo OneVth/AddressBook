@@ -1066,15 +1066,26 @@ int CreateTestDataFile_Minimal(void)
 {
 	_mkdir("Test");
 
+	int ages[] = { 10, 11, 20, 20, 30 };
+	char* names[] = { "A", "A", "B", "C", "D" };
+	char* phones[] = {
+		"010-0000-0001",
+		"010-0000-0011",
+		"010-0000-0002",
+		"010-0000-0022",
+		"010-0000-0003"
+	};
+
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
 	List_Init(pList);
 
-	List_InsertAtEnd(pList, 10, "A", "010-0000-0001");
-	List_InsertAtEnd(pList, 11, "A", "010-0000-0011");
-	List_InsertAtEnd(pList, 20, "B", "010-0000-0002");
-	List_InsertAtEnd(pList, 20, "C", "010-0000-0022");
-	List_InsertAtEnd(pList, 30, "D", "010-0000-0003");
+	for (int i = 0; i < NUM_TEST_NODE; i++)
+	{
+		List_InsertAtEnd(pList, ages[i], names[i], phones[i]);
+	}
 
+	DWORD dwWritten = 0;
+	BOOL bResult = FALSE;
 	wchar_t wPath[MAX_PATH] = { 0 };
 	MultiByteToWideChar(CP_ACP, 0, FILE_PATH_TEST, -1, wPath, MAX_PATH);
 
@@ -1090,9 +1101,6 @@ int CreateTestDataFile_Minimal(void)
 	{
 		return 0;
 	}
-
-	DWORD dwWritten = 0;
-	BOOL bResult = FALSE;
 
 	NODE* ptr = pList->head.next;
 	while (ptr != &pList->tail)
@@ -1113,126 +1121,103 @@ int CreateTestDataFile_Minimal(void)
 		ptr = ptr->next;
 	}
 
+	CloseHandle(hFile);
 	List_Release(pList);
 	free(pList);
+	return 1;
+}
+
+int CheckNode(NODE* ptr, int expectedAge, const char* expectedName, const char* expectedPhone)
+{
+	int firstCorrect = 0;
+	int secondCorrect = 0;
+	int thirdCorrect = 0;
+	firstCorrect = ptr->age == expectedAge;
+	secondCorrect = strcmp(ptr->name, expectedName) == 0;
+	thirdCorrect = strcmp(ptr->phone, expectedPhone) == 0;
+	if (!firstCorrect || !secondCorrect || !thirdCorrect)
+	{
+		return 0;
+	}
 	return 1;
 }
 
 void Test_CreateTestDataFile_Minimal(void)
 {
 	int pass = 1;
+	
+	int ages[] = { 10, 11, 20, 20, 30 };
+	char* names[] = { "A", "A", "B", "C", "D" };
+	char* phones[] = {
+		"010-0000-0001",
+		"010-0000-0011",
+		"010-0000-0002",
+		"010-0000-0022",
+		"010-0000-0003"
+	};
 
-	int firstCorrect = 0;
-	int secondCorrect = 0;
-	int thirdCorrect = 0;
 	if (!CreateTestDataFile_Minimal())
 	{
 		pass = 0;
-		printf("FAIL: CreateTestDataFile_Minimal() failed to create test file\n");
+		printf("FAIL: Test_CreateTestDataFile_Minimal() failed to create test file\n");
 	}
 	else
 	{
-		FILE* fp = NULL;
-		fopen_s(&fp, FILE_PATH_TEST, "rb");
-		if (fp == NULL)
+		wchar_t wPath[MAX_PATH] = { 0 };
+		MultiByteToWideChar(CP_ACP, 0, FILE_PATH_TEST, -1, wPath, MAX_PATH);
+
+		LARGE_INTEGER llFileSize = { 0 };
+		LONGLONG llTotalReadSize = 0;
+		DWORD dwRead = 0;
+		BOOL bResult = FALSE;
+
+		HANDLE hFile = CreateFile(
+			wPath,
+			GENERIC_READ,
+			FILE_SHARE_READ,
+			NULL,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL);
+		if (hFile == INVALID_HANDLE_VALUE)
 		{
 			pass = 0;
-			printf("FAIL: CreateTestDataFile_Minimal() could not open test data file\n");
+			printf("FAIL: Test_CreateTestDataFile_Minimal() could not open test data file\n");
+			return;
+		}
+
+		if (!GetFileSizeEx(hFile, &llFileSize))
+		{
+			printf("FAIL: Test_CreateTestDataFile_Minimal() couldn't get file size\n");
+			CloseHandle(hFile);
+			return;
 		}
 
 		NODE* ptr = (NODE*)malloc(sizeof(NODE));
-		memset(ptr, 0, sizeof(NODE));
-		if (fread(ptr, sizeof(NODE), 1, fp) > 0)
+		for (int i = 0; i < NUM_TEST_NODE; i++)
 		{
-			firstCorrect = ptr->age == 10;
-			secondCorrect = strcmp(ptr->name, "A") == 0;
-			thirdCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
-			if (!firstCorrect || !secondCorrect || !thirdCorrect)
+			ZeroMemory(ptr, sizeof(NODE));
+			bResult = ReadFile(hFile, ptr, sizeof(NODE), &dwRead, NULL);
+			if (bResult && dwRead == sizeof(NODE))
 			{
-				pass = 0;
-				printf("FAIL: CreateTestDataFile_Minimal() test file doesn't match with first expected data\n");
-			}
-			else
-			{
-				firstCorrect = 0;
-				secondCorrect = 0;
-				thirdCorrect = 0;
-				memset(ptr, 0, sizeof(NODE));
-				if (fread(ptr, sizeof(NODE), 1, fp) > 0)
+				llTotalReadSize += dwRead;
+				if (!CheckNode(ptr, ages[i], names[i], phones[i]))
 				{
-					firstCorrect = ptr->age == 11;
-					secondCorrect = strcmp(ptr->name, "A") == 0;
-					thirdCorrect = strcmp(ptr->phone, "010-0000-0011") == 0;
-					if (!firstCorrect || !secondCorrect || !thirdCorrect)
-					{
-						pass = 0;
-						printf("FAIL: CreateTestDataFile_Minimal() test file doesn't match with second expected data\n");
-					}
-					else
-					{
-						firstCorrect = 0;
-						secondCorrect = 0;
-						thirdCorrect = 0;
-						memset(ptr, 0, sizeof(NODE));
-						if (fread(ptr, sizeof(NODE), 1, fp) > 0)
-						{
-							firstCorrect = ptr->age == 20;
-							secondCorrect = strcmp(ptr->name, "B") == 0;
-							thirdCorrect = strcmp(ptr->phone, "010-0000-0002") == 0;
-							if (!firstCorrect || !secondCorrect || !thirdCorrect)
-							{
-								pass = 0;
-								printf("FAIL: CreateTestDataFile_Minimal() test file doesn't match with third expected data\n");
-							}
-							else
-							{
-								firstCorrect = 0;
-								secondCorrect = 0;
-								thirdCorrect = 0;
-								memset(ptr, 0, sizeof(NODE));
-								if (fread(ptr, sizeof(NODE), 1, fp) > 0)
-								{
-									firstCorrect = ptr->age == 20;
-									secondCorrect = strcmp(ptr->name, "C") == 0;
-									thirdCorrect = strcmp(ptr->phone, "010-0000-0022") == 0;
-
-									if (!firstCorrect || !secondCorrect || !thirdCorrect)
-									{
-										pass = 0;
-										printf("FAIL: CreateTestDataFile_Minimal() test file doesn't match with fourth expected data\n");
-									}
-									else
-									{
-										firstCorrect = 0;
-										secondCorrect = 0;
-										thirdCorrect = 0;
-										memset(ptr, 0, sizeof(NODE));
-										if (fread(ptr, sizeof(NODE), 1, fp) > 0)
-										{
-											firstCorrect = ptr->age == 30;
-											secondCorrect = strcmp(ptr->name, "D") == 0;
-											thirdCorrect = strcmp(ptr->phone, "010-0000-0003") == 0;
-
-											if (!firstCorrect || !secondCorrect || !thirdCorrect)
-											{
-												pass = 0;
-												printf("FAIL: CreateTestDataFile_Minimal() test file doesn't match with fifth expected data\n");
-											}
-
-											if (ftell(fp) != sizeof(NODE) * NUM_TEST_NODE)
-											{
-												printf("FAIL: CreateTestDataFile_Minimal() file size doesn't match with expected size\n");
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+					pass = 0;
+					printf("FAIL: Test_CreateTestDataFile_Minimal() test file doesn't match with [%d]-th expected data\n", i + 1);
+					break;
 				}
 			}
 		}
-		fclose(fp);
+		
+		if (pass && (llTotalReadSize != llFileSize.QuadPart))
+		{
+			pass = 0;
+			printf("FAIL: Test_CreateTestDataFile_Minimal() get wrong file size\n");
+		}
+
+		free(ptr);
+		CloseHandle(hFile);
 	}
 
 	if (pass)
