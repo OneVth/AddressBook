@@ -1507,6 +1507,68 @@ void Test_LoadRecordsFromFileByAge(void)
 	return;
 }
 
+void Test_EditRecordAgeFromFile(void)
+{
+	if (!CreateTestDataFile_Minimal())
+	{
+		printf("FAIL: Test_EditRecordAgeFromFile() failed to create test file\n");
+		putchar('\n');
+		return;
+	}
+
+	int pass = 1;
+
+	LIST* pList = (LIST*)malloc(sizeof(LIST));
+	if (pList == NULL)
+	{
+		printf("FAIL: Test_EditRecordAgeFromFile() failed to allocate memory\n");
+		putchar('\n');
+		return;
+	}
+
+	List_Init(pList);
+	if (LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_EditRecordAgeFromFile() failed to load test records\n");
+	}
+	else
+	{
+		NODE* ptr = pList->head.next;
+		if (EditRecordAgeFromFile(ptr, 99, FILE_PATH_TEST) != EDIT_SUCCESS)
+		{
+			pass = 0;
+			printf("FAIL: Test_EditRecordAgeFromFile() properly open/write to file\n");
+		}
+		else
+		{
+			List_Release(pList);
+			if (LoadRecordsFromFileByAge(pList, 99, FILE_PATH_TEST) != LOAD_SUCCESS)
+			{
+				pass = 0;
+				printf("FAIL: Test_EditRecordAgeFromFile() failed to load edited record\n");
+			}
+			else
+			{
+				ptr = pList->head.next;
+				if (!CheckNode(ptr, 99, "A", "010-0000-0001"))
+				{
+					pass = 0;
+					printf("FAIL: Test_EditRecordAgeFromFile() didn't correctly edit record\n");
+				}
+			}
+		}
+	}
+
+	if (pass)
+	{
+		printf("PASS: Test_EditRecordAgeFromFile() correctly edit record for valid age\n");
+	}
+	free(pList);
+	putchar('\n');
+	return;
+}
+
 void Test_EditRecordPhoneFromFile(void)
 {
 	if (!CreateTestDataFile_Minimal())
@@ -1560,64 +1622,6 @@ void Test_EditRecordPhoneFromFile(void)
 	if (pass)
 	{
 		printf("PASS: Test_EditRecordPhoneFromFile() correctly edit record for valid phone number\n");
-	}
-	putchar('\n');
-	return;
-}
-
-void Test_EditRecordAgeFromFile(void)
-{
-	if (!CreateTestDataFile_Minimal())
-	{
-		printf("FAIL: Test_EditRecordAgeFromFile() failed to create test file\n");
-		putchar('\n');
-		return;
-	}
-
-	int pass = 1;
-
-	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	List_Init(pList);
-
-	if (LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST) != 1)
-	{
-		pass = 0;
-		printf("FAIL: Test_EditRecordAgeFromFile() failed to load test records");
-	}
-	else
-	{
-		NODE* ptr = pList->head.next;
-		if (EditRecordAgeFromFile(ptr, 99, FILE_PATH_TEST) != 1)
-		{
-			pass = 0;
-			printf("FAIL: Test_EditRecordAgeFromFile() properly open/write to file\n");
-		}
-		else
-		{
-			List_Release(pList);
-			if (LoadRecordsFromFileByAge(pList, 99, FILE_PATH_TEST) != 1)
-			{
-				pass = 0;
-				printf("FAIL: Test_EditRecordAgeFromFile() failed to load edited record\n");
-			}
-			else
-			{
-				ptr = pList->head.next;
-				int ageCorrect = ptr->age == 99;
-				int nameCorrect = strcmp(ptr->name, "A") == 0;
-				int phoneCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
-				if (!ageCorrect || !nameCorrect || !phoneCorrect)
-				{
-					pass = 0;
-					printf("FAIL: Test_EditRecordAgeFromFile() didn't correctly edit record\n");
-				}
-			}
-		}
-	}
-
-	if (pass)
-	{
-		printf("PASS: Test_EditRecordAgeFromFile() correctly edit record for valid age\n");
 	}
 	putchar('\n');
 	return;

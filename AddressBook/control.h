@@ -7,6 +7,10 @@ typedef enum {
 } LOADRESULT;
 
 typedef enum {
+	EDIT_ERROR = -1, EDIT_NOT_FOUND, EDIT_SUCCESS
+} EDITRESULT;
+
+typedef enum {
 	SEARCH_SUCCESS = 1, PARSE_FAILED, CONVERT_FAILED, NO_MATCH
 } ERR_SEARCH;
 
