@@ -402,3 +402,6 @@ FodyWeavers.xsd
 
 # Ignore log file
 /Logs/
+
+# Ignore test file
+/AddressBook/Test

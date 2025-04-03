@@ -16,36 +16,39 @@ int SaveListToFile(LIST* pL, const char* path)
 	_mkdir("../Data");
 
 	NODE* ptr = pL->head.next;
-	NODE* temp = (NODE*)malloc(sizeof(NODE));
-	memset(temp, 0, sizeof(NODE));
 	while (ptr != &pL->tail)
 	{
-		int flag = 1;
-		if (LoadRecordsFromFileByPhone(NULL, ptr->phone, path) == 1)
-			flag = 0;
-
-		if (flag)
+		if (LoadRecordsFromFileByPhone(NULL, ptr->phone, path) == LOAD_NOT_FOUND)
 		{
-			FILE* fp = NULL;
-			fopen_s(&fp, path, "ab+");
-			if (fp == NULL)
+			BOOL bResult = FALSE;
+			DWORD dwWritten = 0;
+			wchar_t wPath[MAX_PATH] = { 0 };
+			MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
+			HANDLE hFile = CreateFile(
+				wPath,
+				GENERIC_WRITE,
+				0,
+				NULL,
+				OPEN_ALWAYS,
+				FILE_ATTRIBUTE_NORMAL,
+				NULL
+			);
+			if (hFile == INVALID_HANDLE_VALUE)
 			{
-				free(temp);
 				return -1;
 			}
 
-			if (fwrite(ptr, sizeof(NODE), 1, fp) != 1)
+			SetFilePointer(hFile, 0, NULL, FILE_END);
+			bResult = WriteFile(hFile, ptr, sizeof(NODE), &dwWritten, NULL);
+			if (!bResult || dwWritten < sizeof(NODE))
 			{
-				fclose(fp);
-				free(temp);
+				CloseHandle(hFile);
 				return -1;
 			}
-			fclose(fp);
+			CloseHandle(hFile);
 		}
 		ptr = ptr->next;
 	}
-
-	free(temp);
 	return 1;
 }
 
@@ -71,7 +74,7 @@ LOADRESULT LoadRecordsFromFileByPhone(LIST* pL, const char* phone, const char* p
 	}
 
 	DWORD dwRecordSize = sizeof(NODE);
-	DWORD dwReadSize = 0;
+	DWORD dwReadSize = -1;
 	BOOL bResult = FALSE;
 
 	NODE* temp = (NODE*)malloc(dwRecordSize);
@@ -92,15 +95,15 @@ LOADRESULT LoadRecordsFromFileByPhone(LIST* pL, const char* phone, const char* p
 			return LOAD_ERROR;
 		}
 
-		if (dwReadSize < dwRecordSize)	// error case
+		if (dwReadSize == 0) // EOF
+			break;
+
+		if (dwReadSize < dwRecordSize)
 		{
 			free(temp);
 			CloseHandle(hFile);
 			return LOAD_ERROR;
 		}
-
-		if (dwReadSize == 0)	// end of file
-			break;
 
 		if (strcmp(phone, temp->phone) == 0)
 		{
