@@ -1647,9 +1647,15 @@ void Test_EditRecordPhoneFromFile(void)
 	int pass = 1;
 
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	List_Init(pList);
+	if (pList == NULL)
+	{
+		printf("FAIL: Test_EditRecordPhoneFromFile() failed to allocate memory\n");
+		putchar('\n');
+		return;
+	}
 
-	if (LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST) != 1)
+	List_Init(pList);
+	if (LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
 		printf("FAIL: Test_EditRecordPhoneFromFile() failed to load test records");
@@ -1657,7 +1663,7 @@ void Test_EditRecordPhoneFromFile(void)
 	else
 	{
 		NODE* ptr = pList->head.next;
-		if (EditRecordPhoneFromFile(ptr, "010-0000-9999", FILE_PATH_TEST) != 1)
+		if (EditRecordPhoneFromFile(ptr, "010-0000-9999", FILE_PATH_TEST) != EDIT_SUCCESS)
 		{
 			pass = 0;
 			printf("FAIL: Test_EditRecordPhoneFromFile() properly open/write to file\n");
@@ -1665,7 +1671,7 @@ void Test_EditRecordPhoneFromFile(void)
 		else
 		{
 			List_Release(pList);
-			if (LoadRecordsFromFileByPhone(pList, "010-0000-9999", FILE_PATH_TEST) != 1)
+			if (LoadRecordsFromFileByPhone(pList, "010-0000-9999", FILE_PATH_TEST) != LOAD_SUCCESS)
 			{
 				pass = 0;
 				printf("FAIL: Test_EditRecordPhoneFromFile() failed to load edited record\n");
@@ -1673,10 +1679,7 @@ void Test_EditRecordPhoneFromFile(void)
 			else
 			{
 				ptr = pList->head.next;
-				int ageCorrect = ptr->age == 10;
-				int nameCorrect = strcmp(ptr->name, "A") == 0;
-				int phoneCorrect = strcmp(ptr->phone, "010-0000-9999") == 0;
-				if (!ageCorrect || !nameCorrect || !phoneCorrect)
+				if (!CheckNode(ptr, 10, "A", "010-0000-9999"))
 				{
 					pass = 0;
 					printf("FAIL: Test_EditRecordPhoneFromFile() didn't correctly edit record\n");
@@ -1689,6 +1692,9 @@ void Test_EditRecordPhoneFromFile(void)
 	{
 		printf("PASS: Test_EditRecordPhoneFromFile() correctly edit record for valid phone number\n");
 	}
+
+	List_Release(pList);
+	free(pList);
 	putchar('\n');
 	return;
 }

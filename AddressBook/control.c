@@ -387,37 +387,72 @@ EDITRESULT EditRecordNameFromFile(NODE* ptr, const char* name, const char* path)
 	return EDIT_NOT_FOUND;
 }
 
-int EditRecordPhoneFromFile(NODE* ptr, const char* phone, const char* path)
+EDITRESULT EditRecordPhoneFromFile(NODE* ptr, const char* phone, const char* path)
 {
 	if (!Str_IsPhoneFormat(phone))
-		return -1;
+		return EDIT_ERROR;
 
-	FILE* fp = NULL;
-	fopen_s(&fp, path, "rb+");
-	if (fp == NULL)
-		return -1;
+	DWORD dwRead = 0, dwWritten = 0;
+	BOOL bResult = FALSE;
+	wchar_t wPath[MAX_PATH] = { 0 };
+	MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
+
+	HANDLE hFile = CreateFile(
+		wPath,
+		GENERIC_READ | GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return EDIT_ERROR;
 
 	NODE* temp = (NODE*)malloc(sizeof(NODE));
-	memset(temp, 0, sizeof(NODE));
-	while (fread(temp, sizeof(NODE), 1, fp))
+	if (temp == NULL)
 	{
+		CloseHandle(hFile);
+		return EDIT_ERROR;
+	}
+	while (1)
+	{
+		ZeroMemory(temp, sizeof(NODE));
+		bResult = ReadFile(hFile, temp, sizeof(NODE), &dwRead, NULL);
+		if (!bResult)
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return EDIT_ERROR;
+		}
+
+		if (dwRead == 0)
+			break;
+
+		if (dwRead < sizeof(NODE))
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return EDIT_ERROR;
+		}
+
 		if (strcmp(temp->phone, ptr->phone) == 0)
 		{
-			strcpy_s(temp->phone, sizeof(temp->phone), phone);
-			fseek(fp, -(long)sizeof(NODE), SEEK_CUR);
-			if (fwrite(temp, sizeof(NODE), 1, fp) != 1)
-			{
-				free(temp);
-				fclose(fp);
-				return -1;
-			}
-			break;
+			strcpy_s(temp->phone, MAX_PHONE_LEN, phone);
+			SetFilePointer(hFile, -(LONG)sizeof(NODE), NULL, FILE_CURRENT);
+			bResult = WriteFile(hFile, temp, sizeof(NODE), &dwWritten, NULL);
+			free(temp);
+			CloseHandle(hFile);
+
+			if (!bResult || dwWritten < sizeof(NODE))
+				return EDIT_ERROR;
+
+			return EDIT_SUCCESS;
 		}
 	}
-
 	free(temp);
-	fclose(fp);
-	return 1;
+	CloseHandle(hFile);
+	return EDIT_NOT_FOUND;
 }
 
 int DeleteRecordFromFileByPhone(const char* phone, const char* path)
