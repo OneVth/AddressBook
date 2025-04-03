@@ -1711,47 +1711,65 @@ void Test_DeleteRecordByPhoneFromFile(void)
 	int pass = 1;
 
 	// Case 1: invalid phone number
-	if (DeleteRecordFromFileByPhone("010-0000-9999", FILE_PATH_TEST) == 1)
+	if (DeleteRecordFromFileByPhone("010-0000-9999", FILE_PATH_TEST) ==	DELETE_SUCCESS)
 	{
 		pass = 0;
 		printf("FAIL: Test_DeleteRecordByPhoneFromFile() returned true for invalid phone number\n");
 	}
 
 	// Case 2: valid phone number
-	if (DeleteRecordFromFileByPhone("010-0000-0001", FILE_PATH_TEST) != 1)
+	if (DeleteRecordFromFileByPhone("010-0000-0001", FILE_PATH_TEST) != DELETE_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_DeleteRecordByPhoneFromFile() properly open/write to file\n");
+		printf("FAIL: Test_DeleteRecordByPhoneFromFile() cannot properly open/write to file\n");
 	}
 	else
 	{
-		LIST* pList = (LIST*)malloc(sizeof(LIST));
-		List_Init(pList);
+		LARGE_INTEGER llFileSize = { 0 };
+		DWORD dwRead = 0;
+		BOOL bResult = FALSE;
+		
+		wchar_t wPath[MAX_PATH] = { 0 };
+		MultiByteToWideChar(CP_ACP, 0, FILE_PATH_TEST, -1, wPath, MAX_PATH);
 
-		FILE* fp = NULL;
-		fopen_s(&fp, FILE_PATH_TEST, "rb");
-		if (fp == NULL)
+		HANDLE hFile = CreateFile(
+			wPath,
+			GENERIC_READ,
+			FILE_SHARE_READ,
+			NULL,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL
+		);
+		if (hFile == INVALID_HANDLE_VALUE)
 		{
 			printf("FAIL: Test_DeleteRecordByPhoneFromFile() failed to open file\n");
+			putchar('\n');
 			return;
 		}
-		fseek(fp, 0, SEEK_END);
 
-		if (LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST) == 1 || ftell(fp) != sizeof(NODE) * (NUM_TEST_NODE - 1))
+		GetFileSizeEx(hFile, &llFileSize);
+		LIST* pList = (LIST*)malloc(sizeof(LIST));
+		if (pList == NULL)
+		{
+			printf("FAIL: Test_DeleteRecordByPhoneFromFile() failed to allocate memory\n");
+			putchar('\n');
+			return;
+		}
+		List_Init(pList);
+		if (LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS || llFileSize.QuadPart != sizeof(NODE) * (NUM_TEST_NODE - 1))
 		{
 			pass = 0;
 			printf("FAIL: Test_DeleteRecordByPhoneFromFile() failed to remove existing record\n");
-			List_Release(pList);
 		}
-
-		fclose(fp);
-		free(pList);
+		List_Release(pList);
+		CloseHandle(hFile);
 	}
 
 	if (pass)
 	{
 		printf("PASS: Test_DeleteRecordByPhoneFromFile() successfully removed the record with given phone\n");
-		printf("PASS: Test_DeleteRecordByPhoneFromFile() correctly return flase for invalid phone number\n");
+		printf("PASS: Test_DeleteRecordByPhoneFromFile() correctly return false for invalid phone number\n");
 	}
 
 	putchar('\n');

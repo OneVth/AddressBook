@@ -5,8 +5,11 @@
 #include <string.h>
 #include <direct.h>
 #include <windows.h>
+#include <PathCch.h>
 #include "common.h"
 #include "control.h"
+
+#pragma comment(lib, "Pathcch.lib")
 
 int SaveListToFile(LIST* pL, const char* path)
 {
@@ -458,46 +461,98 @@ EDITRESULT EditRecordPhoneFromFile(NODE* ptr, const char* phone, const char* pat
 int DeleteRecordFromFileByPhone(const char* phone, const char* path)
 {
 	if (!Str_IsPhoneFormat(phone))
-		return -1;
+		return DELETE_ERROR;
 
-	int recordFound = 0;
-	FILE* fp = NULL;
-	FILE* fpTmp = NULL;
-	fopen_s(&fp, path, "rb");
-	fopen_s(&fpTmp, "temp.dat", "ab+");
-	if (fp == NULL || fpTmp == NULL)
-		return -1;
+	DELETERESULT recordFound = DELETE_NOT_FOUND;
+	DWORD dwRead = 0, dwWritten = 0;
+	BOOL bResult = FALSE;
+	wchar_t wPath[MAX_PATH] = { 0 };
+	MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
+
+	HANDLE hFileSource = CreateFile(
+		wPath,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFileSource == INVALID_HANDLE_VALUE)
+	{
+		return DELETE_ERROR;
+	}
+
+	wchar_t wTempPath[MAX_PATH] = { 0 };
+	wcscpy_s(wTempPath, MAX_PATH, wPath);
+	PathCchRemoveFileSpec(wTempPath, MAX_PATH);
+	PathCchAppend(wTempPath, MAX_PATH, L"temp.dat");
+
+	HANDLE hFileTarget = CreateFile(
+		wTempPath,
+		GENERIC_WRITE,
+		0,
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFileTarget == INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(hFileSource);
+		return DELETE_ERROR;
+	}
 
 	NODE* temp = (NODE*)malloc(sizeof(NODE));
-	memset(temp, 0, sizeof(NODE));
-
-	fseek(fp, 0, SEEK_SET);
-	while (fread(temp, sizeof(NODE), 1, fp) > 0)
+	while (1)
 	{
+		ZeroMemory(temp, sizeof(NODE));
+		bResult = ReadFile(hFileSource, temp, sizeof(NODE), &dwRead, NULL);
+		if (!bResult)
+		{
+			free(temp);
+			CloseHandle(hFileSource);
+			CloseHandle(hFileTarget);
+			DeleteFile(wTempPath);
+			return DELETE_ERROR;
+		}
+
+		if (dwRead == 0)
+			break;
+
+		if (dwRead < sizeof(NODE))
+		{
+			free(temp);
+			CloseHandle(hFileSource);
+			CloseHandle(hFileTarget);
+			DeleteFile(wTempPath);
+			return DELETE_ERROR;
+		}
+
 		if (strcmp(temp->phone, phone) != 0)
 		{
-			if (fwrite(temp, sizeof(NODE), 1, fpTmp) != 1)
+			bResult = WriteFile(hFileTarget, temp, sizeof(NODE), &dwWritten, NULL);
+			if (!bResult || dwWritten < sizeof(NODE))
 			{
 				free(temp);
-				fclose(fpTmp);
-				fclose(fp);
-				remove("temp.dat");
-				return 0;
+				CloseHandle(hFileSource);
+				CloseHandle(hFileTarget);
+				DeleteFile(wTempPath);
+				return DELETE_ERROR;
 			}
 		}
 		else
-			recordFound = 1;
+			recordFound = DELETE_SUCCESS;
 	}
 
 	free(temp);
-	fclose(fpTmp);
-	fclose(fp);
+	CloseHandle(hFileSource);
+	CloseHandle(hFileTarget);
 
-	
-	if (remove(path) != 0)
-		return -1;
-	if (rename("temp.dat", path) != 0)
-		return -1;
+	if (DeleteFile(wPath) != TRUE)
+		return DELETE_ERROR;
+	if (MoveFile(wTempPath, wPath) != TRUE)
+		return DELETE_ERROR;
 	return recordFound;
 }
 

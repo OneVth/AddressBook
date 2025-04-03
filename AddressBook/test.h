@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define FILE_PATH_TEST "./Test/test.dat"
+#define FILE_PATH_TEST ".\\Test\\test.dat"
 
 void RunAllTests(void);
 void Test_ListFunctions(void);
