@@ -1244,7 +1244,7 @@ void Test_LoadRecordsFromFileByPhone(void)
 	List_Init(pList);
 
 	// Case 1: valid phone number
-	if (!LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST))
+	if (LoadRecordsFromFileByPhone(pList, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
 		printf("FAIL: LoadRecordsFromFileByPhone() returned false for valid phone number\n");
@@ -1252,18 +1252,16 @@ void Test_LoadRecordsFromFileByPhone(void)
 	else
 	{
 		NODE* ptr = pList->head.next;
-		int ageCorrect = ptr->age == 10;
-		int nameCorrect = strcmp(ptr->name, "A") == 0;
-		int phoneCorrect = strcmp(ptr->phone, "010-0000-0001") == 0;
-		if (!ageCorrect || !nameCorrect || !phoneCorrect)
+		if(!CheckNode(ptr, 10, "A", "010-0000-0001"))
 		{
 			pass = 0;
 			printf("FAIL: LoadRecordsFromFileByPhone() failed to load expected data\n");
 		}
 	}
+	List_Release(pList);
 
 	// Case 2: invalid phone number
-	if (LoadRecordsFromFileByPhone(pList, "010-9999-9999", FILE_PATH_TEST))
+	if (LoadRecordsFromFileByPhone(pList, "010-9999-9999", FILE_PATH_TEST) == LOAD_SUCCESS)
 	{
 		pass = 0;
 		printf("FAIL: LoadRecordsFromFileByPhone() returned true for invalid phone number\n");
@@ -1271,11 +1269,13 @@ void Test_LoadRecordsFromFileByPhone(void)
 
 	if (pass)
 	{
-		printf("PASS: LoadRecordsFromFileByPhone() correctly load record\n");
-		printf("PASS: LoadRecordsFromFileByPhone() correctly returned false for invalid phone number\n");
+		printf("PASS: LoadRecordsFromFileByPhone() returned correct result for valid phone number\n");
+		printf("PASS: LoadRecordsFromFileByPhone() returned correct result for invalid phone number\n");
 	}
 
 	putchar('\n');
+	List_Release(pList);
+	free(pList);
 	return;
 }
 
