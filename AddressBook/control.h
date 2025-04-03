@@ -3,10 +3,14 @@
 #pragma once
 
 typedef enum {
+	LOAD_ERROR = -1, LOAD_NOT_FOUND, LOAD_SUCCESS
+} LOADRESULT;
+
+typedef enum {
 	SEARCH_SUCCESS = 1, PARSE_FAILED, CONVERT_FAILED, NO_MATCH
 } ERR_SEARCH;
 
-int LoadRecordsFromFileByPhone(LIST* pL, const char* phone, const char* path);
+LOADRESULT LoadRecordsFromFileByPhone(LIST* pL, const char* phone, const char* path);
 int LoadRecordsFromFileByName(LIST* pL, const char* name, const char* path);
 int LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path);
 int EditRecordAgeFromFile(NODE* ptr, const int age, const char* path);

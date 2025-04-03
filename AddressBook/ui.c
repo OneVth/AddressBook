@@ -229,8 +229,9 @@ void UI_PrintList(LIST* pL)
 	NODE* ptr = pL->head.next;
 	do
 	{
+		system("cls");
 		pageNumber++;
-		printf("\nPage #%d:\n", pageNumber);
+		printf("Page #%d:\n", pageNumber);
 		for (int i = 0; i < RECORDS_PER_PAGE; i++)
 		{
 			if (ptr == &pL->tail)
@@ -239,7 +240,7 @@ void UI_PrintList(LIST* pL)
 				break;
 			}
 
-			printf("[%p] %3d - %-5s - %s [%p]\n", ptr, ptr->age, ptr->name, ptr->phone, ptr->next);
+			printf("%3d - %-5s - %s\n", ptr->age, ptr->name, ptr->phone);
 			ptr = ptr->next;
 		}
 

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <direct.h>
+#include <windows.h>
 #include "common.h"
 #include "control.h"
 
@@ -48,30 +49,71 @@ int SaveListToFile(LIST* pL, const char* path)
 	return 1;
 }
 
-int LoadRecordsFromFileByPhone(LIST* pL, const char* phone, const char* path)
+LOADRESULT LoadRecordsFromFileByPhone(LIST* pL, const char* phone, const char* path)
 {
-	FILE* fp = NULL;
-	fopen_s(&fp, path, "rb");
-	if (fp == NULL)
-		return -1;
+	if (!Str_IsPhoneFormat(phone))
+		return LOAD_ERROR;
 
-	NODE* temp = (NODE*)malloc(sizeof(NODE));
-	memset(temp, 0, sizeof(NODE));
+	wchar_t wPath[MAX_PATH] = { 0 };
+	MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
 
-	fseek(fp, 0, SEEK_SET);
-	while (fread(temp, sizeof(NODE), 1, fp) > 0)
+	HANDLE hFile = CreateFile(
+		wPath,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
 	{
+		return LOAD_ERROR;
+	}
+
+	DWORD dwRecordSize = sizeof(NODE);
+	DWORD dwReadSize = 0;
+	BOOL bResult = FALSE;
+
+	NODE* temp = (NODE*)malloc(dwRecordSize);
+	if (temp == NULL)
+	{
+		CloseHandle(hFile);
+		return LOAD_ERROR;
+	}
+
+	while (1)
+	{
+		ZeroMemory(temp, dwRecordSize);
+		bResult = ReadFile(hFile, temp, dwRecordSize, &dwReadSize, NULL);
+		if (!bResult)
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return LOAD_ERROR;
+		}
+
+		if (dwReadSize < dwRecordSize)	// error case
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return LOAD_ERROR;
+		}
+
+		if (dwReadSize == 0)	// end of file
+			break;
+
 		if (strcmp(phone, temp->phone) == 0)
 		{
 			List_InsertAtEnd(pL, temp->age, temp->name, temp->phone);
-			fclose(fp);
-			return 1;
+			free(temp);
+			CloseHandle(hFile);
+			return LOAD_SUCCESS;
 		}
 	}
-
-	fclose(fp);
+	
 	free(temp);
-	return 0;
+	CloseHandle(hFile);
+	return LOAD_NOT_FOUND;
 }
 
 int LoadRecordsFromFileByName(LIST* pL, const char* name, const char* path)
