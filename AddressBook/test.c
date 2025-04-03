@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <direct.h>
+#include <Windows.h>
 #include "common.h"
 #include "control.h"
 #include "ui.h"
@@ -1074,24 +1075,44 @@ int CreateTestDataFile_Minimal(void)
 	List_InsertAtEnd(pList, 20, "C", "010-0000-0022");
 	List_InsertAtEnd(pList, 30, "D", "010-0000-0003");
 
-	FILE* fp = NULL;
-	fopen_s(&fp, FILE_PATH_TEST, "wb");
-	if (fp == NULL)
+	wchar_t wPath[MAX_PATH] = { 0 };
+	MultiByteToWideChar(CP_ACP, 0, FILE_PATH_TEST, -1, wPath, MAX_PATH);
+
+	HANDLE hFile = CreateFile(
+		wPath,
+		GENERIC_WRITE,
+		0,
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		return 0;
 	}
 
+	DWORD dwWritten = 0;
+	BOOL bResult = FALSE;
+
 	NODE* ptr = pList->head.next;
 	while (ptr != &pList->tail)
 	{
-		if (fwrite(ptr, sizeof(NODE), 1, fp) != 1)
+		bResult = WriteFile(hFile, ptr, sizeof(NODE), &dwWritten, NULL);
+		if (!bResult)
 		{
+			CloseHandle(hFile);
 			return 0;
 		}
+
+		if (dwWritten < sizeof(NODE))
+		{
+			CloseHandle(hFile);
+			return 0;
+		}
+
 		ptr = ptr->next;
 	}
 
-	fclose(fp);
 	List_Release(pList);
 	free(pList);
 	return 1;
