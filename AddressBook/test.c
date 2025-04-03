@@ -1287,35 +1287,26 @@ void Test_SaveListToFile(void)
 		return;
 	}
 
+	int ages[] = { 10, 99, 98, 97 };
+	char* names[] = { "A", "Z", "Y", "X" };
+	char* phones[] = {
+		"010-0000-0001",	// already existing data
+		"010-9999-9999",
+		"010-9999-9998",
+		"010-9999-9997"
+	};
+
 	LIST* pList = (LIST*)malloc(sizeof(LIST));
 	List_Init(pList);
 
-	if (!List_InsertAtEnd(pList, 10, "A", "010-0000-0001"))
+	for (int i = 0; i < 4; i++)
 	{
-		printf("FAIL: Test_SaveListToFile() failed to call List_InsertAtEnd()\n");
-		putchar('\n');
-		return;
-	}
-
-	if (!List_InsertAtEnd(pList, 99, "Z", "010-9999-9999"))
-	{
-		printf("FAIL: Test_SaveListToFile() failed to call List_InsertAtEnd()\n");
-		putchar('\n');
-		return;
-	}
-
-	if (!List_InsertAtEnd(pList, 98, "Y", "010-9999-9998"))
-	{
-		printf("FAIL: Test_SaveListToFile() failed to call List_InsertAtEnd()\n");
-		putchar('\n');
-		return;
-	}
-
-	if (!List_InsertAtEnd(pList, 97, "X", "010-9999-9997"))
-	{
-		printf("FAIL: Test_SaveListToFile() failed to call List_InsertAtEnd()\n");
-		putchar('\n');
-		return;
+		if (!List_InsertAtEnd(pList, ages[i], names[i], phones[i]))
+		{
+			printf("FAIL: Test_SaveListToFile() failed to call List_InsertAtEnd()\n");
+			putchar('\n');
+			return;
+		}
 	}
 
 	int pass = 1;
@@ -1326,27 +1317,42 @@ void Test_SaveListToFile(void)
 	}
 	else
 	{
-		FILE* fp = NULL;
-		fopen_s(&fp, FILE_PATH_TEST, "rb");
-		if (fp == NULL)
+		LARGE_INTEGER llFileSize = { 0 };
+		wchar_t wPath[MAX_PATH] = { 0 };
+		MultiByteToWideChar(CP_ACP, 0, FILE_PATH_TEST, -1, wPath, MAX_PATH);
+		HANDLE hFile = CreateFile(
+			wPath,
+			GENERIC_READ,
+			FILE_SHARE_READ,
+			NULL,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL
+		);
+		if (hFile == INVALID_HANDLE_VALUE)
 		{
 			printf("FAIL: Test_SaveListToFile() failed to open file\n");
 			return;
 		}
 
-		fseek(fp, 0, SEEK_END);
-		if (ftell(fp) != (NUM_TEST_NODE + 3) * sizeof(NODE))	// number of (Test node + new node)
+		if (!GetFileSizeEx(hFile, &llFileSize))
+		{
+			printf("FAIL: Test_SaveListToFile() failed to get file size\n");
+			return;
+		}
+
+		if (llFileSize.QuadPart != (NUM_TEST_NODE + 3) * sizeof(NODE))
 		{
 			pass = 0;
 			printf("FAIL: Test_SaveListToFile() file size doesn't match with expected size\n");
 		}
+		CloseHandle(hFile);
 
-		if (!LoadRecordsFromFileByPhone(NULL, "010-9999-9999", FILE_PATH_TEST))
+		if (LoadRecordsFromFileByPhone(NULL, "010-9999-9999", FILE_PATH_TEST) != LOAD_SUCCESS)
 		{
 			pass = 0;
 			printf("FAIL: Test_SaveListToFile() didn't save the list properly\n");
 		}
-		fclose(fp);
 	}
 
 	if (pass)

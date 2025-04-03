@@ -16,12 +16,7 @@
 int main(void)
 {
 	_wsetlocale(LC_ALL, L"korean");
-	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	List_Init(pList);
-	List_InsertAtEnd(pList, 10, "Testt", "010-0000-9999");
-	printf("%d\n", SaveListToFile(pList, FILE_PATH_TEST));
-	List_Release(pList);
-	free(pList);
+	Test_SaveListToFile();
 	//// UI event loop handler
 	//int (*pfMenu[UI_FUNC_COUNT])(const char*) = {
 	//	UI_ExitMenu, 
