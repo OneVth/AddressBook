@@ -12,6 +12,7 @@
 
 typedef struct {
 	char phone[MAX_PHONE_LEN];
+	LPCWSTR path;
 	DELETERESULT result;
 } DELETEPARAM;
 
@@ -394,13 +395,13 @@ int UI_InsertNode(LPCWSTR path)
 DWORD WINAPI Thread_DeleteRecord(void* param)
 {
 	DELETEPARAM* params = (DELETEPARAM*)param;
-	if (LoadRecordsFromFileByPhone(NULL, params->phone, FILE_PATH) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(NULL, params->phone, params->path) != LOAD_SUCCESS)
 	{
 		return 0;
 	}
 	else
 	{
-		if ((params->result = DeleteRecordFromFileByPhone(params->phone, FILE_PATH)) != DELETE_SUCCESS)
+		if ((params->result = DeleteRecordFromFileByPhone(params->phone, params->path)) != DELETE_SUCCESS)
 		{
 			return 0;
 		}
@@ -417,7 +418,7 @@ int UI_DeleteNode(LPCWSTR path)
 	const char* dots[] = { " ", ".", "..", "..." };
 	int dotIndex = 0;
 	DELETEPARAM* param = (DELETEPARAM*)malloc(sizeof(DELETEPARAM));
-
+	param->path = path;
 	do
 	{
 		printf("Need the phone number to delete **************\n");
@@ -435,6 +436,7 @@ int UI_DeleteNode(LPCWSTR path)
 		if (hThread == 0)
 		{
 			printf("Failed to create thread.\n");
+			free(param);
 			return 0;
 		}
 
@@ -446,7 +448,7 @@ int UI_DeleteNode(LPCWSTR path)
 		}
 		CloseHandle((HANDLE)hThread);
 		
-		if (param->result == 1)
+		if (param->result == DELETE_SUCCESS)
 			printf("Record deleted successfully.\n");
 		else
 			printf("Failed to delete record.\n");
@@ -462,6 +464,7 @@ int UI_DeleteNode(LPCWSTR path)
 		putchar('\n');
 	} while (flag);
 
+	free(param);
 	return 1;
 }
 

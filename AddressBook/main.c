@@ -16,24 +16,23 @@
 int main(void)
 {
 	_wsetlocale(LC_ALL, L"korean");
-	Test_SaveListToFile();
-	//// UI event loop handler
-	//int (*pfMenu[UI_FUNC_COUNT])(const char*) = {
-	//	UI_ExitMenu, 
-	//	UI_PrintAll,
-	//	UI_InsertNode, 
-	//	UI_DeleteNode, 
-	//	UI_Search, 
-	//	UI_EditNode 
-	//};
+	// UI event loop handler
+	int (*pfMenu[UI_FUNC_COUNT])(LPCWSTR) = {
+		UI_ExitMenu, 
+		UI_PrintAll,
+		UI_InsertNode, 
+		UI_DeleteNode, 
+		UI_Search, 
+		UI_EditNode 
+	};
 
-	//OPTION option = MENU_EXIT;
-	//while ((option = PrintMenu()) != MENU_EXIT)
-	//{
-	//	system("cls");
-	//	pfMenu[option](FILE_PATH);
-	//	_getch();
-	//}
+	OPTION option = MENU_EXIT;
+	while ((option = PrintMenu()) != MENU_EXIT)
+	{
+		system("cls");
+		pfMenu[option](FILE_PATH);
+		_getch();
+	}
 	
 	return 0;
 }

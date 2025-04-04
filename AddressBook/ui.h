@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include "common.h"
 
 #define UI_FUNC_COUNT 6
 #define RECORDS_PER_PAGE 10
