@@ -4,6 +4,9 @@
 
 typedef struct _ContactStore ContactStore;
 
+int ContactStore_IsEmpty(const ContactStore* store);
+int ContactStore_HasPhone(const ContactStore* store, const char* phone);
+
 ContactStore* ContactStore_Create(void);
 void ContactStore_Destroy(ContactStore* store);
 void ContactStore_PrintAll(const ContactStore* store);

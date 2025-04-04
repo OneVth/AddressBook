@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "contact_store.h"
 
 typedef struct _Node {
@@ -12,6 +13,28 @@ struct _ContactStore {
 	Node head;
 	Node tail;
 };
+
+int ContactStore_IsEmpty(const ContactStore* store)
+{
+	if (store == NULL)
+		return -1;
+	return store->head.next == &store->tail;
+}
+
+int ContactStore_HasPhone(const ContactStore* store, const char* phone)
+{
+	if (store == NULL || phone == NULL)
+		return -1;
+
+	Node* curr = store->head.next;
+	while (curr != &store->tail)
+	{
+		if (strcmp(curr->data.phone, phone) == 0)
+			return 1;
+		curr = curr->next;
+	}
+	return 0;
+}
 
 ContactStore* ContactStore_Create(void)
 {
