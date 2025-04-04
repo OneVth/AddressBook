@@ -377,7 +377,7 @@ DWORD WINAPI Thread_DeleteRecord(void* param)
 	}
 	else
 	{
-		if ((params->result = DeleteRecordFromFileByPhone(params->phone, FILE_PATH)) != 1)
+		if ((params->result = DeleteRecordFromFileByPhone(params->phone, FILE_PATH)) != DELETE_SUCCESS)
 		{
 			return 0;
 		}
