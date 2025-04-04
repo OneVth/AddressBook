@@ -458,7 +458,7 @@ EDITRESULT EditRecordPhoneFromFile(NODE* ptr, const char* phone, const char* pat
 	return EDIT_NOT_FOUND;
 }
 
-int DeleteRecordFromFileByPhone(const char* phone, const char* path)
+DELETERESULT DeleteRecordFromFileByPhone(const char* phone, const char* path)
 {
 	if (!Str_IsPhoneFormat(phone))
 		return DELETE_ERROR;
@@ -556,7 +556,7 @@ int DeleteRecordFromFileByPhone(const char* phone, const char* path)
 	return recordFound;
 }
 
-ERR_SEARCH SearchRecordsFromFile(LIST* pResult, const char* input, const char* PATH)
+SEARCHRESULT SearchRecordsFromFile(LIST* pResult, const char* input, const char* PATH)
 {
 	int age1 = 0;
 	int age2 = 0;

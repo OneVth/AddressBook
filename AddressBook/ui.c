@@ -444,7 +444,7 @@ int UI_DeleteNode(const char* PATH)
 
 int UI_Search(const char* PATH)
 {
-	ERR_SEARCH err_no = 0;
+	SEARCHRESULT result = 0;
 	LIST* pResult = (LIST*)malloc(sizeof(LIST));
 	List_Init(pResult);
 
@@ -452,23 +452,23 @@ int UI_Search(const char* PATH)
 	char buffer[BUFFSIZE] = { 0 };
 	if (UI_GetSearchString(buffer))
 	{
-		err_no = SearchRecordsFromFile(pResult, buffer, PATH);
-		if (err_no == SEARCH_SUCCESS)
+		result = SearchRecordsFromFile(pResult, buffer, PATH);
+		if (result == SEARCH_SUCCESS)
 		{
 			printf("Search result **********************************\n");
 			UI_PrintList(pResult);
 		}
-		else if (err_no == PARSE_FAILED)
+		else if (result == PARSE_FAILED)
 		{
 			printf("Input failed: Input format must be [str] [AND/OR] [str].\n");
 			return 0;
 		}
-		else if (err_no == CONVERT_FAILED)
+		else if (result == CONVERT_FAILED)
 		{
 			printf("Input failed: Allowed max [AGE: %d], [NAME LEN: %d], [PHONE LEN: %d]\n", MAXAGE, MAX_NAME_LEN, MAX_PHONE_LEN);
 			return 0;
 		}
-		else if (err_no == NO_MATCH)
+		else if (result == NO_MATCH)
 		{
 			printf("Search failed: No matching records here.\n");
 			return 0;
