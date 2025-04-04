@@ -16,7 +16,7 @@
 int main(void)
 {
 	_wsetlocale(LC_ALL, L"korean");
-	Test_DeleteRecordByPhoneFromFile();
+	UI_PrintAll(FILE_PATH);
 	//// UI event loop handler
 	//int (*pfMenu[UI_FUNC_COUNT])(const char*) = {
 	//	UI_ExitMenu, 

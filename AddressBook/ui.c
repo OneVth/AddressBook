@@ -286,7 +286,71 @@ int UI_PrintAll(const char* PATH)
 {
 	printf("Print all records ******************************\n");
 
-	FILE* fp = NULL;
+	DWORD dwRead = 0;
+	BOOL bResult = FALSE;
+	wchar_t wPath[MAX_PATH] = { 0 };
+	MultiByteToWideChar(CP_ACP, 0, PATH, -1, wPath, MAX_PATH);
+	HANDLE hFile = CreateFile(
+		wPath, 
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		printf("Failed to open file.\n");
+		return 0;
+	}
+
+	char ch = 0;
+	int pageNumber = 0;
+	NODE* temp = (NODE*)malloc(sizeof(NODE));
+	do
+	{
+		system("cls");
+		pageNumber++;
+		printf("Page #%d **************************\n", pageNumber);
+		int isEnd = 0;
+		for (int i = 0; i < RECORDS_PER_PAGE; i++)
+		{
+			ZeroMemory(temp, sizeof(NODE));
+			bResult = ReadFile(hFile, temp, sizeof(NODE), &dwRead, NULL);
+			if (!bResult)
+			{
+				printf("Failed to read file.\n");
+				CloseHandle(hFile);
+				return 0;
+			}
+
+			if (dwRead == 0)
+			{
+				isEnd = 1;
+				break;
+			}
+
+			if (dwRead < sizeof(NODE))
+			{
+				printf("File format error.\n");
+				CloseHandle(hFile);
+				return 0;
+			}
+
+			printf("[%d]: %2d %-5s %s\n", i + 1, temp->age, temp->name, temp->phone);
+		}
+
+		if (isEnd)
+		{
+			printf("\nEnd of file: Press any key to exit.\n");
+			break;
+		}
+		else
+			printf("\nPress any key to continue (or 'q' to exit) : ");
+		ch = getchar();
+	} while (ch != 'q' && ch != 'Q');
+
+	/*FILE* fp = NULL;
 	fopen_s(&fp, PATH, "rb");
 	if (fp == NULL)
 	{
@@ -327,7 +391,12 @@ int UI_PrintAll(const char* PATH)
 	_getch();
 
 	free(temp);
-	fclose(fp);
+	fclose(fp);*/
+	free(temp);
+	CloseHandle(hFile);
+
+	printf("Exit to menu.\n");
+	_getch();
 	return 0;
 }
 
