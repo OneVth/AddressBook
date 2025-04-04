@@ -1890,3 +1890,33 @@ void Test_DestroyContactStore(void)
 
 	printf("PASS: DestroyContactStore() completed without crash\n");
 }
+
+void Test_AddContact(void)
+{
+	ContactStore* pStore = CreateContactStore();
+	if (pStore == NULL)
+	{
+		printf("FAIL: Test_AddContact() failed to create ContactStore\n");
+		return;
+	}
+
+	AddContactToEnd(pStore, &(Contact){ 10, "Alice", "010-0000-1111" });
+	AddContactToEnd(pStore, &(Contact){ 20, "Betty", "010-0000-2222" });
+	AddContactToEnd(pStore, &(Contact){ 30, "John", "010-0000-3333" });
+	
+	printf("Expected order: Alice -> Betty -> John\n");
+	PrintAllContacts(pStore);
+	DestroyContactStore(pStore);
+	putchar('\n');
+
+	pStore = CreateContactStore();
+	AddContactToFront(pStore, &(Contact){ 10, "Alice", "010-0000-1111" });
+	AddContactToFront(pStore, &(Contact){ 20, "Betty", "010-0000-2222" });
+	AddContactToFront(pStore, &(Contact){ 30, "John", "010-0000-3333" });
+	
+	printf("Expected order: John -> Betty -> Alice\n");
+	PrintAllContacts(pStore);
+	DestroyContactStore(pStore);
+	putchar('\n');
+	return;
+}

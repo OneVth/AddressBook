@@ -28,7 +28,7 @@ int main(void)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	Test_DestroyContactStore();
 #endif
-
+	Test_AddContact();
 	//_wsetlocale(LC_ALL, L"korean");
 	//// UI event loop handler
 	//int (*pfMenu[UI_FUNC_COUNT])(LPCWSTR) = {
