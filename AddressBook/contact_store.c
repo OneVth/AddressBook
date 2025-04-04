@@ -106,3 +106,44 @@ int ContactStore_AddToEnd(ContactStore* store, const Contact* contact)
 	store->tail.prev = pNewNode;
 	return 1;
 }
+
+int ContactStore_CombineByOp(ContactStore* resultStore, ContactStore* leftStore, ContactStore* rightStore, const char* op)
+{
+	Node* leftCurr = leftStore->head.next;
+	Node* rightCurr = rightStore->head.next;
+
+	if (strcmp(op, "OR") == 0 || strcmp(op, "or") == 0)
+	{
+		while (leftCurr != &leftStore->tail)
+		{
+			ContactStore_AddToEnd(resultStore, &leftCurr->data);
+			leftCurr = leftCurr->next;
+		}
+
+		while (rightCurr != &rightStore->tail)
+		{
+			if (!ContactStore_HasPhone(resultStore, rightCurr->data.phone))
+			{
+				ContactStore_AddToEnd(resultStore, &rightCurr->data);
+			}
+			rightCurr = rightCurr->next;
+		}
+	}
+	else if (strcmp(op, "AND") == 0 || strcmp(op, "and") == 0)
+	{
+		while (leftCurr != &leftStore->tail)
+		{
+			if (ContactStore_HasPhone(rightStore, leftCurr->data.phone))
+			{
+				ContactStore_AddToEnd(resultStore, &leftCurr->data);
+			}
+			leftCurr = leftCurr->next;
+		}
+	}
+	else
+	{
+		return 0;
+	}
+
+	return 1;
+}

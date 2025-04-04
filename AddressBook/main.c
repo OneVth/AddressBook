@@ -28,8 +28,28 @@ int main(void)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	Test_ContactStore_Destroy();
 #endif
-	Test_ContactStore_IsEmpty();
-	Test_ContactStore_HasPhone();
+	ContactStore* pLeftStore = ContactStore_Create();
+	ContactStore* pRightStore = ContactStore_Create();
+	ContactStore* pResultStore = ContactStore_Create();
+
+	ContactStore_AddToEnd(pLeftStore, &(Contact){ 10, "Alice", "010-0000-1111" });
+	ContactStore_AddToEnd(pLeftStore, &(Contact){ 20, "Betty", "010-0000-2222" });
+	
+	ContactStore_AddToEnd(pRightStore, &(Contact){ 20, "Betty", "010-0000-2222" });
+	ContactStore_AddToEnd(pRightStore, &(Contact){ 30, "John", "010-0000-3333" });
+
+	ContactStore_CombineByOp(pResultStore, pLeftStore, pRightStore, "OR");
+	ContactStore_PrintAll(pResultStore);
+
+	ContactStore_Destroy(pResultStore);
+	pResultStore = ContactStore_Create();
+
+	ContactStore_CombineByOp(pResultStore, pLeftStore, pRightStore, "AND");
+	ContactStore_PrintAll(pResultStore);
+
+	ContactStore_Destroy(pResultStore);
+	ContactStore_Destroy(pLeftStore);
+	ContactStore_Destroy(pRightStore);
 	//_wsetlocale(LC_ALL, L"korean");
 	//// UI event loop handler
 	//int (*pfMenu[UI_FUNC_COUNT])(LPCWSTR) = {
