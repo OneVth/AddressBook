@@ -1882,6 +1882,89 @@ void Test_SearchRecordsFromFile(void)
 }
 
 // ***********************************************
+
+void Test_ContactStore_IsEmpty(void)
+{
+	int pass = 1;
+
+	ContactStore* pStore = ContactStore_Create();
+	if (pStore == NULL)
+	{
+		printf("FAIL: Test_ContactStore_IsEmpty() failed to create ContactStore\n");
+		return;
+	}
+
+	if (!ContactStore_IsEmpty(pStore))
+	{
+		pass = 0;
+		printf("FAIL: Test_ContactStore_IsEmpty() failed to check empty store\n");
+	}
+	else
+	{
+		ContactStore_AddToEnd(pStore, &(Contact){ 10, "Alice", "010-0000-1111" });
+		if (ContactStore_IsEmpty(pStore))
+		{
+			pass = 0;
+			printf("FAIL: Test_ContactStore_IsEmpty() failed to check non-empty store\n");
+		}
+	}
+
+	if (pass)
+	{
+		printf("PASS: Test_ContactStore_IsEmpty() correctly check empty store\n");
+		printf("PASS: Test_ContactStore_IsEmpty() correctly check non-empty store\n");
+	}
+
+	ContactStore_Destroy(pStore);
+	putchar('\n');
+	return;
+}
+
+void Test_ContactStore_HasPhone(void)
+{
+	int pass = 1;
+
+	ContactStore* pStore = ContactStore_Create();
+	if (pStore == NULL)
+	{
+		printf("FAIL: Test_ContactStore_HasPhone() failed to create ContactStore\n");
+		return;
+	}
+
+	if (ContactStore_HasPhone(pStore, "010-0000-1111"))
+	{
+		pass = 0;
+		printf("FAIL: Test_ContactStore_HasPhone() returned true for empty store\n");
+	}
+	else
+	{
+		ContactStore_AddToEnd(pStore, &(Contact){ 10, "Alice", "010-0000-1111" });
+		if (ContactStore_HasPhone(pStore, "010-0000-0000"))
+		{
+			pass = 0;
+			printf("FAIL: Test_ContactStore_HasPhone() failed to check for non-exist phone number\n");
+		}
+		else
+		{
+			if (!ContactStore_HasPhone(pStore, "010-0000-1111"))
+			{
+				pass = 0;
+				printf("FAIL: Test_ContactStore_HasPhone() failed to check for exist phone number\n");
+			}
+		}
+	}
+
+	if (pass)
+	{
+		printf("PASS: Test_ContactStore_HasPhone() correctly check empty store\n");
+		printf("PASS: Test_ContactStore_HasPhone() correctly check non-exist phone number\n");
+		printf("PASS: Test_ContactStore_HasPhone() correctly check exist phone number\n");
+	}
+	ContactStore_Destroy(pStore);
+	putchar('\n');
+	return;
+}
+
 void Test_ContactStore_Destroy(void)
 {
 	ContactStore* pStore = ContactStore_Create();
