@@ -13,7 +13,7 @@
 
 typedef struct {
 	char phone[MAX_PHONE_LEN];
-	int result;	// 0 = fail / 1 = success
+	DELETERESULT result;
 } DELETEPARAM;
 
 int UI_GetInsertInfo(char* name, int* age, char* phone)
