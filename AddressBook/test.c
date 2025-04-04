@@ -1064,7 +1064,7 @@ void Test_List_CombineByOp(void)
 
 int CreateTestDataFile_Minimal(void)
 {
-	_mkdir("Test");
+	CreateDirectory(L"./Test", NULL);
 
 	int ages[] = { 10, 11, 20, 20, 30 };
 	char* names[] = { "A", "A", "B", "C", "D" };
@@ -1086,11 +1086,9 @@ int CreateTestDataFile_Minimal(void)
 
 	DWORD dwWritten = 0;
 	BOOL bResult = FALSE;
-	wchar_t wPath[MAX_PATH] = { 0 };
-	MultiByteToWideChar(CP_ACP, 0, FILE_PATH_TEST, -1, wPath, MAX_PATH);
 
 	HANDLE hFile = CreateFile(
-		wPath,
+		FILE_PATH_TEST,
 		GENERIC_WRITE,
 		0,
 		NULL,
@@ -1163,16 +1161,13 @@ void Test_CreateTestDataFile_Minimal(void)
 	}
 	else
 	{
-		wchar_t wPath[MAX_PATH] = { 0 };
-		MultiByteToWideChar(CP_ACP, 0, FILE_PATH_TEST, -1, wPath, MAX_PATH);
-
 		LARGE_INTEGER llFileSize = { 0 };
 		LONGLONG llTotalReadSize = 0;
 		DWORD dwRead = 0;
 		BOOL bResult = FALSE;
 
 		HANDLE hFile = CreateFile(
-			wPath,
+			FILE_PATH_TEST,
 			GENERIC_READ,
 			FILE_SHARE_READ,
 			NULL,
@@ -1318,10 +1313,8 @@ void Test_SaveListToFile(void)
 	else
 	{
 		LARGE_INTEGER llFileSize = { 0 };
-		wchar_t wPath[MAX_PATH] = { 0 };
-		MultiByteToWideChar(CP_ACP, 0, FILE_PATH_TEST, -1, wPath, MAX_PATH);
 		HANDLE hFile = CreateFile(
-			wPath,
+			FILE_PATH_TEST,
 			GENERIC_READ,
 			FILE_SHARE_READ,
 			NULL,
@@ -1729,11 +1722,8 @@ void Test_DeleteRecordByPhoneFromFile(void)
 		DWORD dwRead = 0;
 		BOOL bResult = FALSE;
 		
-		wchar_t wPath[MAX_PATH] = { 0 };
-		MultiByteToWideChar(CP_ACP, 0, FILE_PATH_TEST, -1, wPath, MAX_PATH);
-
 		HANDLE hFile = CreateFile(
-			wPath,
+			FILE_PATH_TEST,
 			GENERIC_READ,
 			FILE_SHARE_READ,
 			NULL,

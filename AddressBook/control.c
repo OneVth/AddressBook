@@ -16,7 +16,7 @@ int SaveListToFile(LIST* pL, LPCWSTR path)
 	if (List_IsEmpty(pL))
 		return 0;
 
-	_mkdir("../Data");
+	CreateDirectory(L"../Data", NULL);
 
 	NODE* ptr = pL->head.next;
 	while (ptr != &pL->tail)
