@@ -342,7 +342,7 @@ int UI_InsertNode(const char* PATH)
 
 	if (UI_GetInsertInfo(name, &age, phone))
 	{
-		if (!LoadRecordsFromFileByPhone(NULL, phone, PATH))
+		if (LoadRecordsFromFileByPhone(NULL, phone, PATH) != LOAD_SUCCESS)
 		{
 			List_InsertAtEnd(pList, age, name, phone);
 			SaveListToFile(pList, PATH);
@@ -371,7 +371,7 @@ int UI_InsertNode(const char* PATH)
 DWORD WINAPI Thread_DeleteRecord(void* param)
 {
 	DELETEPARAM* params = (DELETEPARAM*)param;
-	if (LoadRecordsFromFileByPhone(NULL, params->phone, FILE_PATH) != 1)
+	if (LoadRecordsFromFileByPhone(NULL, params->phone, FILE_PATH) != LOAD_SUCCESS)
 	{
 		return 0;
 	}
@@ -496,7 +496,7 @@ int UI_EditNode(const char* PATH)
 	printf("Need phone number of the node to edit **************\n");
 	UI_GetPhone(phone);
 
-	if (LoadRecordsFromFileByPhone(pList, phone, PATH) != 1)
+	if (LoadRecordsFromFileByPhone(pList, phone, PATH) != LOAD_SUCCESS)
 	{
 		printf("Cannot find the node.\n");
 		return 0;
@@ -532,7 +532,7 @@ int UI_EditNode(const char* PATH)
 			case 3:
 				UI_GetPhone(phone);
 
-				if (LoadRecordsFromFileByPhone(NULL, phone, PATH) == 1)
+				if (LoadRecordsFromFileByPhone(NULL, phone, PATH) == LOAD_SUCCESS)
 				{
 					printf("Edit failed: Phone number is already exist.\n");
 				}
