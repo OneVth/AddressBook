@@ -15,14 +15,14 @@ struct _ContactStore {
 
 ContactStore* CreateContactStore(void)
 {
-	ContactStore* store = (ContactStore*)malloc(sizeof(ContactStore));
-	if (store == NULL)
+	ContactStore* pStore = (ContactStore*)malloc(sizeof(ContactStore));
+	if (pStore == NULL)
 		return NULL;
-	store->head.next = &store->tail;
-	store->head.prev = NULL;
-	store->tail.next = NULL;
-	store->tail.prev = &store->head;
-	return store;
+	pStore->head.next = &pStore->tail;
+	pStore->head.prev = NULL;
+	pStore->tail.next = NULL;
+	pStore->tail.prev = &pStore->head;
+	return pStore;
 }
 
 void DestroyContactStore(ContactStore* store)

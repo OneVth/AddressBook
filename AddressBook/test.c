@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <direct.h>
 #include <Windows.h>
+#include "contact_store.h"
 #include "common.h"
 #include "control.h"
 #include "ui.h"
@@ -1881,3 +1881,12 @@ void Test_SearchRecordsFromFile(void)
 	return;
 }
 
+// ***********************************************
+void Test_DestroyContactStore(void)
+{
+	ContactStore* pStore = CreateContactStore();
+
+	DestroyContactStore(pStore);
+
+	printf("PASS: DestroyContactStore() completed without crash\n");
+}

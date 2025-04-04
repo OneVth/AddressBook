@@ -1,6 +1,11 @@
 // Entry point of the Address Book program.
 
 /* INCLUDES	*******************************************************/
+#ifdef _DEBUG
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,24 +20,24 @@
 // Contact include
 #include "contact_store.h"
 
+
 /* MAIN FUNCTION **************************************************/
 int main(void)
 {
-	ContactStore* store = CreateContactStore();
-	AddContactToEnd(store, &(Contact){ 30, "John", "123-4567-8901" });
-	AddContactToEnd(store, &(Contact){ 10, "Alice", "234-5678-9012" });
-	AddContactToFront(store, &(Contact){ 20, "Betty", "345-6789-0123" });
-	PrintAllContacts(store);
-	DestroyContactStore(store);
+#ifdef _DEBUG
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	Test_DestroyContactStore();
+#endif
+
 	//_wsetlocale(LC_ALL, L"korean");
 	//// UI event loop handler
 	//int (*pfMenu[UI_FUNC_COUNT])(LPCWSTR) = {
-	//	UI_ExitMenu, 
+	//	UI_ExitMenu,
 	//	UI_PrintAll,
-	//	UI_InsertNode, 
-	//	UI_DeleteNode, 
-	//	UI_Search, 
-	//	UI_EditNode 
+	//	UI_InsertNode,
+	//	UI_DeleteNode,
+	//	UI_Search,
+	//	UI_EditNode
 	//};
 
 	//OPTION option = MENU_EXIT;
@@ -42,6 +47,5 @@ int main(void)
 	//	pfMenu[option](FILE_PATH);
 	//	_getch();
 	//}
-	
 	return 0;
 }
