@@ -349,49 +349,6 @@ int UI_PrintAll(const char* PATH)
 			printf("\nPress any key to continue (or 'q' to exit) : ");
 		ch = getchar();
 	} while (ch != 'q' && ch != 'Q');
-
-	/*FILE* fp = NULL;
-	fopen_s(&fp, PATH, "rb");
-	if (fp == NULL)
-	{
-		printf("Failed to open file.\n");
-		return 0;
-	}
-	char ch = 0;
-	int pageNumber = 0;
-	NODE* temp = (NODE*)malloc(sizeof(NODE));
-	memset(temp, 0, sizeof(NODE));
-	do
-	{
-		system("cls");
-		pageNumber++;
-		printf("Page #%d **************************\n", pageNumber);
-		int isEnd = 0;
-		for (int i = 0; i < RECORDS_PER_PAGE; i++)
-		{
-			if (fread(temp, sizeof(NODE), 1, fp) > 0)
-				printf("[%d]: %2d %-5s %s\n", i + 1,
-					temp->age, temp->name, temp->phone);
-			else
-			{
-				isEnd = 1;
-				break;
-			}
-		}
-
-		if (isEnd)
-		{
-			printf("\nEnd of file: Press any key to exit.\n");
-			break;
-		}
-		else
-			printf("\nPress any key to continue (or 'q' to exit) : ");
-		ch = getchar();
-	} while (ch != 'q' || ch != 'Q');
-	_getch();
-
-	free(temp);
-	fclose(fp);*/
 	free(temp);
 	CloseHandle(hFile);
 
