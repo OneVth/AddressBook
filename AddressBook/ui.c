@@ -5,7 +5,6 @@
 #include <string.h>
 #include <conio.h>
 #include <ctype.h>
-#include <windows.h>
 #include <process.h>
 #include "common.h"
 #include "control.h"
@@ -277,21 +276,19 @@ OPTION PrintMenu(void)
 	return val;
 }
 
-int UI_ExitMenu(const char* PATH)
+int UI_ExitMenu(LPCWSTR path)
 {
 	return 1;
 }
 
-int UI_PrintAll(const char* PATH)
+int UI_PrintAll(LPCWSTR path)
 {
 	printf("Print all records ******************************\n");
 
 	DWORD dwRead = 0;
 	BOOL bResult = FALSE;
-	wchar_t wPath[MAX_PATH] = { 0 };
-	MultiByteToWideChar(CP_ACP, 0, PATH, -1, wPath, MAX_PATH);
 	HANDLE hFile = CreateFile(
-		wPath, 
+		path, 
 		GENERIC_READ,
 		FILE_SHARE_READ,
 		NULL,
@@ -357,7 +354,7 @@ int UI_PrintAll(const char* PATH)
 	return 0;
 }
 
-int UI_InsertNode(const char* PATH)
+int UI_InsertNode(LPCWSTR path)
 {
 	int age = 0;
 	char name[MAX_NAME_LEN] = { 0 };
@@ -368,10 +365,10 @@ int UI_InsertNode(const char* PATH)
 
 	if (UI_GetInsertInfo(name, &age, phone))
 	{
-		if (LoadRecordsFromFileByPhone(NULL, phone, PATH) != LOAD_SUCCESS)
+		if (LoadRecordsFromFileByPhone(NULL, phone, path) != LOAD_SUCCESS)
 		{
 			List_InsertAtEnd(pList, age, name, phone);
-			SaveListToFile(pList, PATH);
+			SaveListToFile(pList, path);
 		}
 		else
 		{
@@ -411,7 +408,7 @@ DWORD WINAPI Thread_DeleteRecord(void* param)
 	return 1;
 }
 
-int UI_DeleteNode(const char* PATH)
+int UI_DeleteNode(LPCWSTR path)
 {
 	int flag = 1;
 	char phone[MAX_PHONE_LEN] = { 0 };
@@ -468,7 +465,7 @@ int UI_DeleteNode(const char* PATH)
 	return 1;
 }
 
-int UI_Search(const char* PATH)
+int UI_Search(LPCWSTR path)
 {
 	SEARCHRESULT result = 0;
 	LIST* pResult = (LIST*)malloc(sizeof(LIST));
@@ -478,7 +475,7 @@ int UI_Search(const char* PATH)
 	char buffer[BUFFSIZE] = { 0 };
 	if (UI_GetSearchString(buffer))
 	{
-		result = SearchRecordsFromFile(pResult, buffer, PATH);
+		result = SearchRecordsFromFile(pResult, buffer, path);
 		if (result == SEARCH_SUCCESS)
 		{
 			printf("Search result **********************************\n");
@@ -510,7 +507,7 @@ int UI_Search(const char* PATH)
 	return 1;
 }
 
-int UI_EditNode(const char* PATH)
+int UI_EditNode(LPCWSTR path)
 {
 	int age = 0;
 	char name[MAX_NAME_LEN] = { 0 };
@@ -522,7 +519,7 @@ int UI_EditNode(const char* PATH)
 	printf("Need phone number of the node to edit **************\n");
 	UI_GetPhone(phone);
 
-	if (LoadRecordsFromFileByPhone(pList, phone, PATH) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(pList, phone, path) != LOAD_SUCCESS)
 	{
 		printf("Cannot find the node.\n");
 		return 0;
@@ -547,23 +544,23 @@ int UI_EditNode(const char* PATH)
 				break;
 			case 1:
 				UI_GetAge(&age);
-				EditRecordAgeFromFile(ptr, age, PATH);
+				EditRecordAgeFromFile(ptr, age, path);
 
 				break;
 			case 2:
 				UI_GetName(name);
-				EditRecordNameFromFile(ptr, name, PATH);
+				EditRecordNameFromFile(ptr, name, path);
 
 				break;
 			case 3:
 				UI_GetPhone(phone);
 
-				if (LoadRecordsFromFileByPhone(NULL, phone, PATH) == LOAD_SUCCESS)
+				if (LoadRecordsFromFileByPhone(NULL, phone, path) == LOAD_SUCCESS)
 				{
 					printf("Edit failed: Phone number is already exist.\n");
 				}
 				else
-					EditRecordPhoneFromFile(ptr, phone, PATH);
+					EditRecordPhoneFromFile(ptr, phone, path);
 				break;
 			default:
 				break;

@@ -4,14 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <direct.h>
-#include <windows.h>
+#include <Windows.h>
 #include <PathCch.h>
 #include "common.h"
 #include "control.h"
 
 #pragma comment(lib, "Pathcch.lib")
 
-int SaveListToFile(LIST* pL, const char* path)
+int SaveListToFile(LIST* pL, LPCWSTR path)
 {
 	if (List_IsEmpty(pL))
 		return 0;
@@ -25,10 +25,8 @@ int SaveListToFile(LIST* pL, const char* path)
 		{
 			BOOL bResult = FALSE;
 			DWORD dwWritten = 0;
-			wchar_t wPath[MAX_PATH] = { 0 };
-			MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
 			HANDLE hFile = CreateFile(
-				wPath,
+				path,
 				GENERIC_WRITE,
 				0,
 				NULL,
@@ -55,16 +53,13 @@ int SaveListToFile(LIST* pL, const char* path)
 	return 1;
 }
 
-LOADRESULT LoadRecordsFromFileByPhone(LIST* pL, const char* phone, const char* path)
+LOADRESULT LoadRecordsFromFileByPhone(LIST* pL, const char* phone, LPCWSTR path)
 {
 	if (!Str_IsPhoneFormat(phone))
 		return LOAD_ERROR;
 
-	wchar_t wPath[MAX_PATH] = { 0 };
-	MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
-
 	HANDLE hFile = CreateFile(
-		wPath,
+		path,
 		GENERIC_READ,
 		FILE_SHARE_READ,
 		NULL,
@@ -122,7 +117,7 @@ LOADRESULT LoadRecordsFromFileByPhone(LIST* pL, const char* phone, const char* p
 	return LOAD_NOT_FOUND;
 }
 
-LOADRESULT LoadRecordsFromFileByName(LIST* pL, const char* name, const char* path)
+LOADRESULT LoadRecordsFromFileByName(LIST* pL, const char* name, LPCWSTR path)
 {
 	if (!Str_IsAllAlpha(name))
 		return LOAD_ERROR;
@@ -131,10 +126,8 @@ LOADRESULT LoadRecordsFromFileByName(LIST* pL, const char* name, const char* pat
 
 	DWORD dwRead = 0;
 	BOOL bResult = FALSE;
-	wchar_t wPath[MAX_PATH] = { 0 };
-	MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
 	HANDLE hFile = CreateFile(
-		wPath,
+		path,
 		GENERIC_READ,
 		FILE_SHARE_READ,
 		NULL,
@@ -186,7 +179,7 @@ LOADRESULT LoadRecordsFromFileByName(LIST* pL, const char* name, const char* pat
 	return flag;
 }
 
-LOADRESULT LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
+LOADRESULT LoadRecordsFromFileByAge(LIST* pL, const int age, LPCWSTR path)
 {
 	if (age < 0 || age >= MAXAGE)
 		return LOAD_ERROR;
@@ -195,10 +188,8 @@ LOADRESULT LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
 
 	DWORD dwRead = 0;
 	BOOL bResult = FALSE;
-	wchar_t wPath[MAX_PATH] = { 0 };
-	MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
 	HANDLE hFile = CreateFile(
-		wPath,
+		path,
 		GENERIC_READ,
 		FILE_SHARE_READ,
 		NULL,
@@ -250,18 +241,15 @@ LOADRESULT LoadRecordsFromFileByAge(LIST* pL, const int age, const char* path)
 	return flag;
 }
 
-EDITRESULT EditRecordAgeFromFile(NODE* ptr, const int age, const char* path)
+EDITRESULT EditRecordAgeFromFile(NODE* ptr, const int age, LPCWSTR path)
 {
 	if (age < 0 || age >= MAXAGE)
 		return EDIT_ERROR;
 
 	DWORD dwRead = 0, dwWritten = 0;
 	BOOL bResult = FALSE;
-	wchar_t wPath[MAX_PATH] = { 0 };
-	MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
-
 	HANDLE hFile = CreateFile(
-		wPath,
+		path,
 		GENERIC_READ | GENERIC_WRITE,
 		0,
 		NULL,
@@ -319,7 +307,7 @@ EDITRESULT EditRecordAgeFromFile(NODE* ptr, const int age, const char* path)
 	return EDIT_NOT_FOUND;
 }
 
-EDITRESULT EditRecordNameFromFile(NODE* ptr, const char* name, const char* path)
+EDITRESULT EditRecordNameFromFile(NODE* ptr, const char* name, LPCWSTR path)
 {
 	if (!Str_IsAllAlpha(name) || (strlen(name) >= MAX_NAME_LEN - 1))
 	{
@@ -328,11 +316,8 @@ EDITRESULT EditRecordNameFromFile(NODE* ptr, const char* name, const char* path)
 
 	DWORD dwRead = 0, dwWritten = 0;
 	BOOL bResult = FALSE;
-	wchar_t wPath[MAX_PATH] = { 0 };
-	MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
-
 	HANDLE hFile = CreateFile(
-		wPath,
+		path,
 		GENERIC_READ | GENERIC_WRITE,
 		0,
 		NULL,
@@ -390,18 +375,15 @@ EDITRESULT EditRecordNameFromFile(NODE* ptr, const char* name, const char* path)
 	return EDIT_NOT_FOUND;
 }
 
-EDITRESULT EditRecordPhoneFromFile(NODE* ptr, const char* phone, const char* path)
+EDITRESULT EditRecordPhoneFromFile(NODE* ptr, const char* phone, LPCWSTR path)
 {
 	if (!Str_IsPhoneFormat(phone))
 		return EDIT_ERROR;
 
 	DWORD dwRead = 0, dwWritten = 0;
 	BOOL bResult = FALSE;
-	wchar_t wPath[MAX_PATH] = { 0 };
-	MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
-
 	HANDLE hFile = CreateFile(
-		wPath,
+		path,
 		GENERIC_READ | GENERIC_WRITE,
 		0,
 		NULL,
@@ -458,7 +440,7 @@ EDITRESULT EditRecordPhoneFromFile(NODE* ptr, const char* phone, const char* pat
 	return EDIT_NOT_FOUND;
 }
 
-DELETERESULT DeleteRecordFromFileByPhone(const char* phone, const char* path)
+DELETERESULT DeleteRecordFromFileByPhone(const char* phone, LPCWSTR path)
 {
 	if (!Str_IsPhoneFormat(phone))
 		return DELETE_ERROR;
@@ -466,11 +448,8 @@ DELETERESULT DeleteRecordFromFileByPhone(const char* phone, const char* path)
 	DELETERESULT recordFound = DELETE_NOT_FOUND;
 	DWORD dwRead = 0, dwWritten = 0;
 	BOOL bResult = FALSE;
-	wchar_t wPath[MAX_PATH] = { 0 };
-	MultiByteToWideChar(CP_ACP, 0, path, -1, wPath, MAX_PATH);
-
 	HANDLE hFileSource = CreateFile(
-		wPath,
+		path,
 		GENERIC_READ,
 		FILE_SHARE_READ,
 		NULL,
@@ -484,7 +463,7 @@ DELETERESULT DeleteRecordFromFileByPhone(const char* phone, const char* path)
 	}
 
 	wchar_t wTempPath[MAX_PATH] = { 0 };
-	wcscpy_s(wTempPath, MAX_PATH, wPath);
+	wcscpy_s(wTempPath, MAX_PATH, path);
 	PathCchRemoveFileSpec(wTempPath, MAX_PATH);
 	PathCchAppend(wTempPath, MAX_PATH, L"temp.dat");
 
@@ -549,14 +528,14 @@ DELETERESULT DeleteRecordFromFileByPhone(const char* phone, const char* path)
 	CloseHandle(hFileSource);
 	CloseHandle(hFileTarget);
 
-	if (DeleteFile(wPath) != TRUE)
+	if (DeleteFile(path) != TRUE)
 		return DELETE_ERROR;
-	if (MoveFile(wTempPath, wPath) != TRUE)
+	if (MoveFile(wTempPath, path) != TRUE)
 		return DELETE_ERROR;
 	return recordFound;
 }
 
-SEARCHRESULT SearchRecordsFromFile(LIST* pResult, const char* input, const char* PATH)
+SEARCHRESULT SearchRecordsFromFile(LIST* pResult, const char* input, LPCWSTR path)
 {
 	int age1 = 0;
 	int age2 = 0;
@@ -591,15 +570,15 @@ SEARCHRESULT SearchRecordsFromFile(LIST* pResult, const char* input, const char*
 	{
 		if (age1 != 0)
 		{
-			LoadRecordsFromFileByAge(pResult, age1, PATH);
+			LoadRecordsFromFileByAge(pResult, age1, path);
 		}
 		else if (name1[0] != 0)
 		{
-			LoadRecordsFromFileByName(pResult, name1, PATH);
+			LoadRecordsFromFileByName(pResult, name1, path);
 		}
 		else if (phone1[0] != 0)
 		{
-			LoadRecordsFromFileByPhone(pResult, phone1, PATH);
+			LoadRecordsFromFileByPhone(pResult, phone1, path);
 		}
 	}
 	else if (op[0] != 0)	// op is "AND" or "OR"
@@ -611,56 +590,56 @@ SEARCHRESULT SearchRecordsFromFile(LIST* pResult, const char* input, const char*
 
 		if (age1 != 0 && age2 != 0)
 		{
-			LoadRecordsFromFileByAge(pTempList1, age1, PATH);
-			LoadRecordsFromFileByAge(pTempList2, age2, PATH);
+			LoadRecordsFromFileByAge(pTempList1, age1, path);
+			LoadRecordsFromFileByAge(pTempList2, age2, path);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (age1 != 0 && name2[0] != 0)
 		{
-			LoadRecordsFromFileByAge(pTempList1, age1, PATH);
-			LoadRecordsFromFileByName(pTempList2, name2, PATH);
+			LoadRecordsFromFileByAge(pTempList1, age1, path);
+			LoadRecordsFromFileByName(pTempList2, name2, path);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (age1 != 0 && phone2[0] != 0)
 		{
-			LoadRecordsFromFileByAge(pTempList1, age1, PATH);
-			LoadRecordsFromFileByPhone(pTempList2, phone2, PATH);
+			LoadRecordsFromFileByAge(pTempList1, age1, path);
+			LoadRecordsFromFileByPhone(pTempList2, phone2, path);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (name1[0] != 0 && age2 != 0)
 		{
-			LoadRecordsFromFileByName(pTempList1, name1, PATH);
-			LoadRecordsFromFileByAge(pTempList2, age2, PATH);
+			LoadRecordsFromFileByName(pTempList1, name1, path);
+			LoadRecordsFromFileByAge(pTempList2, age2, path);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (name1[0] != 0 && name2[0] != 0)
 		{
-			LoadRecordsFromFileByName(pTempList1, name1, PATH);
-			LoadRecordsFromFileByName(pTempList2, name2, PATH);
+			LoadRecordsFromFileByName(pTempList1, name1, path);
+			LoadRecordsFromFileByName(pTempList2, name2, path);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (name1[0] != 0 && phone2[0] != 0)
 		{
-			LoadRecordsFromFileByName(pTempList1, name1, PATH);
-			LoadRecordsFromFileByPhone(pTempList2, phone2, PATH);
+			LoadRecordsFromFileByName(pTempList1, name1, path);
+			LoadRecordsFromFileByPhone(pTempList2, phone2, path);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (phone1[0] != 0 && age2 != 0)
 		{
-			LoadRecordsFromFileByPhone(pTempList1, phone1, PATH);
-			LoadRecordsFromFileByAge(pTempList2, age2, PATH);
+			LoadRecordsFromFileByPhone(pTempList1, phone1, path);
+			LoadRecordsFromFileByAge(pTempList2, age2, path);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (phone1[0] != 0 && name2[0] != 0)
 		{
-			LoadRecordsFromFileByPhone(pTempList1, phone1, PATH);
-			LoadRecordsFromFileByName(pTempList2, name2, PATH);
+			LoadRecordsFromFileByPhone(pTempList1, phone1, path);
+			LoadRecordsFromFileByName(pTempList2, name2, path);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 		else if (phone1[0] != 0 && phone2[0] != 0)
 		{
-			LoadRecordsFromFileByPhone(pTempList1, phone1, PATH);
-			LoadRecordsFromFileByPhone(pTempList2, phone2, PATH);
+			LoadRecordsFromFileByPhone(pTempList1, phone1, path);
+			LoadRecordsFromFileByPhone(pTempList2, phone2, path);
 			List_CombineByOp(pResult, pTempList1, pTempList2, op);
 		}
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <Windows.h>
 
 #define UI_FUNC_COUNT 6
 #define RECORDS_PER_PAGE 10
@@ -59,15 +60,15 @@ void UI_PrintList(LIST* pL);
 // *******************************************************************
 
 OPTION PrintMenu(void);		// event loop
-int UI_ExitMenu(const char* PATH);
-int UI_PrintAll(const char* PATH);
+int UI_ExitMenu(LPCWSTR path);
+int UI_PrintAll(LPCWSTR path);
 
 /// <summary>
 /// Insert a new node into file after getting user input.
 /// </summary>
 /// <param name="PATH">The file path to insert the node into.</param>
 /// <returns>1 if insertion successful; 0 otherwise.</returns>
-int UI_InsertNode(const char* PATH);
-int UI_DeleteNode(const char* PATH);
-int UI_Search(const char* PATH);
-int UI_EditNode(const char* PATH);
+int UI_InsertNode(LPCWSTR path);
+int UI_DeleteNode(LPCWSTR path);
+int UI_Search(LPCWSTR path);
+int UI_EditNode(LPCWSTR path);

@@ -4,7 +4,7 @@
 #define MAX_PHONE_LEN 14	// 000-0000-0000 + '\0'
 #define BUFFSIZE 200
 #define MAXAGE 120
-#define FILE_PATH "..\\Data\\data.dat"
+#define FILE_PATH L"..\\Data\\data.dat"
 
 typedef struct node {
 	int age;
