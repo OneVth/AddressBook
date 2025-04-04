@@ -1882,41 +1882,41 @@ void Test_SearchRecordsFromFile(void)
 }
 
 // ***********************************************
-void Test_DestroyContactStore(void)
+void Test_ContactStore_Destroy(void)
 {
-	ContactStore* pStore = CreateContactStore();
+	ContactStore* pStore = ContactStore_Create();
 
-	DestroyContactStore(pStore);
+	ContactStore_Destroy(pStore);
 
-	printf("PASS: DestroyContactStore() completed without crash\n");
+	printf("PASS: ContactStore_Destroy() completed without crash\n");
 }
 
-void Test_AddContact(void)
+void Test_ContactStore_Add(void)
 {
-	ContactStore* pStore = CreateContactStore();
+	ContactStore* pStore = ContactStore_Create();
 	if (pStore == NULL)
 	{
 		printf("FAIL: Test_AddContact() failed to create ContactStore\n");
 		return;
 	}
 
-	AddContactToEnd(pStore, &(Contact){ 10, "Alice", "010-0000-1111" });
-	AddContactToEnd(pStore, &(Contact){ 20, "Betty", "010-0000-2222" });
-	AddContactToEnd(pStore, &(Contact){ 30, "John", "010-0000-3333" });
+	ContactStore_AddToEnd(pStore, &(Contact){ 10, "Alice", "010-0000-1111" });
+	ContactStore_AddToEnd(pStore, &(Contact){ 20, "Betty", "010-0000-2222" });
+	ContactStore_AddToEnd(pStore, &(Contact){ 30, "John", "010-0000-3333" });
 	
 	printf("Expected order: Alice -> Betty -> John\n");
-	PrintAllContacts(pStore);
-	DestroyContactStore(pStore);
+	ContactStore_PrintAll(pStore);
+	ContactStore_Destroy(pStore);
 	putchar('\n');
 
-	pStore = CreateContactStore();
-	AddContactToFront(pStore, &(Contact){ 10, "Alice", "010-0000-1111" });
-	AddContactToFront(pStore, &(Contact){ 20, "Betty", "010-0000-2222" });
-	AddContactToFront(pStore, &(Contact){ 30, "John", "010-0000-3333" });
+	pStore = ContactStore_Create();
+	ContactStore_AddToFront(pStore, &(Contact){ 10, "Alice", "010-0000-1111" });
+	ContactStore_AddToFront(pStore, &(Contact){ 20, "Betty", "010-0000-2222" });
+	ContactStore_AddToFront(pStore, &(Contact){ 30, "John", "010-0000-3333" });
 	
 	printf("Expected order: John -> Betty -> Alice\n");
-	PrintAllContacts(pStore);
-	DestroyContactStore(pStore);
+	ContactStore_PrintAll(pStore);
+	ContactStore_Destroy(pStore);
 	putchar('\n');
 	return;
 }

@@ -13,7 +13,7 @@ struct _ContactStore {
 	Node tail;
 };
 
-ContactStore* CreateContactStore(void)
+ContactStore* ContactStore_Create(void)
 {
 	ContactStore* pStore = (ContactStore*)malloc(sizeof(ContactStore));
 	if (pStore == NULL)
@@ -25,7 +25,7 @@ ContactStore* CreateContactStore(void)
 	return pStore;
 }
 
-void DestroyContactStore(ContactStore* store)
+void ContactStore_Destroy(ContactStore* store)
 {
 	if (store == NULL)
 		return;
@@ -39,7 +39,7 @@ void DestroyContactStore(ContactStore* store)
 	free(store);
 }
 
-void PrintAllContacts(const ContactStore* store)
+void ContactStore_PrintAll(const ContactStore* store)
 {
 	if (store == NULL)
 		return;
@@ -52,7 +52,7 @@ void PrintAllContacts(const ContactStore* store)
 	}
 }
 
-int AddContactToFront(ContactStore* store, const Contact* contact)
+int ContactStore_AddToFront(ContactStore* store, const Contact* contact)
 {
 	if (store == NULL || contact == NULL)
 		return 0;
@@ -68,7 +68,7 @@ int AddContactToFront(ContactStore* store, const Contact* contact)
 	return 1;
 }
 
-int AddContactToEnd(ContactStore* store, const Contact* contact)
+int ContactStore_AddToEnd(ContactStore* store, const Contact* contact)
 {
 	if (store == NULL || contact == NULL)
 		return 0;

@@ -4,8 +4,8 @@
 
 typedef struct _ContactStore ContactStore;
 
-ContactStore* CreateContactStore(void);
-void DestroyContactStore(ContactStore* store);
-void PrintAllContacts(const ContactStore* store);
-int AddContactToFront(ContactStore* store, const Contact* contact);
-int AddContactToEnd(ContactStore* store, const Contact* contact);
+ContactStore* ContactStore_Create(void);
+void ContactStore_Destroy(ContactStore* store);
+void ContactStore_PrintAll(const ContactStore* store);
+int ContactStore_AddToFront(ContactStore* store, const Contact* contact);
+int ContactStore_AddToEnd(ContactStore* store, const Contact* contact);
