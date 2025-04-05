@@ -30,7 +30,7 @@ int main(void)
 	Test_ContactStore_Destroy();
 	Test_Contact_Destroy();
 #endif
-	Test_ContactLifecycle();
+	printf("%d\n", CreateTestDataFile_CS());
 	//_wsetlocale(LC_ALL, L"korean");
 	//// UI event loop handler
 	//int (*pfMenu[UI_FUNC_COUNT])(LPCWSTR) = {

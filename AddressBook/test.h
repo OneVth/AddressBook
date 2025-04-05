@@ -47,6 +47,8 @@ void Test_EditRecordNameFromFile(void);
 void Test_DeleteRecordByPhoneFromFile(void);
 void Test_SearchRecordsFromFile(void);
 
+int CreateTestDataFile_CS(void);
+
 // ContactStore functions *******************************************
 
 void Test_Contact_Destroy(void);

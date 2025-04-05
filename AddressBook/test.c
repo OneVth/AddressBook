@@ -1144,7 +1144,7 @@ int CheckNode(NODE* ptr, int expectedAge, const char* expectedName, const char* 
 void Test_CreateTestDataFile_Minimal(void)
 {
 	int pass = 1;
-	
+
 	int ages[] = { 10, 11, 20, 20, 30 };
 	char* names[] = { "A", "A", "B", "C", "D" };
 	char* phones[] = {
@@ -1205,7 +1205,7 @@ void Test_CreateTestDataFile_Minimal(void)
 				}
 			}
 		}
-		
+
 		if (pass && (llTotalReadSize != llFileSize.QuadPart))
 		{
 			pass = 0;
@@ -1248,7 +1248,7 @@ void Test_LoadRecordsFromFileByPhone(void)
 	else
 	{
 		NODE* ptr = pList->head.next;
-		if(!CheckNode(ptr, 10, "A", "010-0000-0001"))
+		if (!CheckNode(ptr, 10, "A", "010-0000-0001"))
 		{
 			pass = 0;
 			printf("FAIL: LoadRecordsFromFileByPhone() failed to load expected data\n");
@@ -1705,7 +1705,7 @@ void Test_DeleteRecordByPhoneFromFile(void)
 	int pass = 1;
 
 	// Case 1: invalid phone number
-	if (DeleteRecordFromFileByPhone("010-0000-9999", FILE_PATH_TEST) ==	DELETE_SUCCESS)
+	if (DeleteRecordFromFileByPhone("010-0000-9999", FILE_PATH_TEST) == DELETE_SUCCESS)
 	{
 		pass = 0;
 		printf("FAIL: Test_DeleteRecordByPhoneFromFile() returned true for invalid phone number\n");
@@ -1722,7 +1722,7 @@ void Test_DeleteRecordByPhoneFromFile(void)
 		LARGE_INTEGER llFileSize = { 0 };
 		DWORD dwRead = 0;
 		BOOL bResult = FALSE;
-		
+
 		HANDLE hFile = CreateFile(
 			FILE_PATH_TEST,
 			GENERIC_READ,
@@ -1882,6 +1882,65 @@ void Test_SearchRecordsFromFile(void)
 	return;
 }
 
+int CreateTestDataFile_CS(void)
+{
+	CreateDirectory(L"./Test", NULL);
+
+	int ages[] = { 10, 11, 20, 20, 30 };
+	char* names[] = { "A", "A", "B", "C", "D" };
+	char* phones[] = {
+		"010-0000-0001",
+		"010-0000-0011",
+		"010-0000-0002",
+		"010-0000-0022",
+		"010-0000-0003"
+	};
+
+	DWORD dwContactSize = (DWORD)Contact_GetSize();
+	DWORD dwWritten = 0;
+	BOOL bResult = FALSE;
+
+	HANDLE hFile = CreateFile(
+		FILE_PATH_TEST,
+		GENERIC_WRITE,
+		0,
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return 0;
+	}
+
+	for (int i = 0; i < NUM_TEST_NODE; i++)
+	{
+		Contact* temp = Contact_Create(ages[i], names[i], phones[i]);
+		if (temp == NULL)
+		{
+			CloseHandle(hFile);
+			return 0;
+		}
+		
+		bResult = WriteFile(hFile, temp, dwContactSize, &dwWritten, NULL);
+		if (!bResult)
+		{
+			CloseHandle(hFile);
+			return 0;
+		}
+
+		if (dwWritten < dwContactSize)
+		{
+			CloseHandle(hFile);
+			return 0;
+		}
+		Contact_Destroy(temp);
+	}
+
+	CloseHandle(hFile);
+	return 1;
+}
+
 // ***********************************************
 
 void Test_Contact_Destroy(void)
@@ -1953,7 +2012,7 @@ void Test_ContactStore_IsEmpty(void)
 	}
 	else
 	{
-		ContactStore_AddToEnd(pStore, 
+		ContactStore_AddToEnd(pStore,
 			Contact_Create(10, "Alice", "010-0000-1111"));
 		if (ContactStore_IsEmpty(pStore))
 		{
@@ -1991,7 +2050,7 @@ void Test_ContactStore_HasPhone(void)
 	}
 	else
 	{
-		ContactStore_AddToEnd(pStore, 
+		ContactStore_AddToEnd(pStore,
 			Contact_Create(10, "Alice", "010-0000-1111"));
 		if (ContactStore_HasPhone(pStore, "010-0000-0000"))
 		{
@@ -2041,7 +2100,7 @@ void Test_ContactStore_Add(void)
 	ContactStore_AddToEnd(pStore, Contact_Create(10, "Alice", "010-0000-1111"));
 	ContactStore_AddToEnd(pStore, Contact_Create(20, "Betty", "010-0000-2222"));
 	ContactStore_AddToEnd(pStore, Contact_Create(30, "John", "010-0000-3333"));
-	
+
 	printf("Expected order: Alice -> Betty -> John\n");
 	ContactStore_PrintAll(pStore);
 	ContactStore_Destroy(pStore);
@@ -2051,7 +2110,7 @@ void Test_ContactStore_Add(void)
 	ContactStore_AddToFront(pStore, Contact_Create(10, "Alice", "010-0000-1111"));
 	ContactStore_AddToFront(pStore, Contact_Create(20, "Betty", "010-0000-2222"));
 	ContactStore_AddToFront(pStore, Contact_Create(30, "John", "010-0000-3333"));
-	
+
 	printf("Expected order: John -> Betty -> Alice\n");
 	ContactStore_PrintAll(pStore);
 	ContactStore_Destroy(pStore);
@@ -2065,14 +2124,14 @@ void Test_ContactStore_CombineByOp(void)
 	ContactStore* pRightStore = ContactStore_Create();
 	ContactStore* pResultStore = ContactStore_Create();
 
-	ContactStore_AddToEnd(pLeftStore, 
+	ContactStore_AddToEnd(pLeftStore,
 		Contact_Create(10, "Alice", "010-0000-1111"));
-	ContactStore_AddToEnd(pLeftStore, 
+	ContactStore_AddToEnd(pLeftStore,
 		Contact_Create(20, "Betty", "010-0000-2222"));
 
-	ContactStore_AddToEnd(pRightStore, 
+	ContactStore_AddToEnd(pRightStore,
 		Contact_Create(20, "Betty", "010-0000-2222"));
-	ContactStore_AddToEnd(pRightStore, 
+	ContactStore_AddToEnd(pRightStore,
 		Contact_Create(30, "John", "010-0000-3333"));
 
 	ContactStore_CombineByOp(pResultStore, pLeftStore, pRightStore, "OR");
