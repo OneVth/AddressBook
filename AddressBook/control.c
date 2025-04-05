@@ -7,6 +7,8 @@
 #include <PathCch.h>
 #include "common.h"
 #include "control.h"
+#include "contact_store.h"
+#include "contact.h"
 
 #pragma comment(lib, "Pathcch.lib")
 
@@ -656,6 +658,65 @@ SEARCHRESULT SearchRecordsFromFile(LIST* pResult, const char* input, LPCWSTR pat
 
 LOADRESULT LoadRecordsFromFileByPhone_CS(ContactStore* store, const char* phone, LPCWSTR path)
 {
+	if (!Str_IsPhoneFormat(phone))
+		return LOAD_ERROR;
+
+	HANDLE hFile = CreateFile(
+		path,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return LOAD_ERROR;
+	}
+
+	DWORD recordSize = (DWORD)Contact_GetSize();
+	DWORD dwReadSize = -1;
+	BOOL bResult = FALSE;
+
+	Contact* temp = (Contact*)malloc(recordSize);
+	if (temp == NULL)
+	{
+		CloseHandle(hFile);
+		return LOAD_ERROR;
+	}
+
+	while (1)
+	{
+		ZeroMemory(temp, recordSize);
+		bResult = ReadFile(hFile, temp, recordSize, &dwReadSize, NULL);
+		if (!bResult)
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return LOAD_ERROR;
+		}
+
+		if (dwReadSize == 0) // EOF
+			break;
+
+		if (dwReadSize < recordSize)
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return LOAD_ERROR;
+		}
+
+		if (strcmp(phone, Contact_GetPhone(temp)) == 0)
+		{
+			ContactStore_AddToEnd(store, temp);
+			free(temp);
+			CloseHandle(hFile);
+			return LOAD_SUCCESS;
+		}
+	}
+
+	free(temp);
+	CloseHandle(hFile);
 	return LOAD_NOT_FOUND;
 }
 

@@ -65,3 +65,8 @@ const int Contact_GetAge(const Contact* c)
 
 	return c->age;
 }
+
+size_t Contact_GetSize(void)
+{
+	return sizeof(Contact);
+}

@@ -31,7 +31,6 @@ int main(void)
 	Test_Contact_Destroy();
 #endif
 	Test_ContactLifecycle();
-	Test_ContactStore_Add();
 	//_wsetlocale(LC_ALL, L"korean");
 	//// UI event loop handler
 	//int (*pfMenu[UI_FUNC_COUNT])(LPCWSTR) = {
