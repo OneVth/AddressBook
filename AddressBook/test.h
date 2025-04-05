@@ -49,6 +49,8 @@ void Test_SearchRecordsFromFile(void);
 
 // ContactStore functions *******************************************
 
+void Test_Contact_Destroy(void);
+void Test_ContactLifecycle(void);
 void Test_ContactStore_IsEmpty(void);
 void Test_ContactStore_HasPhone(void);
 void Test_ContactStore_Destroy(void);

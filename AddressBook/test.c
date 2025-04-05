@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <Windows.h>
+#include "contact.h"
 #include "contact_store.h"
 #include "common.h"
 #include "control.h"
@@ -1883,6 +1884,57 @@ void Test_SearchRecordsFromFile(void)
 
 // ***********************************************
 
+void Test_Contact_Destroy(void)
+{
+	Contact* pContact = Contact_Create(10, "Test", "010-0000-0000");
+
+	Contact_Destroy(pContact);
+
+	printf("PASS: Contact_Destroy() completed without crash\n");
+	return;
+}
+
+void Test_ContactLifecycle(void)
+{
+	int pass = 1;
+
+	Contact* pContact = Contact_Create(10, "Allice", "010-0000-1111");
+	if (pContact == NULL)
+	{
+		printf("FAIL: Contact_Create returned NULL\n");
+		return;
+	}
+
+	if (Contact_GetAge(pContact) != 10)
+	{
+		pass = 0;
+		printf("FAIL: Contact_GetAge() returned wrong value\n");
+	}
+
+	if (strcmp(Contact_GetName(pContact), "Allice") != 0)
+	{
+		pass = 0;
+		printf("FAIL: Contact_GetName() returned wrong value\n");
+	}
+
+	if (strcmp(Contact_GetName(pContact), "Allice") != 0)
+	{
+		pass = 0;
+		printf("FAIL: Contact_GetPhone() returned wrong value\n");
+	}
+
+	if (pass)
+	{
+		printf("PASS: Contact_GetAge() returned correct value\n");
+		printf("PASS: Contact_GetName() returned correct value\n");
+		printf("PASS: Contact_GetPhone() returned correct value\n");
+
+	}
+
+	Contact_Destroy(pContact);
+	return;
+}
+
 void Test_ContactStore_IsEmpty(void)
 {
 	int pass = 1;
@@ -1972,6 +2024,7 @@ void Test_ContactStore_Destroy(void)
 	ContactStore_Destroy(pStore);
 
 	printf("PASS: ContactStore_Destroy() completed without crash\n");
+	return;
 }
 
 void Test_ContactStore_Add(void)

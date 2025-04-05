@@ -28,10 +28,9 @@ int main(void)
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	Test_ContactStore_Destroy();
+	Test_Contact_Destroy();
 #endif
-	Contact* pContact = Contact_Create(10, "Allice", "010-0000-1111");
-	printf("%d %s %s\n", Contact_GetAge(pContact), Contact_GetName(pContact), Contact_GetPhone(pContact));
-	Contact_Destroy(pContact);
+	Test_ContactLifecycle();
 	//_wsetlocale(LC_ALL, L"korean");
 	//// UI event loop handler
 	//int (*pfMenu[UI_FUNC_COUNT])(LPCWSTR) = {
