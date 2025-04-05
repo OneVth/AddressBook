@@ -1941,6 +1941,114 @@ int CreateTestDataFile_CS(void)
 	return 1;
 }
 
+int CheckNode_CS(Contact* contact, int expectedAge, const char* expectedName, const char* expectedPhone)
+{
+	int firstCorrect = 0;
+	int secondCorrect = 0;
+	int thirdCorrect = 0;
+	firstCorrect = Contact_GetAge(contact) == expectedAge;
+	secondCorrect = strcmp(Contact_GetName(contact), expectedName) == 0;
+	thirdCorrect = strcmp(Contact_GetPhone(contact), expectedPhone) == 0;
+	if (!firstCorrect || !secondCorrect || !thirdCorrect)
+	{
+		return 0;
+	}
+	return 1;
+}
+
+void Test_CreateTestDataFile_CS(void)
+{
+	int pass = 1;
+
+	int ages[] = { 10, 11, 20, 20, 30 };
+	char* names[] = { "A", "A", "B", "C", "D" };
+	char* phones[] = {
+		"010-0000-0001",
+		"010-0000-0011",
+		"010-0000-0002",
+		"010-0000-0022",
+		"010-0000-0003"
+	};
+
+	if (!CreateTestDataFile_CS())
+	{
+		pass = 0;
+		printf("FAIL: Test_CreateTestDataFile_CS() failed to create test file\n");
+	}
+	else
+	{
+		LARGE_INTEGER llFileSize = { 0 };
+		LONGLONG llTotalReadSize = 0;
+		DWORD dwContactSize = (DWORD)Contact_GetSize();
+		DWORD dwRead = 0;
+		BOOL bResult = FALSE;
+
+		HANDLE hFile = CreateFile(
+			FILE_PATH_TEST,
+			GENERIC_READ,
+			FILE_SHARE_READ,
+			NULL,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL);
+		if (hFile == INVALID_HANDLE_VALUE)
+		{
+			pass = 0;
+			printf("FAIL: Test_CreateTestDataFile_CS() could not open test data file\n");
+			return;
+		}
+
+		if (!GetFileSizeEx(hFile, &llFileSize))
+		{
+			printf("FAIL: Test_CreateTestDataFile_CS() couldn't get file size\n");
+			CloseHandle(hFile);
+			return;
+		}
+
+		Contact* temp = (Contact*)malloc(dwContactSize);
+		if (temp == NULL)
+		{
+			pass = 0;
+			printf("FAIL: Test_CreateTestDataFile_CS() failed to allocate memory\n");
+			CloseHandle(hFile);
+			return;
+		}
+
+		for (int i = 0; i < NUM_TEST_NODE; i++)
+		{
+			ZeroMemory(temp, dwContactSize);
+			bResult = ReadFile(hFile, temp, dwContactSize, &dwRead, NULL);
+			if (bResult && dwRead == dwContactSize)
+			{
+				llTotalReadSize += dwRead;
+				if (!CheckNode_CS(temp, ages[i], names[i], phones[i]))
+				{
+					pass = 0;
+					printf("FAIL: Test_CreateTestDataFile_CS() test file doesn't match with [%d]-th expected data\n", i + 1);
+					break;
+				}
+			}
+		}
+
+		if (pass && (llTotalReadSize != llFileSize.QuadPart))
+		{
+			pass = 0;
+			printf("FAIL: Test_CreateTestDataFile_CS() get wrong file size\n");
+		}
+
+		free(temp);
+		CloseHandle(hFile);
+	}
+
+	if (pass)
+	{
+		printf("PASS: Test_CreateTestDataFile_CS() correctly created test file\n");
+	}
+
+	putchar('\n');
+	return;
+}
+
 // ***********************************************
 
 void Test_Contact_Destroy(void)

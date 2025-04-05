@@ -48,6 +48,7 @@ void Test_DeleteRecordByPhoneFromFile(void);
 void Test_SearchRecordsFromFile(void);
 
 int CreateTestDataFile_CS(void);
+void Test_CreateTestDataFile_CS(void);
 
 // ContactStore functions *******************************************
 
