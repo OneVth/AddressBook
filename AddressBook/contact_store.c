@@ -4,7 +4,7 @@
 #include "contact_store.h"
 
 typedef struct _Node {
-	Contact data;
+	const Contact* data;
 	struct _Node* next;
 	struct _Node* prev;
 } Node;
@@ -29,7 +29,7 @@ int ContactStore_HasPhone(const ContactStore* store, const char* phone)
 	Node* curr = store->head.next;
 	while (curr != &store->tail)
 	{
-		if (strcmp(curr->data.phone, phone) == 0)
+		if (strcmp(Contact_GetPhone(curr->data), phone) == 0)
 			return 1;
 		curr = curr->next;
 	}
@@ -70,7 +70,11 @@ void ContactStore_PrintAll(const ContactStore* store)
 	Node* curr = store->head.next;
 	while (curr != &store->tail)
 	{
-		printf("%d %s %s\n", curr->data.age, curr->data.name, curr->data.phone);
+		printf("%d %s %s\n", 
+			Contact_GetAge(curr->data), 
+			Contact_GetName(curr->data), 
+			Contact_GetPhone(curr->data)
+		);
 		curr = curr->next;
 	}
 }
@@ -83,7 +87,7 @@ int ContactStore_AddToFront(ContactStore* store, const Contact* contact)
 	Node* pNewNode = (Node*)malloc(sizeof(Node));
 	if (pNewNode == NULL)
 		return 0;
-	pNewNode->data = *contact;
+	pNewNode->data = contact;
 	pNewNode->next = store->head.next;
 	pNewNode->prev = &store->head;
 	store->head.next->prev = pNewNode;
@@ -99,7 +103,7 @@ int ContactStore_AddToEnd(ContactStore* store, const Contact* contact)
 	Node* pNewNode = (Node*)malloc(sizeof(Node));
 	if (pNewNode == NULL)
 		return 0;
-	pNewNode->data = *contact;
+	pNewNode->data = contact;
 	pNewNode->next = &store->tail;
 	pNewNode->prev = store->tail.prev;
 	store->tail.prev->next = pNewNode;
@@ -116,15 +120,16 @@ int ContactStore_CombineByOp(ContactStore* resultStore, ContactStore* leftStore,
 	{
 		while (leftCurr != &leftStore->tail)
 		{
-			ContactStore_AddToEnd(resultStore, &leftCurr->data);
+			ContactStore_AddToEnd(resultStore, leftCurr->data);
 			leftCurr = leftCurr->next;
 		}
 
 		while (rightCurr != &rightStore->tail)
 		{
-			if (ContactStore_HasPhone(resultStore, rightCurr->data.phone) == 0)
+			if (ContactStore_HasPhone(resultStore, 
+				Contact_GetPhone(rightCurr->data)) == 0)
 			{
-				ContactStore_AddToEnd(resultStore, &rightCurr->data);
+				ContactStore_AddToEnd(resultStore, rightCurr->data);
 			}
 			rightCurr = rightCurr->next;
 		}
@@ -133,9 +138,10 @@ int ContactStore_CombineByOp(ContactStore* resultStore, ContactStore* leftStore,
 	{
 		while (leftCurr != &leftStore->tail)
 		{
-			if (ContactStore_HasPhone(rightStore, leftCurr->data.phone) == 1)
+			if (ContactStore_HasPhone(rightStore, 
+				Contact_GetPhone(leftCurr->data)) == 1)
 			{
-				ContactStore_AddToEnd(resultStore, &leftCurr->data);
+				ContactStore_AddToEnd(resultStore, leftCurr->data);
 			}
 			leftCurr = leftCurr->next;
 		}

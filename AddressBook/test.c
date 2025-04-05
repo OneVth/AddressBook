@@ -1953,7 +1953,8 @@ void Test_ContactStore_IsEmpty(void)
 	}
 	else
 	{
-		ContactStore_AddToEnd(pStore, &(Contact){ 10, "Alice", "010-0000-1111" });
+		ContactStore_AddToEnd(pStore, 
+			Contact_Create(10, "Alice", "010-0000-1111"));
 		if (ContactStore_IsEmpty(pStore))
 		{
 			pass = 0;
@@ -1990,7 +1991,8 @@ void Test_ContactStore_HasPhone(void)
 	}
 	else
 	{
-		ContactStore_AddToEnd(pStore, &(Contact){ 10, "Alice", "010-0000-1111" });
+		ContactStore_AddToEnd(pStore, 
+			Contact_Create(10, "Alice", "010-0000-1111"));
 		if (ContactStore_HasPhone(pStore, "010-0000-0000"))
 		{
 			pass = 0;
@@ -2036,9 +2038,9 @@ void Test_ContactStore_Add(void)
 		return;
 	}
 
-	ContactStore_AddToEnd(pStore, &(Contact){ 10, "Alice", "010-0000-1111" });
-	ContactStore_AddToEnd(pStore, &(Contact){ 20, "Betty", "010-0000-2222" });
-	ContactStore_AddToEnd(pStore, &(Contact){ 30, "John", "010-0000-3333" });
+	ContactStore_AddToEnd(pStore, Contact_Create(10, "Alice", "010-0000-1111"));
+	ContactStore_AddToEnd(pStore, Contact_Create(20, "Betty", "010-0000-2222"));
+	ContactStore_AddToEnd(pStore, Contact_Create(30, "John", "010-0000-3333"));
 	
 	printf("Expected order: Alice -> Betty -> John\n");
 	ContactStore_PrintAll(pStore);
@@ -2046,9 +2048,9 @@ void Test_ContactStore_Add(void)
 	putchar('\n');
 
 	pStore = ContactStore_Create();
-	ContactStore_AddToFront(pStore, &(Contact){ 10, "Alice", "010-0000-1111" });
-	ContactStore_AddToFront(pStore, &(Contact){ 20, "Betty", "010-0000-2222" });
-	ContactStore_AddToFront(pStore, &(Contact){ 30, "John", "010-0000-3333" });
+	ContactStore_AddToFront(pStore, Contact_Create(10, "Alice", "010-0000-1111"));
+	ContactStore_AddToFront(pStore, Contact_Create(20, "Betty", "010-0000-2222"));
+	ContactStore_AddToFront(pStore, Contact_Create(30, "John", "010-0000-3333"));
 	
 	printf("Expected order: John -> Betty -> Alice\n");
 	ContactStore_PrintAll(pStore);
@@ -2063,11 +2065,15 @@ void Test_ContactStore_CombineByOp(void)
 	ContactStore* pRightStore = ContactStore_Create();
 	ContactStore* pResultStore = ContactStore_Create();
 
-	ContactStore_AddToEnd(pLeftStore, &(Contact){ 10, "Alice", "010-0000-1111" });
-	ContactStore_AddToEnd(pLeftStore, &(Contact){ 20, "Betty", "010-0000-2222" });
+	ContactStore_AddToEnd(pLeftStore, 
+		Contact_Create(10, "Alice", "010-0000-1111"));
+	ContactStore_AddToEnd(pLeftStore, 
+		Contact_Create(20, "Betty", "010-0000-2222"));
 
-	ContactStore_AddToEnd(pRightStore, &(Contact){ 20, "Betty", "010-0000-2222" });
-	ContactStore_AddToEnd(pRightStore, &(Contact){ 30, "John", "010-0000-3333" });
+	ContactStore_AddToEnd(pRightStore, 
+		Contact_Create(20, "Betty", "010-0000-2222"));
+	ContactStore_AddToEnd(pRightStore, 
+		Contact_Create(30, "John", "010-0000-3333"));
 
 	ContactStore_CombineByOp(pResultStore, pLeftStore, pRightStore, "OR");
 
