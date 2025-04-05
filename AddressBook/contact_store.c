@@ -122,7 +122,7 @@ int ContactStore_CombineByOp(ContactStore* resultStore, ContactStore* leftStore,
 
 		while (rightCurr != &rightStore->tail)
 		{
-			if (!ContactStore_HasPhone(resultStore, rightCurr->data.phone))
+			if (ContactStore_HasPhone(resultStore, rightCurr->data.phone) == 0)
 			{
 				ContactStore_AddToEnd(resultStore, &rightCurr->data);
 			}
@@ -133,7 +133,7 @@ int ContactStore_CombineByOp(ContactStore* resultStore, ContactStore* leftStore,
 	{
 		while (leftCurr != &leftStore->tail)
 		{
-			if (ContactStore_HasPhone(rightStore, leftCurr->data.phone))
+			if (ContactStore_HasPhone(rightStore, leftCurr->data.phone) == 1)
 			{
 				ContactStore_AddToEnd(resultStore, &leftCurr->data);
 			}

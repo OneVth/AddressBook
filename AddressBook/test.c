@@ -2003,3 +2003,34 @@ void Test_ContactStore_Add(void)
 	putchar('\n');
 	return;
 }
+
+void Test_ContactStore_CombineByOp(void)
+{
+	ContactStore* pLeftStore = ContactStore_Create();
+	ContactStore* pRightStore = ContactStore_Create();
+	ContactStore* pResultStore = ContactStore_Create();
+
+	ContactStore_AddToEnd(pLeftStore, &(Contact){ 10, "Alice", "010-0000-1111" });
+	ContactStore_AddToEnd(pLeftStore, &(Contact){ 20, "Betty", "010-0000-2222" });
+
+	ContactStore_AddToEnd(pRightStore, &(Contact){ 20, "Betty", "010-0000-2222" });
+	ContactStore_AddToEnd(pRightStore, &(Contact){ 30, "John", "010-0000-3333" });
+
+	ContactStore_CombineByOp(pResultStore, pLeftStore, pRightStore, "OR");
+
+	printf("Expected order: Alice -> Betty -> John\n");
+	ContactStore_PrintAll(pResultStore);
+
+	ContactStore_Destroy(pResultStore);
+	pResultStore = ContactStore_Create();
+
+	ContactStore_CombineByOp(pResultStore, pLeftStore, pRightStore, "AND");
+
+	printf("\nExpected order: Betty\n");
+	ContactStore_PrintAll(pResultStore);
+
+	ContactStore_Destroy(pResultStore);
+	ContactStore_Destroy(pLeftStore);
+	ContactStore_Destroy(pRightStore);
+	return;
+}

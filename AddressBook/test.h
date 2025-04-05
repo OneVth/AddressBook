@@ -53,3 +53,4 @@ void Test_ContactStore_IsEmpty(void);
 void Test_ContactStore_HasPhone(void);
 void Test_ContactStore_Destroy(void);
 void Test_ContactStore_Add(void);
+void Test_ContactStore_CombineByOp(void);
