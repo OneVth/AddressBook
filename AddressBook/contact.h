@@ -11,3 +11,5 @@ typedef struct _Contact {
 } Contact;
 
 const char* Contact_GetPhone(const Contact* c);
+const char* Contact_GetName(const Contact* c);
+const int Contact_GetAge(const Contact* c);
