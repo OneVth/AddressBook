@@ -4,11 +4,11 @@
 #include "common.h"
 #include "contact.h"
 
-//struct _Contact {
-//	int age;
-//	char name[MAX_NAME_LEN];
-//	char phone[MAX_PHONE_LEN];
-//};
+struct _Contact {
+	int age;
+	char name[MAX_NAME_LEN];
+	char phone[MAX_PHONE_LEN];
+};
 
 Contact* Contact_Create(int age, const char* name, const char* phone)
 {

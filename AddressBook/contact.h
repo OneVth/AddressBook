@@ -4,11 +4,7 @@
 #define MAX_PHONE_LEN 14	// 000-0000-0000 + '\0'
 #define MAXAGE 120
 
-typedef struct _Contact {
-	int age;
-	char name[MAX_NAME_LEN];
-	char phone[MAX_PHONE_LEN];
-} Contact;
+typedef struct _Contact Contact;
 
 const char* Contact_GetPhone(const Contact* c);
 const char* Contact_GetName(const Contact* c);
