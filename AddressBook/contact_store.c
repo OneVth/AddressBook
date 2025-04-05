@@ -87,7 +87,13 @@ int ContactStore_AddToFront(ContactStore* store, const Contact* contact)
 	Node* pNewNode = (Node*)malloc(sizeof(Node));
 	if (pNewNode == NULL)
 		return 0;
-	pNewNode->data = contact;
+	
+	pNewNode->data = Contact_Create(
+		Contact_GetAge(contact),
+		Contact_GetName(contact),
+		Contact_GetPhone(contact)
+	);
+
 	pNewNode->next = store->head.next;
 	pNewNode->prev = &store->head;
 	store->head.next->prev = pNewNode;
@@ -103,7 +109,13 @@ int ContactStore_AddToEnd(ContactStore* store, const Contact* contact)
 	Node* pNewNode = (Node*)malloc(sizeof(Node));
 	if (pNewNode == NULL)
 		return 0;
-	pNewNode->data = contact;
+	
+	pNewNode->data = Contact_Create(
+		Contact_GetAge(contact),
+		Contact_GetName(contact),
+		Contact_GetPhone(contact)
+	);
+
 	pNewNode->next = &store->tail;
 	pNewNode->prev = store->tail.prev;
 	store->tail.prev->next = pNewNode;
