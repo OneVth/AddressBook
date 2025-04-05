@@ -30,7 +30,19 @@ int main(void)
 	Test_ContactStore_Destroy();
 	Test_Contact_Destroy();
 #endif
-	Test_CreateTestDataFile_CS();
+	ContactStore* store = ContactStore_Create();
+	Contact* contact = Contact_Create(10, "Alice", "010-0000-1111");
+	ContactStore_AddToEnd(store, contact);
+
+	/*Contact* ptr = ContactStore_Take(store);
+	printf("%d %s %s\n", 
+		Contact_GetAge(ptr), 
+		Contact_GetName(ptr), 
+		Contact_GetPhone(ptr)
+	);*/
+	Contact_Destroy(contact);
+	ContactStore_Destroy(store);
+
 	//_wsetlocale(LC_ALL, L"korean");
 	//// UI event loop handler
 	//int (*pfMenu[UI_FUNC_COUNT])(LPCWSTR) = {

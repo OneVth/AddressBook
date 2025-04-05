@@ -7,7 +7,7 @@
 typedef struct _Contact Contact;
 
 Contact* Contact_Create(int age, const char* name, const char* phone);
-void Contact_Destroy(Contact* c);
+void Contact_Destroy(const Contact* c);
 const char* Contact_GetPhone(const Contact* c);
 const char* Contact_GetName(const Contact* c);
 const int Contact_GetAge(const Contact* c);

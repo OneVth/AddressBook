@@ -57,6 +57,8 @@ void ContactStore_Destroy(ContactStore* store)
 	{
 		Node* del = curr;
 		curr = curr->next;
+		if(del->data != NULL)
+			Contact_Destroy(del->data);
 		free(del);
 	}
 	free(store);
@@ -122,6 +124,24 @@ int ContactStore_AddToEnd(ContactStore* store, const Contact* contact)
 	store->tail.prev = pNewNode;
 	return 1;
 }
+
+//Contact* ContactStore_Take(ContactStore* store)
+//{
+//	if (store == NULL || ContactStore_IsEmpty(store))
+//		return NULL;
+//
+//	Node* ptr = store->head.next;
+//	ptr->prev->next = ptr->next;
+//	ptr->next->prev = ptr->prev;
+//	Contact* pContact = Contact_Create(
+//		Contact_GetAge(ptr->data),
+//		Contact_GetName(ptr->data),
+//		Contact_GetPhone(ptr->data)
+//	);
+//	free(ptr);
+//
+//	return pContact;
+//}
 
 int ContactStore_CombineByOp(ContactStore* resultStore, ContactStore* leftStore, ContactStore* rightStore, const char* op)
 {

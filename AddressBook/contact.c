@@ -32,12 +32,12 @@ Contact* Contact_Create(int age, const char* name, const char* phone)
 	return pContact;
 }
 
-void Contact_Destroy(Contact* c)
+void Contact_Destroy(const Contact* c)
 {
 	if (c == NULL)
 		return;
 
-	free(c);
+	free((void*)c);
 	c = NULL;
 	return;
 }
