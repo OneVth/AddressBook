@@ -3,6 +3,7 @@
 #pragma once
 #include <Windows.h>
 #include "common.h"
+#include "contact_store.h"
 
 typedef enum {
 	LOAD_ERROR = -1, LOAD_NOT_FOUND, LOAD_SUCCESS
@@ -29,3 +30,14 @@ EDITRESULT EditRecordPhoneFromFile(NODE* ptr, const char* phone, LPCWSTR path);
 DELETERESULT DeleteRecordFromFileByPhone(const char* phone, LPCWSTR path);
 SEARCHRESULT SearchRecordsFromFile(LIST* pResult, const char* input, LPCWSTR path);
 int SaveListToFile(LIST* pL, LPCWSTR path);
+
+LOADRESULT LoadRecordsFromFileByPhone_CS(ContactStore* store, const char* phone, LPCWSTR path);
+LOADRESULT LoadRecordsFromFileByName_CS(ContactStore* store, const char* name, LPCWSTR path);
+LOADRESULT LoadRecordsFromFileByAge_CS(ContactStore* store, const int age, LPCWSTR path);
+EDITRESULT EditRecordAgeFromFile_CS(Contact* ptr, const int age, LPCWSTR path);
+EDITRESULT EditRecordNameFromFile_CS(Contact* ptr, const char* name, LPCWSTR path);
+EDITRESULT EditRecordPhoneFromFile_CS(Contact* ptr, const char* phone, LPCWSTR path);
+DELETERESULT DeleteRecordFromFileByPhone_CS(const char* phone, LPCWSTR path);
+SEARCHRESULT SearchRecordsFromFile_CS(ContactStore* result, const char* input, LPCWSTR path);
+int SaveListToFile_CS(ContactStore* store, LPCWSTR path);
+

@@ -653,3 +653,48 @@ SEARCHRESULT SearchRecordsFromFile(LIST* pResult, const char* input, LPCWSTR pat
 	else
 		return NO_MATCH;
 }
+
+LOADRESULT LoadRecordsFromFileByPhone_CS(ContactStore* store, const char* phone, LPCWSTR path)
+{
+	return LOAD_NOT_FOUND;
+}
+
+LOADRESULT LoadRecordsFromFileByName_CS(ContactStore* store, const char* name, LPCWSTR path)
+{
+	return LOAD_NOT_FOUND;
+}
+
+LOADRESULT LoadRecordsFromFileByAge_CS(ContactStore* store, const int age, LPCWSTR path)
+{
+	return LOAD_NOT_FOUND;
+}
+
+EDITRESULT EditRecordAgeFromFile_CS(Contact* ptr, const int age, LPCWSTR path)
+{
+	return EDIT_NOT_FOUND;
+}
+
+EDITRESULT EditRecordNameFromFile_CS(Contact* ptr, const char* name, LPCWSTR path)
+{
+	return EDIT_NOT_FOUND;
+}
+
+EDITRESULT EditRecordPhoneFromFile_CS(Contact* ptr, const char* phone, LPCWSTR path)
+{
+	return EDIT_NOT_FOUND;
+}
+
+DELETERESULT DeleteRecordFromFileByPhone_CS(const char* phone, LPCWSTR path)
+{
+	return DELETE_NOT_FOUND;
+}
+
+SEARCHRESULT SearchRecordsFromFile_CS(ContactStore* result, const char* input, LPCWSTR path)
+{
+	return PARSE_FAILED;
+}
+
+int SaveListToFile_CS(ContactStore* store, LPCWSTR path)
+{
+	return 0;
+}
