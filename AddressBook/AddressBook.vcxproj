@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClCompile Include="benchmark.c" />
     <ClCompile Include="common.c" />
+    <ClCompile Include="contact.c" />
     <ClCompile Include="contact_store.c" />
     <ClCompile Include="control.c" />
     <ClCompile Include="main.c" />

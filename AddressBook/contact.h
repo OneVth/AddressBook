@@ -9,3 +9,5 @@ typedef struct _Contact {
 	char name[MAX_NAME_LEN];
 	char phone[MAX_PHONE_LEN];
 } Contact;
+
+const char* Contact_GetPhone(const Contact* c);
