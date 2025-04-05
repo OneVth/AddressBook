@@ -12,5 +12,5 @@ void ContactStore_Destroy(ContactStore* store);
 void ContactStore_PrintAll(const ContactStore* store);
 int ContactStore_AddToFront(ContactStore* store, const Contact* contact);
 int ContactStore_AddToEnd(ContactStore* store, const Contact* contact);
-Contact* ContactStore_Take(ContactStore* store);
+const Contact* ContactStore_Take(ContactStore* store);
 int ContactStore_CombineByOp(ContactStore* resultStore, ContactStore* leftStore, ContactStore* rightStore, const char* op);

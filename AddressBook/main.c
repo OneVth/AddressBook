@@ -34,12 +34,14 @@ int main(void)
 	Contact* contact = Contact_Create(10, "Alice", "010-0000-1111");
 	ContactStore_AddToEnd(store, contact);
 
-	/*Contact* ptr = ContactStore_Take(store);
+	const Contact* ptr = ContactStore_Take(store);
 	printf("%d %s %s\n", 
 		Contact_GetAge(ptr), 
 		Contact_GetName(ptr), 
 		Contact_GetPhone(ptr)
-	);*/
+	);
+
+	Contact_Destroy(ptr);
 	Contact_Destroy(contact);
 	ContactStore_Destroy(store);
 

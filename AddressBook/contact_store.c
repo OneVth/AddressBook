@@ -125,23 +125,19 @@ int ContactStore_AddToEnd(ContactStore* store, const Contact* contact)
 	return 1;
 }
 
-//Contact* ContactStore_Take(ContactStore* store)
-//{
-//	if (store == NULL || ContactStore_IsEmpty(store))
-//		return NULL;
-//
-//	Node* ptr = store->head.next;
-//	ptr->prev->next = ptr->next;
-//	ptr->next->prev = ptr->prev;
-//	Contact* pContact = Contact_Create(
-//		Contact_GetAge(ptr->data),
-//		Contact_GetName(ptr->data),
-//		Contact_GetPhone(ptr->data)
-//	);
-//	free(ptr);
-//
-//	return pContact;
-//}
+const Contact* ContactStore_Take(ContactStore* store)
+{
+	if (store == NULL || ContactStore_IsEmpty(store))
+		return NULL;
+
+	Node* ptr = store->head.next;
+	const Contact* pContact = ptr->data;
+	ptr->prev->next = ptr->next;
+	ptr->next->prev = ptr->prev;
+
+	free(ptr);
+	return pContact;
+}
 
 int ContactStore_CombineByOp(ContactStore* resultStore, ContactStore* leftStore, ContactStore* rightStore, const char* op)
 {
