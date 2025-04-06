@@ -30,7 +30,7 @@ int main(void)
 	Test_ContactStore_Destroy();
 	Test_Contact_Destroy();
 #endif
-	Test_ContactStore_Take();
+	Test_LoadRecordsFromFileByPhone_CS();
 
 	//_wsetlocale(LC_ALL, L"korean");
 	//// UI event loop handler

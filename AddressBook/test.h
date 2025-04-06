@@ -50,7 +50,7 @@ void Test_SearchRecordsFromFile(void);
 int CreateTestDataFile_CS(void);
 void Test_CreateTestDataFile_CS(void);
 void Test_ContactStore_Take(void);
-//void Test_LoadRecordsFromFileByPhone_CS(void);
+void Test_LoadRecordsFromFileByPhone_CS(void);
 
 // ContactStore functions *******************************************
 

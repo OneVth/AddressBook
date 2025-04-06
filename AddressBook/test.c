@@ -2110,59 +2110,59 @@ void Test_ContactStore_Take(void)
 	return;
 }
 
-//void Test_LoadRecordsFromFileByPhone_CS(void)
-//{
-//	if (!CreateTestDataFile_CS())
-//	{
-//		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() failed to create test file\n");
-//		putchar('\n');
-//		return;
-//	}
-//
-//	int pass = 1;
-//
-//	ContactStore* pStore = ContactStore_Create();
-//	if (pStore == NULL)
-//	{
-//		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() failed to create ContactStore\n");
-//		putchar('\n');
-//		return;
-//	}
-//
-//	// Case 1: valid phone number
-//	if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
-//	{
-//		pass = 0;
-//		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() returned false for valid phone number\n");
-//	}
-//	else
-//	{
-//		const Contact* ptr = ContactStore_Take(pStore);
-//		if (!CheckNode_CS(ptr, 10, "A", "010-0000-0001"))
-//		{
-//			pass = 0;
-//			printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() failed to load expected data\n");
-//		}
-//		Contact_Destroy(ptr);
-//	}
-//
-//	// Case 2: invalid phone number
-//	if (LoadRecordsFromFileByPhone_CS(pStore, "010-9999-9999", FILE_PATH_TEST) == LOAD_SUCCESS)
-//	{
-//		pass = 0;
-//		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() returned true for invalid phone number\n");
-//	}
-//
-//	if (pass)
-//	{
-//		printf("PASS: Test_LoadRecordsFromFileByPhone_CS() returned correct result for valid phone number\n");
-//		printf("PASS: Test_LoadRecordsFromFileByPhone_CS() returned correct result for invalid phone number\n");
-//	}
-//
-//	putchar('\n');
-//	ContactStore_Destroy(pStore);
-//	return;
-//}
+void Test_LoadRecordsFromFileByPhone_CS(void)
+{
+	if (!CreateTestDataFile_CS())
+	{
+		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() failed to create test file\n");
+		putchar('\n');
+		return;
+	}
+
+	int pass = 1;
+
+	ContactStore* pStore = ContactStore_Create();
+	if (pStore == NULL)
+	{
+		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() failed to create ContactStore\n");
+		putchar('\n');
+		return;
+	}
+
+	// Case 1: valid phone number
+	if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() returned false for valid phone number\n");
+	}
+	else
+	{
+		const Contact* ptr = ContactStore_Take(pStore);
+		if (!CheckNode_CS(ptr, 10, "A", "010-0000-0001"))
+		{
+			pass = 0;
+			printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() failed to load expected data\n");
+		}
+		Contact_Destroy(ptr);
+	}
+
+	// Case 2: invalid phone number
+	if (LoadRecordsFromFileByPhone_CS(pStore, "010-9999-9999", FILE_PATH_TEST) == LOAD_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() returned true for invalid phone number\n");
+	}
+
+	if (pass)
+	{
+		printf("PASS: Test_LoadRecordsFromFileByPhone_CS() returned correct result for valid phone number\n");
+		printf("PASS: Test_LoadRecordsFromFileByPhone_CS() returned correct result for invalid phone number\n");
+	}
+
+	putchar('\n');
+	ContactStore_Destroy(pStore);
+	return;
+}
 
 // ***********************************************
 
