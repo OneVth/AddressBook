@@ -30,7 +30,7 @@ int main(void)
 	Test_ContactStore_Destroy();
 	Test_Contact_Destroy();
 #endif
-	Test_LoadRecordsFromFileByName_CS();
+	printf("%d\n", LoadRecordsFromFileByAge_CS(NULL, 10, FILE_PATH_TEST));
 
 	//_wsetlocale(LC_ALL, L"korean");
 	//// UI event loop handler
