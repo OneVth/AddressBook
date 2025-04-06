@@ -656,6 +656,30 @@ SEARCHRESULT SearchRecordsFromFile(LIST* pResult, const char* input, LPCWSTR pat
 		return NO_MATCH;
 }
 
+int TryAddContact(ContactStore* store, const Contact* contact, LPCWSTR path)
+{
+	if (store == NULL || contact == NULL || path == NULL)
+		return 0;
+
+	LOADRESULT result = LoadRecordsFromFileByPhone_CS(
+		store, Contact_GetPhone(contact), path
+	);
+
+	switch (result)
+	{
+	case LOAD_ERROR:
+		return -1;
+	case LOAD_NOT_FOUND:
+		return 0;
+	case LOAD_SUCCESS:
+		ContactStore_AddToEnd(store, contact);
+		return 1;
+	default:
+		break;
+	}
+	return 0;
+}
+
 LOADRESULT LoadRecordsFromFileByPhone_CS(ContactStore* store, const char* phone, LPCWSTR path)
 {
 	if (!Str_IsPhoneFormat(phone))
@@ -776,46 +800,46 @@ int SaveContactToFile(const Contact* contact, void* userData)
 	return 1;
 }
 
-//int SaveListToFile_CS(ContactStore* store, LPCWSTR path)
-//{
-//	if (ContactStore_IsEmpty(store))
-//		return -1;
-//
-//	CreateDirectory(L"../Data", NULL);
-//
-//	const Contact* ptr = ContactStore_Take(store);
-//	while (ptr != NULL)
-//	{
-//		if (LoadRecordsFromFileByPhone_CS(NULL, Contact_GetPhone(ptr), path) == LOAD_NOT_FOUND)
-//		{
-//			BOOL bResult = FALSE;
-//			DWORD dwContactSize = (DWORD)Contact_GetSize();
-//			DWORD dwWritten = 0;
-//			HANDLE hFile = CreateFile(
-//				path,
-//				GENERIC_WRITE,
-//				0,
-//				NULL,
-//				OPEN_ALWAYS,
-//				FILE_ATTRIBUTE_NORMAL,
-//				NULL
-//			);
-//			if (hFile == INVALID_HANDLE_VALUE)
-//			{
-//				return -1;
-//			}
-//
-//			SetFilePointer(hFile, 0, NULL, FILE_END);
-//			bResult = WriteFile(hFile, ptr, dwContactSize, &dwWritten, NULL);
-//			if (!bResult || dwWritten < dwContactSize)
-//			{
-//				CloseHandle(hFile);
-//				return -1;
-//			}
-//			CloseHandle(hFile);
-//		}
-//		Contact_Destroy(ptr);
-//		ptr = ContactStore_Take(store);
-//	}
-//	return 1;
-//}
+int SaveListToFile_CS(ContactStore* store, LPCWSTR path)
+{
+	if (ContactStore_IsEmpty(store))
+		return -1;
+
+	CreateDirectory(L"../Data", NULL);
+
+	const Contact* ptr = ContactStore_Take(store);
+	while (ptr != NULL)
+	{
+		if (LoadRecordsFromFileByPhone_CS(NULL, Contact_GetPhone(ptr), path) == LOAD_NOT_FOUND)
+		{
+			BOOL bResult = FALSE;
+			DWORD dwContactSize = (DWORD)Contact_GetSize();
+			DWORD dwWritten = 0;
+			HANDLE hFile = CreateFile(
+				path,
+				GENERIC_WRITE,
+				0,
+				NULL,
+				OPEN_ALWAYS,
+				FILE_ATTRIBUTE_NORMAL,
+				NULL
+			);
+			if (hFile == INVALID_HANDLE_VALUE)
+			{
+				return -1;
+			}
+
+			SetFilePointer(hFile, 0, NULL, FILE_END);
+			bResult = WriteFile(hFile, ptr, dwContactSize, &dwWritten, NULL);
+			if (!bResult || dwWritten < dwContactSize)
+			{
+				CloseHandle(hFile);
+				return -1;
+			}
+			CloseHandle(hFile);
+		}
+		Contact_Destroy(ptr);
+		ptr = ContactStore_Take(store);
+	}
+	return 1;
+}

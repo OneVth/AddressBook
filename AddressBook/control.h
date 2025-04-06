@@ -31,6 +31,7 @@ DELETERESULT DeleteRecordFromFileByPhone(const char* phone, LPCWSTR path);
 SEARCHRESULT SearchRecordsFromFile(LIST* pResult, const char* input, LPCWSTR path);
 int SaveListToFile(LIST* pL, LPCWSTR path);
 
+int TryAddContact(ContactStore* store, const Contact* contact, LPCWSTR path);
 LOADRESULT LoadRecordsFromFileByPhone_CS(ContactStore* store, const char* phone, LPCWSTR path);
 LOADRESULT LoadRecordsFromFileByName_CS(ContactStore* store, const char* name, LPCWSTR path);
 LOADRESULT LoadRecordsFromFileByAge_CS(ContactStore* store, const int age, LPCWSTR path);
