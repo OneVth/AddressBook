@@ -755,6 +755,27 @@ SEARCHRESULT SearchRecordsFromFile_CS(ContactStore* result, const char* input, L
 	return PARSE_FAILED;
 }
 
+int SaveContactToFile(const Contact* contact, void* userData)
+{
+	if (contact == NULL || userData == NULL)
+		return 0;
+
+	HANDLE hFile = (HANDLE)userData;
+	if (hFile == NULL || hFile == INVALID_HANDLE_VALUE)
+		return 0;
+
+	DWORD dwContactSize = (DWORD)Contact_GetSize();
+	DWORD dwWritten = 0;
+	BOOL bResult = FALSE;
+
+	bResult = WriteFile(hFile, contact, dwContactSize, &dwWritten, NULL);
+	if (!bResult || dwWritten < dwContactSize)
+	{
+		return 0;
+	}
+	return 1;
+}
+
 //int SaveListToFile_CS(ContactStore* store, LPCWSTR path)
 //{
 //	if (ContactStore_IsEmpty(store))
