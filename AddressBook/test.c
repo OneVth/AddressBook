@@ -2456,7 +2456,7 @@ void Test_Contact_SetAge(void)
 	Contact* ptr = Contact_Create(10, "Alice", "010-0000-1111");
 	if (ptr == NULL)
 	{
-		printf("FAIL: Contact_Create returned NULL\n");
+		printf("FAIL: Test_Contact_SetAge() failed to create a contact\n");
 		return;
 	}
 
@@ -2469,12 +2469,12 @@ void Test_Contact_SetAge(void)
 	if (beforeAge == afterAge || afterAge != 20)
 	{
 		pass = 0;
-		printf("FAIL: Contact_SetAge() didn't set age correctly\n");
+		printf("FAIL: Test_Contact_SetAge() didn't set age correctly\n");
 	}
 
 	if(pass)
 	{
-		printf("PASS: Contact_SetAge() set age correctly\n");
+		printf("PASS: Test_Contact_SetAge() set age correctly\n");
 	}
 	
 	Contact_Destroy(ptr);
@@ -2488,7 +2488,7 @@ void Test_Contact_SetName(void)
 	Contact* ptr = Contact_Create(10, "Alice", "010-0000-1111");
 	if (ptr == NULL)
 	{
-		printf("FAIL: Contact_Create returned NULL\n");
+		printf("FAIL: Test_Contact_SetName() failed to create a contact\n");
 		return;
 	}
 
@@ -2501,12 +2501,44 @@ void Test_Contact_SetName(void)
 	if (strcmp(beforeName, afterName) == 0 || strcmp(afterName, "Betty") != 0)
 	{
 		pass = 0;
-		printf("FAIL: Contact_SetAge() didn't set name correctly\n");
+		printf("FAIL: Test_Contact_SetName() didn't set name correctly\n");
 	}
 
 	if (pass)
 	{
-		printf("PASS: Contact_SetAge() set name correctly\n");
+		printf("PASS: Test_Contact_SetName() set name correctly\n");
+	}
+
+	Contact_Destroy(ptr);
+	return;
+}
+
+void Test_Contact_SetPhone(void)
+{
+	int pass = 1;
+
+	Contact* ptr = Contact_Create(10, "Alice", "010-0000-1111");
+	if (ptr == NULL)
+	{
+		printf("FAIL: Test_Contact_SetPhone() failed to create a contact\n");
+		return;
+	}
+
+	char beforePhone[MAX_PHONE_LEN] = { 0 };
+	char afterPhone[MAX_PHONE_LEN] = { 0 };
+
+	strcpy_s(beforePhone, sizeof(beforePhone), Contact_GetPhone(ptr));
+	Contact_SetPhone(ptr, "010-0000-2222");
+	strcpy_s(afterPhone, sizeof(afterPhone), Contact_GetPhone(ptr));
+	if (strcmp(beforePhone, afterPhone) == 0 || strcmp(afterPhone, "010-0000-2222") != 0)
+	{
+		pass = 0;
+		printf("FAIL: Test_Contact_SetPhone() didn't set Phone correctly\n");
+	}
+
+	if (pass)
+	{
+		printf("PASS: Test_Contact_SetPhone() set Phone correctly\n");
 	}
 
 	Contact_Destroy(ptr);

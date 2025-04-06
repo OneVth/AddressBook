@@ -88,3 +88,12 @@ int Contact_SetName(Contact* c, const char* name)
 	strcpy_s(c->name, sizeof(c->name), name);
 	return 1;
 }
+
+int Contact_SetPhone(Contact* c, const char* phone)
+{
+	if (c == NULL || phone == NULL || !Str_IsPhoneFormat(phone))
+		return 0;
+
+	strcpy_s(c->phone, sizeof(c->phone), phone);
+	return 1;
+}
