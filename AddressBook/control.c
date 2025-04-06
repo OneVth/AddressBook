@@ -746,7 +746,69 @@ LOADRESULT LoadRecordsFromFileByPhone_CS(ContactStore* store, const char* phone,
 
 LOADRESULT LoadRecordsFromFileByName_CS(ContactStore* store, const char* name, LPCWSTR path)
 {
-	return LOAD_NOT_FOUND;
+	if (!Str_IsAllAlpha(name))
+		return LOAD_ERROR;
+
+	HANDLE hFile = CreateFile(
+		path,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return LOAD_ERROR;
+	}
+
+	DWORD recordSize = (DWORD)Contact_GetSize();
+	DWORD dwReadSize = -1;
+	BOOL bResult = FALSE;
+
+	Contact* temp = (Contact*)malloc(recordSize);
+	if (temp == NULL)
+	{
+		CloseHandle(hFile);
+		return LOAD_ERROR;
+	}
+
+	int flag = 0;
+	while (1)
+	{
+		ZeroMemory(temp, recordSize);
+		bResult = ReadFile(hFile, temp, recordSize, &dwReadSize, NULL);
+		if (!bResult)
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return LOAD_ERROR;
+		}
+
+		if (dwReadSize == 0) // EOF
+			break;
+
+		if (dwReadSize < recordSize)
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return LOAD_ERROR;
+		}
+
+		if (strcmp(name, Contact_GetName(temp)) == 0)
+		{
+			ContactStore_AddToEnd(store, temp);
+			flag = 1;
+		}
+	}
+
+	free(temp);
+	CloseHandle(hFile);
+
+	if (flag)
+		return LOAD_SUCCESS;
+	else
+		return LOAD_NOT_FOUND;
 }
 
 LOADRESULT LoadRecordsFromFileByAge_CS(ContactStore* store, const int age, LPCWSTR path)
