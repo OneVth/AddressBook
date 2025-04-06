@@ -39,5 +39,5 @@ EDITRESULT EditRecordNameFromFile_CS(Contact* ptr, const char* name, LPCWSTR pat
 EDITRESULT EditRecordPhoneFromFile_CS(Contact* ptr, const char* phone, LPCWSTR path);
 DELETERESULT DeleteRecordFromFileByPhone_CS(const char* phone, LPCWSTR path);
 SEARCHRESULT SearchRecordsFromFile_CS(ContactStore* result, const char* input, LPCWSTR path);
-int SaveListToFile_CS(ContactStore* store, LPCWSTR path);
+//int SaveListToFile_CS(ContactStore* store, LPCWSTR path);
 

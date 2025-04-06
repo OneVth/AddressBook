@@ -30,7 +30,16 @@ int main(void)
 	Test_ContactStore_Destroy();
 	Test_Contact_Destroy();
 #endif
-	Test_LoadRecordsFromFileByPhone_CS();
+	/*ContactStore* store = ContactStore_Create();
+
+	Contact* contact = Contact_Create(10, "Alice", "010-0000-1111");
+
+	ContactStore_AddToEnd(store, contact);
+	Contact_Destroy(contact);
+
+	SaveListToFile_CS(store, FILE_PATH_TEST);
+
+	ContactStore_Destroy(store);*/
 
 	//_wsetlocale(LC_ALL, L"korean");
 	//// UI event loop handler

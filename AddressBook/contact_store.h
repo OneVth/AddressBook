@@ -3,6 +3,7 @@
 #include "contact.h"
 
 typedef struct _ContactStore ContactStore;
+typedef int (*ContactCallback)(const Contact* contact, void* userData);
 
 int ContactStore_IsEmpty(const ContactStore* store);
 int ContactStore_HasPhone(const ContactStore* store, const char* phone);

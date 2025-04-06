@@ -755,7 +755,46 @@ SEARCHRESULT SearchRecordsFromFile_CS(ContactStore* result, const char* input, L
 	return PARSE_FAILED;
 }
 
-int SaveListToFile_CS(ContactStore* store, LPCWSTR path)
-{
-	return 0;
-}
+//int SaveListToFile_CS(ContactStore* store, LPCWSTR path)
+//{
+//	if (ContactStore_IsEmpty(store))
+//		return -1;
+//
+//	CreateDirectory(L"../Data", NULL);
+//
+//	const Contact* ptr = ContactStore_Take(store);
+//	while (ptr != NULL)
+//	{
+//		if (LoadRecordsFromFileByPhone_CS(NULL, Contact_GetPhone(ptr), path) == LOAD_NOT_FOUND)
+//		{
+//			BOOL bResult = FALSE;
+//			DWORD dwContactSize = (DWORD)Contact_GetSize();
+//			DWORD dwWritten = 0;
+//			HANDLE hFile = CreateFile(
+//				path,
+//				GENERIC_WRITE,
+//				0,
+//				NULL,
+//				OPEN_ALWAYS,
+//				FILE_ATTRIBUTE_NORMAL,
+//				NULL
+//			);
+//			if (hFile == INVALID_HANDLE_VALUE)
+//			{
+//				return -1;
+//			}
+//
+//			SetFilePointer(hFile, 0, NULL, FILE_END);
+//			bResult = WriteFile(hFile, ptr, dwContactSize, &dwWritten, NULL);
+//			if (!bResult || dwWritten < dwContactSize)
+//			{
+//				CloseHandle(hFile);
+//				return -1;
+//			}
+//			CloseHandle(hFile);
+//		}
+//		Contact_Destroy(ptr);
+//		ptr = ContactStore_Take(store);
+//	}
+//	return 1;
+//}

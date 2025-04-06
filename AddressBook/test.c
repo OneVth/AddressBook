@@ -2058,6 +2058,7 @@ void Test_ContactStore_Take(void)
 	{
 		printf("FAIL: Test_ContactStore_Take() failed to create ContactStore\n");
 		ContactStore_Destroy(pStore);
+		putchar('\n');
 		return;
 	}
 
@@ -2163,6 +2164,104 @@ void Test_LoadRecordsFromFileByPhone_CS(void)
 	ContactStore_Destroy(pStore);
 	return;
 }
+
+//void Test_SaveListToFile_CS(void)
+//{
+//	if (!CreateTestDataFile_CS())
+//	{
+//		printf("FAIL: Test_SaveStoreToFile_CS() file creation failed\n");
+//		putchar('\n');
+//		return;
+//	}
+//
+//	int ages[] = { 10, 99, 98, 97 };
+//	char* names[] = { "A", "Z", "Y", "X" };
+//	char* phones[] = {
+//		"010-0000-0001",	// already existing data
+//		"010-9999-9999",
+//		"010-9999-9998",
+//		"010-9999-9997"
+//	};
+//
+//	ContactStore* pStore = ContactStore_Create();
+//	if (pStore == NULL)
+//	{
+//		printf("FAIL: Test_SaveStoreToFile_CS() failed to create ContactStore\n");
+//		ContactStore_Destroy(pStore);
+//		putchar('\n');
+//		return;
+//	}
+//
+//	for (int i = 0; i < 4; i++)
+//	{
+//		Contact* ptr = Contact_Create(ages[i], names[i], phones[i]);
+//		if (!ContactStore_AddToEnd(pStore, ptr))
+//		{
+//			printf("FAIL: Test_SaveListToFile_CS() failed to call ContactStore_AddToEnd()\n");
+//			putchar('\n');
+//			return;
+//		}
+//		Contact_Destroy(ptr);
+//	}
+//
+//	int pass = 1;
+//
+//	if (!SaveStoreToFile(pList, FILE_PATH_TEST))
+//	{
+//		pass = 0;
+//		printf("FAIL: Test_SaveListToFile() returned false for valid list\n");
+//	}
+//	else
+//	{
+//		LARGE_INTEGER llFileSize = { 0 };
+//		HANDLE hFile = CreateFile(
+//			FILE_PATH_TEST,
+//			GENERIC_READ,
+//			FILE_SHARE_READ,
+//			NULL,
+//			OPEN_EXISTING,
+//			FILE_ATTRIBUTE_NORMAL,
+//			NULL
+//		);
+//		if (hFile == INVALID_HANDLE_VALUE)
+//		{
+//			printf("FAIL: Test_SaveListToFile() failed to open file\n");
+//			return;
+//		}
+//
+//		if (!GetFileSizeEx(hFile, &llFileSize))
+//		{
+//			printf("FAIL: Test_SaveListToFile() failed to get file size\n");
+//			return;
+//		}
+//
+//		if (llFileSize.QuadPart != (NUM_TEST_NODE + 3) * sizeof(NODE))
+//		{
+//			pass = 0;
+//			printf("FAIL: Test_SaveListToFile() file size doesn't match with expected size\n");
+//		}
+//		CloseHandle(hFile);
+//
+//		if (LoadRecordsFromFileByPhone(NULL, "010-9999-9999", FILE_PATH_TEST) != LOAD_SUCCESS)
+//		{
+//			pass = 0;
+//			printf("FAIL: Test_SaveListToFile() didn't save the list properly\n");
+//		}
+//	}
+//
+//	if (pass)
+//	{
+//		printf("PASS: Test_SaveListToFile() correctly save list to file\n");
+//		printf("PASS: Test_SaveListToFile() wrote correct number of bytes\n");
+//		printf("PASS: Test_SaveListToFile() created file successfully\n");
+//	}
+//
+//	List_Release(pList);
+//	free(pList);
+//	ContactStore_Destroy(pStore);
+//	putchar('\n');
+//	return;
+//}
 
 // ***********************************************
 

@@ -51,6 +51,7 @@ int CreateTestDataFile_CS(void);
 void Test_CreateTestDataFile_CS(void);
 void Test_ContactStore_Take(void);
 void Test_LoadRecordsFromFileByPhone_CS(void);
+//void Test_SaveListToFile_CS(void);
 
 // ContactStore functions *******************************************
 
