@@ -2195,7 +2195,7 @@ void Test_SaveListToFile_CS(void)
 	}
 
 	Contact* ptr = Contact_Create(ages[0], names[0], phones[0]);
-	if (TryAddContact(pStore, ptr, FILE_PATH_TEST) != 1)
+	if (TryAddContact(pStore, ptr, FILE_PATH_TEST) != 0)
 	{
 		pass = 0;
 		printf("FAIL: Test_SaveListToFile_CS() failed check existence contact to the list\n");
@@ -2205,7 +2205,7 @@ void Test_SaveListToFile_CS(void)
 	for (int i = 1; i < 4; i++)
 	{
 		ptr = Contact_Create(ages[i], names[i], phones[i]);
-		if (TryAddContact(pStore, ptr, FILE_PATH_TEST) != 0)
+		if (TryAddContact(pStore, ptr, FILE_PATH_TEST) != 1)
 		{
 			pass = 0;
 			printf("FAIL: Test_SaveListToFile_CS() failed to add non-existence contact to the list\n");
@@ -2242,14 +2242,14 @@ void Test_SaveListToFile_CS(void)
 			return;
 		}
 
-		if (llFileSize.QuadPart != (NUM_TEST_NODE + 3) * sizeof(NODE))
+		if (llFileSize.QuadPart != (NUM_TEST_NODE + 3) * Contact_GetSize())
 		{
 			pass = 0;
 			printf("FAIL: Test_SaveListToFile_CS() file size doesn't match with expected size\n");
 		}
 		CloseHandle(hFile);
 
-		if (LoadRecordsFromFileByPhone(NULL, "010-9999-9999", FILE_PATH_TEST) != LOAD_SUCCESS)
+		if (LoadRecordsFromFileByPhone_CS(NULL, "010-9999-9999", FILE_PATH_TEST) != LOAD_SUCCESS)
 		{
 			pass = 0;
 			printf("FAIL: Test_SaveListToFile_CS() didn't save the list properly\n");
