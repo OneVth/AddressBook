@@ -181,3 +181,19 @@ int ContactStore_CombineByOp(ContactStore* resultStore, ContactStore* leftStore,
 
 	return 1;
 }
+
+int ContactStore_Iterate(const ContactStore* store, ContactCallback callback, void* userData)
+{
+	if (store == NULL || callback == NULL)
+		return 0;
+
+	Node* curr = store->head.next;
+	while (curr != &store->tail)
+	{
+		if (!callback(curr->data, userData))
+			break;
+		curr = curr->next;
+	}
+
+	return 1;
+}
