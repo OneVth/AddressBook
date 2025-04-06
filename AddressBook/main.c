@@ -30,16 +30,13 @@ int main(void)
 	Test_ContactStore_Destroy();
 	Test_Contact_Destroy();
 #endif
-	ContactStore* store = ContactStore_Create();
+	ContactStore* pStore = ContactStore_Create();
 
-	Contact* contact = Contact_Create(10, "Alice", "010-0000-1111");
+	Contact* ptr = Contact_Create(10, "A", "010-0000-0001");
+	printf("%d\n", TryAddContact(pStore, ptr, FILE_PATH_TEST));
 
-	ContactStore_AddToEnd(store, contact);
-	Contact_Destroy(contact);
-
-	SaveListToFile_CS(store, FILE_PATH_TEST);
-
-	ContactStore_Destroy(store);
+	Contact_Destroy(ptr);
+	ContactStore_Destroy(pStore);
 
 	//_wsetlocale(LC_ALL, L"korean");
 	//// UI event loop handler

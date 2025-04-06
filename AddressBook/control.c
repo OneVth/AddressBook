@@ -670,10 +670,10 @@ int TryAddContact(ContactStore* store, const Contact* contact, LPCWSTR path)
 	case LOAD_ERROR:
 		return -1;
 	case LOAD_NOT_FOUND:
-		return 0;
-	case LOAD_SUCCESS:
 		ContactStore_AddToEnd(store, contact);
 		return 1;
+	case LOAD_SUCCESS:
+		return 0;
 	default:
 		break;
 	}
