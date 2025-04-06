@@ -1941,7 +1941,7 @@ int CreateTestDataFile_CS(void)
 	return 1;
 }
 
-int CheckNode_CS(Contact* contact, int expectedAge, const char* expectedName, const char* expectedPhone)
+int CheckNode_CS(const Contact* contact, int expectedAge, const char* expectedName, const char* expectedPhone)
 {
 	int firstCorrect = 0;
 	int secondCorrect = 0;
@@ -2076,17 +2076,17 @@ void Test_CreateTestDataFile_CS(void)
 //	}
 //	else
 //	{
-//		NODE* ptr = pList->head.next;
-//		if (!CheckNode(ptr, 10, "A", "010-0000-0001"))
+//		const Contact* ptr = ContactStore_Take(pStore);
+//		if (!CheckNode_CS(ptr, 10, "A", "010-0000-0001"))
 //		{
 //			pass = 0;
 //			printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() failed to load expected data\n");
 //		}
+//		Contact_Destroy(ptr);
 //	}
-//	List_Release(pList);
 //
 //	// Case 2: invalid phone number
-//	if (LoadRecordsFromFileByPhone(pList, "010-9999-9999", FILE_PATH_TEST) == LOAD_SUCCESS)
+//	if (LoadRecordsFromFileByPhone_CS(pStore, "010-9999-9999", FILE_PATH_TEST) == LOAD_SUCCESS)
 //	{
 //		pass = 0;
 //		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() returned true for invalid phone number\n");
@@ -2099,8 +2099,7 @@ void Test_CreateTestDataFile_CS(void)
 //	}
 //
 //	putchar('\n');
-//	List_Release(pList);
-//	free(pList);
+//	ContactStore_Destroy(pStore);
 //	return;
 //}
 
