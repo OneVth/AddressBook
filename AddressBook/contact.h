@@ -12,3 +12,4 @@ const char* Contact_GetPhone(const Contact* c);
 const char* Contact_GetName(const Contact* c);
 const int Contact_GetAge(const Contact* c);
 size_t Contact_GetSize(void);
+int Contact_SetAge(Contact* c, const int age);

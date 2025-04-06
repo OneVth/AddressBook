@@ -70,3 +70,12 @@ size_t Contact_GetSize(void)
 {
 	return sizeof(Contact);
 }
+
+int Contact_SetAge(Contact* c, const int age)
+{
+	if (c == NULL || age < 0 || age > MAXAGE)
+		return 0;
+
+	c->age = age;
+	return 1;
+}

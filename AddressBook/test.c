@@ -2449,6 +2449,38 @@ void Test_ContactLifecycle(void)
 	return;
 }
 
+void Test_Contact_SetAge(void)
+{
+	int pass = 1;
+
+	Contact* ptr = Contact_Create(10, "Alice", "010-0000-1111");
+	if (ptr == NULL)
+	{
+		printf("FAIL: Contact_Create returned NULL\n");
+		return;
+	}
+
+	int beforeAge = 0;
+	int afterAge = 0;
+
+	beforeAge = Contact_GetAge(ptr);
+	Contact_SetAge(ptr, 20);
+	afterAge = Contact_GetAge(ptr);
+	if (beforeAge == afterAge || afterAge != 20)
+	{
+		pass = 0;
+		printf("FAIL: Contact_SetAge() didn't set age correctly\n");
+	}
+
+	if(pass)
+	{
+		printf("PASS: Contact_SetAge() set age correctly\n");
+	}
+	
+	Contact_Destroy(ptr);
+	return;
+}
+
 void Test_ContactStore_IsEmpty(void)
 {
 	int pass = 1;
