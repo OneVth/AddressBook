@@ -2332,6 +2332,70 @@ void Test_LoadRecordsFromFileByName_CS(void)
 	return;
 }
 
+void Test_LoadRecordsFromFileByAge_CS(void)
+{
+	if (!CreateTestDataFile_CS())
+	{
+		printf("FAIL: Test_LoadRecordsFromFileByAge_CS() failed to create test file\n");
+		putchar('\n');
+		return;
+	}
+
+	int pass = 1;
+
+	ContactStore* pStore = ContactStore_Create();
+	if (pStore == NULL)
+	{
+		printf("FAIL: Test_LoadRecordsFromFileByAge_CS() failed to create ContactStore\n");
+		putchar('\n');
+		return;
+	}
+
+	// Case 1: valid name
+	if (LoadRecordsFromFileByAge_CS(pStore, 20, FILE_PATH_TEST) != LOAD_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_LoadRecordsFromFileByAge_CS() returned false for valid phone number\n");
+	}
+	else
+	{
+		const Contact* ptr = ContactStore_Take(pStore);
+		if (!CheckNode_CS(ptr, 20, "B", "010-0000-0002"))
+		{
+			pass = 0;
+			printf("FAIL: Test_LoadRecordsFromFileByAge_CS() failed to load first expected data\n");
+		}
+		else
+		{
+			Contact_Destroy(ptr);
+			ptr = ContactStore_Take(pStore);
+			if (!CheckNode_CS(ptr, 20, "C", "010-0000-0022"))
+			{
+				pass = 0;
+				printf("FAIL: Test_LoadRecordsFromFileByAge_CS() failed to load second expected data\n");
+			}
+			Contact_Destroy(ptr);
+		}
+	}
+
+	// Case 2: invalid phone number
+	if (LoadRecordsFromFileByAge_CS(pStore, 99, FILE_PATH_TEST) == LOAD_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_LoadRecordsFromFileByAge_CS() returned true for invalid name\n");
+	}
+
+	if (pass)
+	{
+		printf("PASS: Test_LoadRecordsFromFileByAge_CS() returned correct result for valid name\n");
+		printf("PASS: Test_LoadRecordsFromFileByAge_CS() returned correct result for invalid name\n");
+	}
+
+	putchar('\n');
+	ContactStore_Destroy(pStore);
+	return;
+}
+
 // ***********************************************
 
 void Test_Contact_Destroy(void)
