@@ -79,3 +79,12 @@ int Contact_SetAge(Contact* c, const int age)
 	c->age = age;
 	return 1;
 }
+
+int Contact_SetName(Contact* c, const char* name)
+{
+	if (c == NULL || name == NULL || !Str_IsAllAlpha(name))
+		return 0;
+
+	strcpy_s(c->name, sizeof(c->name), name);
+	return 1;
+}

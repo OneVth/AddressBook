@@ -2481,6 +2481,38 @@ void Test_Contact_SetAge(void)
 	return;
 }
 
+void Test_Contact_SetName(void)
+{
+	int pass = 1;
+
+	Contact* ptr = Contact_Create(10, "Alice", "010-0000-1111");
+	if (ptr == NULL)
+	{
+		printf("FAIL: Contact_Create returned NULL\n");
+		return;
+	}
+
+	char beforeName[MAX_NAME_LEN] = { 0 };
+	char afterName[MAX_NAME_LEN] = { 0 };
+
+	strcpy_s(beforeName, sizeof(beforeName), Contact_GetName(ptr));
+	Contact_SetName(ptr, "Betty");
+	strcpy_s(afterName, sizeof(afterName), Contact_GetName(ptr));
+	if (strcmp(beforeName, afterName) == 0 || strcmp(afterName, "Betty") != 0)
+	{
+		pass = 0;
+		printf("FAIL: Contact_SetAge() didn't set name correctly\n");
+	}
+
+	if (pass)
+	{
+		printf("PASS: Contact_SetAge() set name correctly\n");
+	}
+
+	Contact_Destroy(ptr);
+	return;
+}
+
 void Test_ContactStore_IsEmpty(void)
 {
 	int pass = 1;

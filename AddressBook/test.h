@@ -60,6 +60,7 @@ void Test_LoadRecordsFromFileByAge_CS(void);
 void Test_Contact_Destroy(void);
 void Test_ContactLifecycle(void);
 void Test_Contact_SetAge(void);
+void Test_Contact_SetName(void);
 void Test_ContactStore_IsEmpty(void);
 void Test_ContactStore_HasPhone(void);
 void Test_ContactStore_Destroy(void);
