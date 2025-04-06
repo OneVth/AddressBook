@@ -662,7 +662,7 @@ int TryAddContact(ContactStore* store, const Contact* contact, LPCWSTR path)
 		return 0;
 
 	LOADRESULT result = LoadRecordsFromFileByPhone_CS(
-		store, Contact_GetPhone(contact), path
+		NULL, Contact_GetPhone(contact), path
 	);
 
 	switch (result)
