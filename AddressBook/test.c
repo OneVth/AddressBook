@@ -2049,6 +2049,67 @@ void Test_CreateTestDataFile_CS(void)
 	return;
 }
 
+void Test_ContactStore_Take(void)
+{
+	int pass = 1;
+
+	ContactStore* pStore = ContactStore_Create();
+	if (pStore == NULL)
+	{
+		printf("FAIL: Test_ContactStore_Take() failed to create ContactStore\n");
+		ContactStore_Destroy(pStore);
+		return;
+	}
+
+	Contact* firstContact = Contact_Create(10, "Alice", "010-0000-1111");
+	Contact* secondContact = Contact_Create(20, "Betty", "010-0000-2222");
+	ContactStore_AddToEnd(pStore, firstContact);
+	ContactStore_AddToEnd(pStore, secondContact);
+
+	const Contact* ptr = ContactStore_Take(pStore);
+	if (!CheckNode_CS(ptr, 10, "Alice", "010-0000-1111"))
+	{
+		pass = 0;
+		printf("FAIL: Test_ContactStore_Take() failed to take first contact\n");
+		Contact_Destroy(ptr);
+	}
+	else
+	{
+		Contact_Destroy(ptr);
+		ptr = ContactStore_Take(pStore);
+		if (!CheckNode_CS(ptr, 20, "Betty", "010-0000-2222"))
+		{
+			pass = 0;
+			printf("FAIL: Test_ContactStore_Take() failed to take second contact\n");
+			Contact_Destroy(ptr);
+		}
+		else
+		{
+			Contact_Destroy(ptr);
+			ptr = ContactStore_Take(pStore);
+			if (ptr != NULL)
+			{
+				pass = 0;
+				printf("FAIL: Test_ContactStore_Take() took more contacts than expected\n");
+			}
+			Contact_Destroy(ptr);
+		}
+	}
+	
+	if (pass)
+	{
+		printf("PASS: Test_ContactStore_Take() correctly took first contact\n");
+		printf("PASS: Test_ContactStore_Take() correctly took second contact\n");
+		printf("PASS: Test_ContactStore_Take() correctly returned NULL for empty store\n");
+	}
+
+	Contact_Destroy(firstContact);
+	Contact_Destroy(secondContact);
+	ContactStore_Destroy(pStore);
+	putchar('\n');
+	return;
+}
+
 //void Test_LoadRecordsFromFileByPhone_CS(void)
 //{
 //	if (!CreateTestDataFile_CS())
