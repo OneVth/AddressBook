@@ -35,7 +35,7 @@ int TryAddContact(ContactStore* store, const Contact* contact, LPCWSTR path);
 LOADRESULT LoadRecordsFromFileByPhone_CS(ContactStore* store, const char* phone, LPCWSTR path);
 LOADRESULT LoadRecordsFromFileByName_CS(ContactStore* store, const char* name, LPCWSTR path);
 LOADRESULT LoadRecordsFromFileByAge_CS(ContactStore* store, const int age, LPCWSTR path);
-EDITRESULT EditRecordAgeFromFile_CS(Contact* ptr, const int age, LPCWSTR path);
+EDITRESULT EditRecordAgeFromFile_CS(const Contact* target, const int age, LPCWSTR path);
 EDITRESULT EditRecordNameFromFile_CS(Contact* ptr, const char* name, LPCWSTR path);
 EDITRESULT EditRecordPhoneFromFile_CS(Contact* ptr, const char* phone, LPCWSTR path);
 DELETERESULT DeleteRecordFromFileByPhone_CS(const char* phone, LPCWSTR path);
