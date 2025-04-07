@@ -2415,6 +2415,7 @@ void Test_EditRecordAgeFromFile_CS(void)
 		return;
 	}
 
+	// Case 1: valid age
 	if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
@@ -2449,9 +2450,27 @@ void Test_EditRecordAgeFromFile_CS(void)
 		}
 	}
 
+	// Case 2: invalid age
+	if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_EditRecordAgeFromFile_CS() failed to load test records\n");
+	}
+	else
+	{
+		const Contact* ptr = ContactStore_Take(pStore);
+		if (EditRecordAgeFromFile_CS(ptr, MAXAGE + 1, FILE_PATH_TEST) == EDIT_SUCCESS)
+		{
+			pass = 0;
+			printf("FAIL: Test_EditRecordAgeFromFile_CS() return EDIT_SUCCESS for invalid age\n");
+		}
+		Contact_Destroy(ptr);
+	}
+
 	if (pass)
 	{
 		printf("PASS: Test_EditRecordAgeFromFile_CS() correctly edit record for valid age\n");
+		printf("PASS: Test_EditRecordAgeFromFile_CS() correctly return false for invalid age\n");
 	}
 
 	ContactStore_Destroy(pStore);

@@ -23,43 +23,38 @@
 
 
 /* MAIN FUNCTION **************************************************/
-//int main(void)
-//{
-//	_wsetlocale(LC_ALL, L"korean");
-//	// UI event loop handler
-//	int (*pfMenu[UI_FUNC_COUNT])(LPCWSTR) = {
-//		UI_ExitMenu,
-//		UI_PrintAll,
-//		UI_InsertNode,
-//		UI_DeleteNode,
-//		UI_Search,
-//		UI_EditNode
-//	};
-//
-//	OPTION option = MENU_EXIT;
-//	while ((option = PrintMenu()) != MENU_EXIT)
-//	{
-//		system("cls");
-//		pfMenu[option](FILE_PATH);
-//		_getch();
-//	}
-//	return 0;
-//}
-
-// Test function for debugging
 int main(void)
 {
-#ifdef _DEBUG
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	Test_ContactStore_Destroy();
-	Test_Contact_Destroy();
-	Test_EditRecordNameFromFile_CS();
-#endif
-	/*ContactStore* pStore = ContactStore_Create();
-	LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST);
-	const Contact* ptr = ContactStore_Take(pStore);
-	EditRecordNameFromFile_CS(ptr, "Z", FILE_PATH_TEST);
-	Contact_Destroy(ptr);
-	ContactStore_Destroy(pStore);*/
+	_wsetlocale(LC_ALL, L"korean");
+	// UI event loop handler
+	int (*pfMenu[UI_FUNC_COUNT])(LPCWSTR) = {
+		UI_ExitMenu,
+		UI_PrintAll,
+		UI_InsertNode,
+		UI_DeleteNode,
+		UI_Search,
+		UI_EditNode
+	};
+
+	OPTION option = MENU_EXIT;
+	while ((option = PrintMenu()) != MENU_EXIT)
+	{
+		system("cls");
+		pfMenu[option](FILE_PATH);
+		_getch();
+	}
 	return 0;
 }
+
+// Test function for debugging
+//int main(void)
+//{
+//#ifdef _DEBUG
+//	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+//	Test_ContactStore_Destroy();
+//	Test_Contact_Destroy();
+//	Test_EditRecordAgeFromFile_CS();
+//#endif
+//	
+//	return 0;
+//}
