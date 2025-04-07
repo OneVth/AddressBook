@@ -2717,6 +2717,121 @@ void Test_DeleteRecordFromFileByPhone_CS(void)
 	return;
 }
 
+void Test_SearchRecordsFromFile_CS(void)
+{
+	if (!CreateTestDataFile_CS())
+	{
+		printf("FAIL: Test_SearchRecordsFromFile_CS() failed to create test file\n");
+		putchar('\n');
+		return;
+	}
+
+	int pass = 1;
+
+	ContactStore* pResult = ContactStore_Create();
+	const Contact* ptr = NULL;
+	int ageCorrect = 0;
+	int nameCorrect = 0;
+	int phoneCorrect = 0;
+
+	// Case 1: single result
+	if (SearchRecordsFromFile_CS(pResult, "10", FILE_PATH_TEST) != SEARCH_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search record for valid input\n");
+	}
+	else
+	{
+		ptr = ContactStore_Take(pResult);
+		ageCorrect = Contact_GetAge(ptr) == 10;
+		nameCorrect = strcmp(Contact_GetName(ptr), "A") == 0;
+		phoneCorrect = strcmp(Contact_GetPhone(ptr), "010-0000-0001") == 0;
+		if (!ageCorrect || !nameCorrect || !phoneCorrect)
+		{
+			pass = 0;
+			printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search from given record\n");
+		}
+		Contact_Destroy(ptr);
+	}
+
+
+	// Case 2: multiple result
+	if (SearchRecordsFromFile_CS(pResult, "A", FILE_PATH_TEST) != SEARCH_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search record for valid input\n");
+	}
+	else
+	{
+		ptr = ContactStore_Take(pResult);
+		ageCorrect = Contact_GetAge(ptr) == 10;
+		nameCorrect = strcmp(Contact_GetName(ptr), "A") == 0;
+		phoneCorrect = strcmp(Contact_GetPhone(ptr), "010-0000-0001") == 0;
+		if (!ageCorrect || !nameCorrect || !phoneCorrect)
+		{
+			pass = 0;
+			printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search for first expected record\n");
+		}
+		else
+		{
+			Contact_Destroy(ptr);
+			ptr = ContactStore_Take(pResult);
+			ageCorrect = Contact_GetAge(ptr) == 11;
+			nameCorrect = strcmp(Contact_GetName(ptr), "A") == 0;
+			phoneCorrect = strcmp(Contact_GetPhone(ptr), "010-0000-0011") == 0;
+			if (!ageCorrect || !nameCorrect || !phoneCorrect)
+			{
+				pass = 0;
+				printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search for second expected record\n");
+			}
+		}
+		Contact_Destroy(ptr);
+	}
+
+	// Case 3: search with operator
+	if (SearchRecordsFromFile_CS(pResult, "10 OR 010-0000-0003", FILE_PATH_TEST) != SEARCH_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search record for valid input\n");
+	}
+	else
+	{
+		ptr = ContactStore_Take(pResult);
+		ageCorrect = Contact_GetAge(ptr) == 10;
+		nameCorrect = strcmp(Contact_GetName(ptr), "A") == 0;
+		phoneCorrect = strcmp(Contact_GetPhone(ptr), "010-0000-0001") == 0;
+		if (!ageCorrect || !nameCorrect || !phoneCorrect)
+		{
+			pass = 0;
+			printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search for first expected record\n");
+		}
+		else
+		{
+			Contact_Destroy(ptr);
+			ptr = ContactStore_Take(pResult);
+			ageCorrect = Contact_GetAge(ptr) == 30;
+			nameCorrect = strcmp(Contact_GetName(ptr), "D") == 0;
+			phoneCorrect = strcmp(Contact_GetPhone(ptr), "010-0000-0003") == 0;
+			if (!ageCorrect || !nameCorrect || !phoneCorrect)
+			{
+				pass = 0;
+				printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search for second expected record\n");
+			}
+		}
+		Contact_Destroy(ptr);
+	}
+	ContactStore_Destroy(pResult);
+
+	if (pass)
+	{
+		printf("PASS: Test_SearchRecordsFromFile_CS() correctly search single record\n");
+		printf("PASS: Test_SearchRecordsFromFile_CS() correctly search multiple record\n");
+		printf("PASS: Test_SearchRecordsFromFile_CS() correctly search single record with operator\n");
+	}
+	putchar('\n');
+	return;
+}
+
 // ***********************************************
 
 void Test_Contact_Destroy(void)

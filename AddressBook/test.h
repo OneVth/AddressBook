@@ -58,6 +58,7 @@ void Test_EditRecordAgeFromFile_CS(void);
 void Test_EditRecordNameFromFile_CS(void);
 void Test_EditRecordPhoneFromFile_CS(void);
 void Test_DeleteRecordFromFileByPhone_CS(void);
+void Test_SearchRecordsFromFile_CS(void);
 
 // ContactStore functions *******************************************
 

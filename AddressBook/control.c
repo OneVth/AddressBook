@@ -1192,7 +1192,117 @@ DELETERESULT DeleteRecordFromFileByPhone_CS(const char* phone, LPCWSTR path)
 
 SEARCHRESULT SearchRecordsFromFile_CS(ContactStore* result, const char* input, LPCWSTR path)
 {
-	return PARSE_FAILED;
+	int age1 = 0;
+	int age2 = 0;
+	char name1[MAX_NAME_LEN] = { 0 };
+	char name2[MAX_NAME_LEN] = { 0 };
+	char phone1[MAX_PHONE_LEN] = { 0 };
+	char phone2[MAX_PHONE_LEN] = { 0 };
+
+	char token1[BUFFSIZE] = { 0 };
+	char token2[BUFFSIZE] = { 0 };
+	char op[BUFFSIZE] = { 0 };
+
+	if (!SplitSearchExpression(input, token1, token2, op))
+		return PARSE_FAILED;
+
+	if (!ClassifyToken(token1, &age1, name1, phone1))
+		return CONVERT_FAILED;
+
+	if (token2[0] != 0)
+	{
+		if (strcmp(op, "AND") != 0 && strcmp(op, "and") != 0 &&
+			strcmp(op, "OR") != 0 && strcmp(op, "or") != 0)
+		{
+			return CONVERT_FAILED;
+		}
+
+		if (!ClassifyToken(token2, &age2, name2, phone2))
+			return CONVERT_FAILED;
+	}
+
+	if (op[0] == 0)
+	{
+		if (age1 != 0)
+		{
+			LoadRecordsFromFileByAge_CS(result, age1, path);
+		}
+		else if (name1[0] != 0)
+		{
+			LoadRecordsFromFileByName_CS(result, name1, path);
+		}
+		else if (phone1[0] != 0)
+		{
+			LoadRecordsFromFileByPhone_CS(result, phone1, path);
+		}
+	}
+	else if (op[0] != 0)	// op is "AND" or "OR"
+	{
+		ContactStore* pTempStore1 = ContactStore_Create();
+		ContactStore* pTempStore2 = ContactStore_Create();
+
+		if (age1 != 0 && age2 != 0)
+		{
+			LoadRecordsFromFileByAge_CS(pTempStore1, age1, path);
+			LoadRecordsFromFileByAge_CS(pTempStore2, age2, path);
+			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
+		}
+		else if (age1 != 0 && name2[0] != 0)
+		{
+			LoadRecordsFromFileByAge_CS(pTempStore1, age1, path);
+			LoadRecordsFromFileByName_CS(pTempStore2, name2, path);
+			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
+		}
+		else if (age1 != 0 && phone2[0] != 0)
+		{
+			LoadRecordsFromFileByAge_CS(pTempStore1, age1, path);
+			LoadRecordsFromFileByPhone_CS(pTempStore2, phone2, path);
+			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
+		}
+		else if (name1[0] != 0 && age2 != 0)
+		{
+			LoadRecordsFromFileByName_CS(pTempStore1, name1, path);
+			LoadRecordsFromFileByAge_CS(pTempStore2, age2, path);
+			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
+		}
+		else if (name1[0] != 0 && name2[0] != 0)
+		{
+			LoadRecordsFromFileByName_CS(pTempStore1, name1, path);
+			LoadRecordsFromFileByName_CS(pTempStore2, name2, path);
+			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
+		}
+		else if (name1[0] != 0 && phone2[0] != 0)
+		{
+			LoadRecordsFromFileByName_CS(pTempStore1, name1, path);
+			LoadRecordsFromFileByPhone_CS(pTempStore2, phone2, path);
+			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
+		}
+		else if (phone1[0] != 0 && age2 != 0)
+		{
+			LoadRecordsFromFileByPhone_CS(pTempStore1, phone1, path);
+			LoadRecordsFromFileByAge_CS(pTempStore2, age2, path);
+			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
+		}
+		else if (phone1[0] != 0 && name2[0] != 0)
+		{
+			LoadRecordsFromFileByPhone_CS(pTempStore1, phone1, path);
+			LoadRecordsFromFileByName_CS(pTempStore2, name2, path);
+			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
+		}
+		else if (phone1[0] != 0 && phone2[0] != 0)
+		{
+			LoadRecordsFromFileByPhone_CS(pTempStore1, phone1, path);
+			LoadRecordsFromFileByPhone_CS(pTempStore2, phone2, path);
+			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
+		}
+		ContactStore_Destroy(pTempStore1);
+		ContactStore_Destroy(pTempStore2);
+	}
+
+	if (!ContactStore_IsEmpty(result))
+		return SEARCH_SUCCESS;
+	else
+		return NO_MATCH;
 }
 
 int SaveContactToFile(const Contact* contact, void* userData)
