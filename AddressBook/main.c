@@ -53,7 +53,7 @@ int main(void)
 //	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 //	Test_ContactStore_Destroy();
 //	Test_Contact_Destroy();
-//	Test_EditRecordAgeFromFile_CS();
+//	Test_EditRecordPhoneFromFile_CS();
 //#endif
 //	
 //	return 0;

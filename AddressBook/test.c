@@ -2560,6 +2560,88 @@ void Test_EditRecordNameFromFile_CS(void)
 	return;
 }
 
+void Test_EditRecordPhoneFromFile_CS(void)
+{
+	if (!CreateTestDataFile_CS())
+	{
+		printf("FAIL: Test_EditRecordPhoneFromFile_CS() failed to create test file\n");
+		putchar('\n');
+		return;
+	}
+
+	int pass = 1;
+
+	ContactStore* pStore = ContactStore_Create();
+	if (pStore == NULL)
+	{
+		printf("FAIL: Test_EditRecordPhoneFromFile_CS() failed to create ContactStore\n");
+		putchar('\n');
+		return;
+	}
+
+	// Case 1: valid phone number
+	if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_EditRecordPhoneFromFile_CS() failed to load test records\n");
+	}
+	else
+	{
+		const Contact* ptr = ContactStore_Take(pStore);
+		if (EditRecordPhoneFromFile_CS(ptr, "010-0000-9999", FILE_PATH_TEST) != EDIT_SUCCESS)
+		{
+			pass = 0;
+			printf("FAIL: Test_EditRecordPhoneFromFile_CS() properly open/write to file\n");
+		}
+		else
+		{
+			Contact_Destroy(ptr);
+			if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-9999", FILE_PATH_TEST) != LOAD_SUCCESS)
+			{
+				pass = 0;
+				printf("FAIL: Test_EditRecordPhoneFromFile_CS() failed to load edited record\n");
+			}
+			else
+			{
+				ptr = ContactStore_Take(pStore);
+				if (!CheckNode_CS(ptr, 10, "A", "010-0000-9999"))
+				{
+					pass = 0;
+					printf("FAIL: Test_EditRecordPhoneFromFile_CS() didn't correctly edit record\n");
+				}
+				Contact_Destroy(ptr);
+			}
+		}
+	}
+
+	// Case 2: invalid phone number
+	if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0011", FILE_PATH_TEST) != LOAD_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_EditRecordPhoneFromFile_CS() failed to load test records\n");
+	}
+	else
+	{
+		const Contact* ptr = ContactStore_Take(pStore);
+		if (EditRecordPhoneFromFile_CS(ptr, "0000-0000-0000", FILE_PATH_TEST) == EDIT_SUCCESS)
+		{
+			pass = 0;
+			printf("FAIL: Test_EditRecordPhoneFromFile_CS() return EDIT_SUCCESS for invalid phone number\n");
+		}
+		Contact_Destroy(ptr);
+	}
+
+	if (pass)
+	{
+		printf("PASS: Test_EditRecordPhoneFromFile_CS() correctly edit record for valid phone number\n");
+		printf("PASS: Test_EditRecordPhoneFromFile_CS() correctly return false for invalid phone number\n");
+	}
+
+	ContactStore_Destroy(pStore);
+	putchar('\n');
+	return;
+}
+
 // ***********************************************
 
 void Test_Contact_Destroy(void)

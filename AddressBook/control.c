@@ -1022,8 +1022,75 @@ EDITRESULT EditRecordNameFromFile_CS(const Contact* target, const char* name, LP
 	return EDIT_NOT_FOUND;
 }
 
-EDITRESULT EditRecordPhoneFromFile_CS(Contact* ptr, const char* phone, LPCWSTR path)
+EDITRESULT EditRecordPhoneFromFile_CS(const Contact* target, const char* phone, LPCWSTR path)
 {
+	if (!Str_IsPhoneFormat(phone))
+		return EDIT_ERROR;
+
+	DWORD dwRead = 0, dwWritten = 0;
+	DWORD dwRecordSize = (DWORD)Contact_GetSize();
+	BOOL bResult = FALSE;
+	HANDLE hFile = CreateFile(
+		path,
+		GENERIC_READ | GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return EDIT_ERROR;
+
+	Contact* temp = (Contact*)malloc(dwRecordSize);
+	if (temp == NULL)
+	{
+		CloseHandle(hFile);
+		return EDIT_ERROR;
+	}
+	while (1)
+	{
+		ZeroMemory(temp, dwRecordSize);
+		bResult = ReadFile(hFile, temp, dwRecordSize, &dwRead, NULL);
+		if (!bResult)
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return EDIT_ERROR;
+		}
+
+		if (dwRead == 0)
+			break;
+
+		if (dwRead < dwRecordSize)
+		{
+			free(temp);
+			CloseHandle(hFile);
+			return EDIT_ERROR;
+		}
+
+		if (strcmp(Contact_GetPhone(temp), Contact_GetPhone(target)) == 0)
+		{
+			if (!Contact_SetPhone(temp, phone))
+			{
+				free(temp);
+				CloseHandle(hFile);
+				return EDIT_ERROR;
+			}
+			SetFilePointer(hFile, -(LONG)dwRecordSize, NULL, FILE_CURRENT);
+			bResult = WriteFile(hFile, temp, dwRecordSize, &dwWritten, NULL);
+			free(temp);
+			CloseHandle(hFile);
+
+			if (!bResult || dwWritten < dwRecordSize)
+				return EDIT_ERROR;
+
+			return EDIT_SUCCESS;
+		}
+	}
+
+	free(temp);
+	CloseHandle(hFile);
 	return EDIT_NOT_FOUND;
 }
 
