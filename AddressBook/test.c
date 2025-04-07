@@ -2642,6 +2642,81 @@ void Test_EditRecordPhoneFromFile_CS(void)
 	return;
 }
 
+void Test_DeleteRecordFromFileByPhone_CS(void)
+{
+	if (!CreateTestDataFile_CS())
+	{
+		printf("FAIL: Test_DeleteRecordFromFileByPhone_CS() failed to create test file\n");
+		putchar('\n');
+		return;
+	}
+
+	int pass = 1;
+
+	// Case 1: invalid phone number
+	if (DeleteRecordFromFileByPhone_CS("010-0000-9999", FILE_PATH_TEST) == DELETE_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_DeleteRecordFromFileByPhone_CS() returned true for invalid phone number\n");
+	}
+
+	// Case 2: valid phone number
+	if (DeleteRecordFromFileByPhone_CS("010-0000-0001", FILE_PATH_TEST) != DELETE_SUCCESS)
+	{
+		pass = 0;
+		printf("FAIL: Test_DeleteRecordFromFileByPhone_CS() cannot properly open/write to file\n");
+	}
+	else
+	{
+		LARGE_INTEGER llFileSize = { 0 };
+		DWORD dwContactSize = (DWORD)Contact_GetSize();
+		DWORD dwRead = 0;
+		BOOL bResult = FALSE;
+
+		HANDLE hFile = CreateFile(
+			FILE_PATH_TEST,
+			GENERIC_READ,
+			FILE_SHARE_READ,
+			NULL,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL
+		);
+		if (hFile == INVALID_HANDLE_VALUE)
+		{
+			printf("FAIL: Test_DeleteRecordFromFileByPhone_CS() failed to open file\n");
+			putchar('\n');
+			return;
+		}
+
+		GetFileSizeEx(hFile, &llFileSize);
+		ContactStore* pStore = ContactStore_Create();
+		if (pStore == NULL)
+		{
+			printf("FAIL: Test_DeleteRecordFromFileByPhone_CS() failed to create ContactStore\n");
+			putchar('\n');
+			return;
+		}
+		
+		if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS || llFileSize.QuadPart != dwContactSize * (NUM_TEST_NODE - 1))
+		{
+			pass = 0;
+			printf("FAIL: Test_DeleteRecordFromFileByPhone_CS() failed to remove existing record\n");
+		}
+		ContactStore_Destroy(pStore);
+		CloseHandle(hFile);
+	}
+
+	if (pass)
+	{
+		printf("PASS: Test_DeleteRecordFromFileByPhone_CS() successfully removed the record with given phone number\n");
+		printf("PASS: Test_DeleteRecordFromFileByPhone_CS() correctly return false for invalid phone number\n");
+	}
+
+	putchar('\n');
+	return;
+}
+
 // ***********************************************
 
 void Test_Contact_Destroy(void)

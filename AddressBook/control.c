@@ -1096,7 +1096,98 @@ EDITRESULT EditRecordPhoneFromFile_CS(const Contact* target, const char* phone, 
 
 DELETERESULT DeleteRecordFromFileByPhone_CS(const char* phone, LPCWSTR path)
 {
-	return DELETE_NOT_FOUND;
+	if (!Str_IsPhoneFormat(phone))
+		return DELETE_ERROR;
+
+	DELETERESULT recordFound = DELETE_NOT_FOUND;
+	DWORD dwContactSize = (DWORD)Contact_GetSize();
+	DWORD dwRead = 0, dwWritten = 0;
+	BOOL bResult = FALSE;
+	HANDLE hFileSource = CreateFile(
+		path,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFileSource == INVALID_HANDLE_VALUE)
+	{
+		return DELETE_ERROR;
+	}
+
+	wchar_t wTempPath[MAX_PATH] = { 0 };
+	wcscpy_s(wTempPath, MAX_PATH, path);
+	PathCchRemoveFileSpec(wTempPath, MAX_PATH);
+	PathCchAppend(wTempPath, MAX_PATH, L"temp.dat");
+
+	HANDLE hFileTarget = CreateFile(
+		wTempPath,
+		GENERIC_WRITE,
+		0,
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFileTarget == INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(hFileSource);
+		return DELETE_ERROR;
+	}
+
+	Contact* temp = (Contact*)malloc(dwContactSize);
+	while (1)
+	{
+		ZeroMemory(temp, dwContactSize);
+		bResult = ReadFile(hFileSource, temp, dwContactSize, &dwRead, NULL);
+		if (!bResult)
+		{
+			free(temp);
+			CloseHandle(hFileSource);
+			CloseHandle(hFileTarget);
+			DeleteFile(wTempPath);
+			return DELETE_ERROR;
+		}
+
+		if (dwRead == 0)
+			break;
+
+		if (dwRead < dwContactSize)
+		{
+			free(temp);
+			CloseHandle(hFileSource);
+			CloseHandle(hFileTarget);
+			DeleteFile(wTempPath);
+			return DELETE_ERROR;
+		}
+
+		if (strcmp(Contact_GetPhone(temp), phone) != 0)
+		{
+			bResult = WriteFile(hFileTarget, temp, dwContactSize, &dwWritten, NULL);
+			if (!bResult || dwWritten < dwContactSize)
+			{
+				free(temp);
+				CloseHandle(hFileSource);
+				CloseHandle(hFileTarget);
+				DeleteFile(wTempPath);
+				return DELETE_ERROR;
+			}
+		}
+		else
+			recordFound = DELETE_SUCCESS;
+	}
+
+	free(temp);
+	CloseHandle(hFileSource);
+	CloseHandle(hFileTarget);
+
+	if (DeleteFile(path) != TRUE)
+		return DELETE_ERROR;
+	if (MoveFile(wTempPath, path) != TRUE)
+		return DELETE_ERROR;
+	return recordFound;
 }
 
 SEARCHRESULT SearchRecordsFromFile_CS(ContactStore* result, const char* input, LPCWSTR path)
