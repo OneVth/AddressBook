@@ -579,6 +579,90 @@ int UI_Search(LPCWSTR path)
 	return 1;
 }
 
+int UI_EditNode_CS(LPCWSTR path)
+{
+	char c = 0;
+	int age = 0;
+	char name[MAX_NAME_LEN] = { 0 };
+	char phone[MAX_PHONE_LEN] = { 0 };
+
+	ContactStore* pStore = ContactStore_Create();
+
+	printf("Need phone number of the node to edit **************\n");
+	UI_GetPhone(phone);
+
+	if (LoadRecordsFromFileByPhone_CS(pStore, phone, path) != LOAD_SUCCESS)
+	{
+		printf("Cannot find the node. Returning to main menu...\n");
+		_getch();
+		ContactStore_Destroy(pStore);
+		return 0;
+	}
+
+	const Contact* pContact = ContactStore_Take(pStore);
+	system("cls");
+	printf("Now: %d %s %s\n",
+		Contact_GetAge(pContact),
+		Contact_GetName(pContact),
+		Contact_GetPhone(pContact)
+	);
+	printf("Edit [0] Exit [1] Age [2] Name [3] Phone\n");
+	printf("Choose an option: ");
+	char input = getchar();
+	ClearInputBuffer();
+	if (isdigit(input))
+	{
+		int option = input - '0';
+		if (option <= 3 && option >= 0)
+		{
+			switch (option)
+			{
+			case 0:
+				break;
+			case 1:
+				UI_GetAge(&age);
+				if (EditRecordAgeFromFile_CS(pContact, age, path) == EDIT_SUCCESS)
+					printf("Edit successful\n");
+				else
+					printf("Edit failure\n");
+				break;
+			case 2:
+				UI_GetName(name);
+				if (EditRecordNameFromFile_CS(pContact, name, path) == EDIT_SUCCESS)
+					printf("Edit successful\n");
+				else
+					printf("Edit failure\n");
+				break;
+			case 3:
+				UI_GetPhone(phone);
+				if (LoadRecordsFromFileByPhone_CS(NULL, phone, path) == LOAD_SUCCESS)
+				{
+					printf("Edit failed: Phone number already exists.\n");
+				}
+				else
+				{
+					if (EditRecordPhoneFromFile_CS(pContact, phone, path) == EDIT_SUCCESS)
+						printf("Edit successful\n");
+					else
+						printf("Edit failure\n");
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		else
+			printf("Invalid option.\n");
+	}
+	else
+		printf("Invalid input.\n");
+
+	Contact_Destroy(pContact);
+	ContactStore_Destroy(pStore);
+	_getch();
+	return 1;
+}
+
 int UI_EditNode(LPCWSTR path)
 {
 	int age = 0;
