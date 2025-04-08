@@ -461,6 +461,82 @@ int UI_InsertNode(LPCWSTR path)
 	return 1;
 }
 
+DWORD WINAPI Thread_DeleteRecord_CS(void* param)
+{
+	DELETEPARAM* params = (DELETEPARAM*)param;
+	if (LoadRecordsFromFileByPhone_CS(NULL, params->phone, params->path) != LOAD_SUCCESS)
+	{
+		return 0;
+	}
+	else
+	{
+		if ((params->result = DeleteRecordFromFileByPhone_CS(params->phone, params->path)) != DELETE_SUCCESS)
+		{
+			return 0;
+		}
+	}
+	return 1;
+}
+
+int UI_DeleteNode_CS(LPCWSTR path)
+{
+	int flag = 1;
+	char phone[MAX_PHONE_LEN] = { 0 };
+
+	const char* dots[] = { " ", ".", "..", "..." };
+	int dotIndex = 0;
+	DELETEPARAM* param = (DELETEPARAM*)malloc(sizeof(DELETEPARAM));
+	param->path = path;
+	do
+	{
+		system("cls");
+		printf("Need the phone number to delete **************\n");
+		UI_GetPhone(phone);
+
+		param->result = -1;
+		strcpy_s(param->phone, sizeof(param->phone), phone);
+		HANDLE hThread = (HANDLE)_beginthreadex(
+			NULL,
+			0,
+			Thread_DeleteRecord_CS,
+			(LPVOID)param,
+			0,
+			NULL);
+		if (hThread == 0)
+		{
+			printf("Failed to create thread.\n");
+			free(param);
+			return 0;
+		}
+
+		while (WaitForSingleObject(hThread, 300) == WAIT_TIMEOUT)
+		{
+			printf("\rDeleting%s  ", dots[dotIndex]);
+			fflush(stdout);
+			dotIndex = (dotIndex + 1) % 4;	// Console animation
+		}
+		CloseHandle((HANDLE)hThread);
+
+		if (param->result == DELETE_SUCCESS)
+			printf("Record deleted successfully.\n");
+		else
+			printf("Failed to delete record.\n");
+
+		char ch = 0;
+		printf("Press any key to continue (or 'q' to exit) : ");
+		ch = getchar();
+		if (ch == 'q' || ch == 'Q')
+		{
+			flag = 0;
+		}
+		ClearInputBuffer();
+		putchar('\n');
+	} while (flag);
+
+	free(param);
+	return 1;
+}
+
 DWORD WINAPI Thread_DeleteRecord(void* param)
 {
 	DELETEPARAM* params = (DELETEPARAM*)param;
@@ -483,7 +559,6 @@ int UI_DeleteNode(LPCWSTR path)
 	int flag = 1;
 	char phone[MAX_PHONE_LEN] = { 0 };
 
-	
 	const char* dots[] = { " ", ".", "..", "..." };
 	int dotIndex = 0;
 	DELETEPARAM* param = (DELETEPARAM*)malloc(sizeof(DELETEPARAM));

@@ -71,8 +71,12 @@ int UI_PrintAll(LPCWSTR path);
 /// <param name="PATH">The file path to insert the node into.</param>
 /// <returns>1 if insertion successful; 0 otherwise.</returns>
 int UI_InsertNode_CS(LPCWSTR path);
-
 int UI_InsertNode(LPCWSTR path);
+
+int UI_DeleteNode_CS(LPCWSTR path);
 int UI_DeleteNode(LPCWSTR path);
+
 int UI_Search(LPCWSTR path);
+
+int UI_EditNode_CS(LPCWSTR path);
 int UI_EditNode(LPCWSTR path);
