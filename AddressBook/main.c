@@ -54,6 +54,6 @@ int main(void)
 //	Test_ContactStore_Destroy();
 //	Test_Contact_Destroy();
 //#endif
-//	UI_Search_CS(FILE_PATH_TEST);
+//	UI_PrintAll_CS(FILE_PATH_TEST);
 //	return 0;
 //}

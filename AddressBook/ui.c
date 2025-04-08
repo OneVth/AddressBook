@@ -320,6 +320,83 @@ int UI_ExitMenu(LPCWSTR path)
 	return 1;
 }
 
+int UI_PrintAll_CS(LPCWSTR path)
+{
+	printf("Print all records ******************************\n");
+
+	DWORD dwContactSize = (DWORD)Contact_GetSize();
+	DWORD dwRead = 0;
+	BOOL bResult = FALSE;
+	HANDLE hFile = CreateFile(
+		path,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		printf("Failed to open file.\n");
+		return 0;
+	}
+
+	char ch = 0;
+	int pageNumber = 0;
+	Contact* pContact = (Contact*)malloc(dwContactSize);
+	do
+	{
+		system("cls");
+		pageNumber++;
+		printf("Page #%d **************************\n", pageNumber);
+		int isEnd = 0;
+		for (int i = 0; i < RECORDS_PER_PAGE; i++)
+		{
+			ZeroMemory(pContact, dwContactSize);
+			bResult = ReadFile(hFile, pContact, dwContactSize, &dwRead, NULL);
+			if (!bResult)
+			{
+				printf("Failed to read file.\n");
+				CloseHandle(hFile);
+				return 0;
+			}
+
+			if (dwRead == 0)
+			{
+				isEnd = 1;
+				break;
+			}
+
+			if (dwRead < dwContactSize)
+			{
+				printf("File format error.\n");
+				CloseHandle(hFile);
+				return 0;
+			}
+
+			printf("[%d]: %2d %-5s %s\n", i + 1, 
+				Contact_GetAge(pContact), 
+				Contact_GetName(pContact), 
+				Contact_GetPhone(pContact)
+			);
+		}
+
+		if (isEnd)
+		{
+			printf("\nEnd of file: Press any key to exit.\n");
+			break;
+		}
+		else
+			printf("\nPress any key to continue (or 'q' to exit) : ");
+		ch = getchar();
+	} while (ch != 'q' && ch != 'Q');
+	free(pContact);
+	CloseHandle(hFile);
+
+	_getch();
+	return 0;
+}
+
 int UI_PrintAll(LPCWSTR path)
 {
 	printf("Print all records ******************************\n");

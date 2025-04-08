@@ -63,6 +63,8 @@ void UI_PrintList(LIST* pL);
 
 OPTION PrintMenu(void);		// event loop
 int UI_ExitMenu(LPCWSTR path);
+
+int UI_PrintAll_CS(LPCWSTR path);
 int UI_PrintAll(LPCWSTR path);
 
 /// <summary>
