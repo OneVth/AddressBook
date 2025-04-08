@@ -76,6 +76,7 @@ int UI_InsertNode(LPCWSTR path);
 int UI_DeleteNode_CS(LPCWSTR path);
 int UI_DeleteNode(LPCWSTR path);
 
+int UI_Search_CS(LPCWSTR path);
 int UI_Search(LPCWSTR path);
 
 int UI_EditNode_CS(LPCWSTR path);
