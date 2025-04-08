@@ -26,7 +26,7 @@ int UI_GetInsertInfo(char* name, int* age, char* phone)
 	while (1)
 	{
 		system("cls");
-		printf("\nEnter new data: need [Name] [Age] [Phone number]\n");
+		printf("Enter new data: need [Name] [Age] [Phone number]\n");
 
 		if (UI_GetName(name) && UI_GetAge(age) && UI_GetPhone(phone))
 		{
@@ -52,8 +52,8 @@ int UI_GetName(char* buffer)
 {
 	char temp[MAX_NAME_LEN] = { 0 };
 
-	printf("[Name]\n");
-	printf("Enter the name (max %d chars): ", MAX_NAME_LEN - 1);
+	printf("\n[Name]\n");
+	printf("Enter the name (max %d characters): ", MAX_NAME_LEN - 1);
 	if (fgets(temp, sizeof(temp), stdin) != NULL)
 	{
 		size_t len = strlen(temp);
@@ -96,7 +96,7 @@ int UI_GetName(char* buffer)
 int UI_GetPhone(char* buffer)
 {
 	char temp[MAX_PHONE_LEN] = { 0 };
-	printf("[Phone]\n");
+	printf("\n[Phone]\n");
 	printf("Enter the phone number (without hyphens '-'): ");
 	if (fgets(temp, sizeof(temp), stdin) != NULL)
 	{
@@ -153,7 +153,7 @@ int UI_GetPhone(char* buffer)
 int UI_GetAge(int* age)
 {
 	char temp[BUFFSIZE] = { 0 };
-	printf("[Age]\n");
+	printf("\n[Age]\n");
 	printf("Enter the age : ");
 	if (fgets(temp, sizeof(temp), stdin) != NULL)
 	{
@@ -391,6 +391,37 @@ int UI_PrintAll(LPCWSTR path)
 	printf("Exit to menu.\n");
 	_getch();
 	return 0;
+}
+
+int UI_InsertNode_CS(LPCWSTR path)
+{
+	char c = 0;
+	int age = 0;
+	char name[MAX_NAME_LEN] = { 0 };
+	char phone[MAX_PHONE_LEN] = { 0 };
+
+	ContactStore* pStore = ContactStore_Create();
+	while (1)
+	{
+		if (UI_GetInsertInfo(name, &age, phone))
+		{
+			Contact* pContact = Contact_Create(age, name, phone);
+			if (TryAddContact(pStore, pContact, path) != 1)
+			{
+				printf("[ERROR] The record(phone number) is already in the file\n");
+			}
+			Contact_Destroy(pContact);
+		}
+		
+		printf("\nPress any key to continue (or 'q' to exit) : ");
+		c = getchar();
+		if (c == 'q' || c == 'Q')
+			break;
+	}
+
+	SaveListToFile_CS(pStore, path);
+	ContactStore_Destroy(pStore);
+	return 1;
 }
 
 int UI_InsertNode(LPCWSTR path)
