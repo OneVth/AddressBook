@@ -16,6 +16,11 @@ typedef struct {
 	DELETERESULT result;
 } DELETEPARAM;
 
+typedef struct {
+	int count;
+	int pageNum;
+} PrintStoreInfo;
+
 int UI_GetInsertInfo(char* name, int* age, char* phone)
 {
 	while (1)
@@ -216,6 +221,39 @@ int UI_GetSearchString(char* buffer)
 
 	strcpy_s(buffer, BUFFSIZE, temp);
 	return 1;
+}
+
+int PrintStoreCallback(const Contact* c, void* userData)
+{
+	PrintStoreInfo* pStoreInfo = (PrintStoreInfo*)userData;
+	if (pStoreInfo->count % RECORDS_PER_PAGE == 0)
+	{
+		system("cls");
+		printf("Print records in the list:\n");
+		pStoreInfo->pageNum = pStoreInfo->count / RECORDS_PER_PAGE;
+		printf("Page #%d\n", pStoreInfo->pageNum + 1);
+	}
+
+	printf("%d %s %s\n", Contact_GetAge(c), Contact_GetName(c), Contact_GetPhone(c));
+
+	pStoreInfo->count++;
+	if (pStoreInfo->count % RECORDS_PER_PAGE == 0)
+	{
+		char c = 0;
+		printf("\nPress any key to continue (or 'q' to exit) : ");
+		c = getchar();
+		if (c == 'q' || c == 'Q')
+			return 0;
+	}
+	return 1;
+}
+
+void UI_PrintList_CS(ContactStore* store)
+{
+	PrintStoreInfo storeInfo = { 0, 0 };
+	ContactStore_Iterate(store, PrintStoreCallback, &storeInfo);
+	printf("\nEnd of list: Press any key to exit.\n");
+	_getch();
 }
 
 void UI_PrintList(LIST* pL)

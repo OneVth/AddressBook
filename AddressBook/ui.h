@@ -54,6 +54,7 @@ int UI_GetSearchString(char* buffer);
 // UI output functions
 // *******************************************************************
 
+void UI_PrintList_CS(ContactStore* store);
 void UI_PrintList(LIST* pL);
 
 // *******************************************************************
