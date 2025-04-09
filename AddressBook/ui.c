@@ -332,12 +332,13 @@ int UI_PrintAll_CS(LPCWSTR path)
 		GENERIC_READ,
 		FILE_SHARE_READ,
 		NULL,
-		OPEN_EXISTING,
+		OPEN_ALWAYS,
 		FILE_ATTRIBUTE_NORMAL,
 		NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		printf("Failed to open file.\n");
+		_getch();
 		return 0;
 	}
 
@@ -358,6 +359,7 @@ int UI_PrintAll_CS(LPCWSTR path)
 			{
 				printf("Failed to read file.\n");
 				CloseHandle(hFile);
+				_getch();
 				return 0;
 			}
 
@@ -371,6 +373,7 @@ int UI_PrintAll_CS(LPCWSTR path)
 			{
 				printf("File format error.\n");
 				CloseHandle(hFile);
+				_getch();
 				return 0;
 			}
 

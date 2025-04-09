@@ -29,11 +29,11 @@ int main(void)
 	// UI event loop handler
 	int (*pfMenu[UI_FUNC_COUNT])(LPCWSTR) = {
 		UI_ExitMenu,
-		UI_PrintAll,
-		UI_InsertNode,
-		UI_DeleteNode,
-		UI_Search,
-		UI_EditNode
+		UI_PrintAll_CS,
+		UI_InsertNode_CS,
+		UI_DeleteNode_CS,
+		UI_Search_CS,
+		UI_EditNode_CS
 	};
 
 	OPTION option = MENU_EXIT;
@@ -41,7 +41,6 @@ int main(void)
 	{
 		system("cls");
 		pfMenu[option](FILE_PATH);
-		_getch();
 	}
 	return 0;
 }
