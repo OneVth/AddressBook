@@ -10,7 +10,8 @@
 #pragma comment(lib, "Pathcch.lib")
 
 #define NAME_POOL_SIZE 50
-#define	GENERATE_NUM 1000
+#define	GENERATE_NUM 40000
+#define BENCH_ITERATION 10
 
 const char* g_namePool[NAME_POOL_SIZE] = {
 		"James", "Mary", "John", "Patricia", "Robert",
@@ -34,31 +35,99 @@ int main(void)
 	CreateDirectory(L"..\\Data\\Test", NULL);
 
 	wchar_t wPath[MAX_PATH] = { 0 };
+	wchar_t wLogPath[MAX_PATH] = { 0 };
 	wchar_t buffer[MAX_PATH] = { 0 };
 	wcscpy_s(wPath, MAX_PATH, FILE_PATH);
+	wcscpy_s(wLogPath, MAX_PATH, FILE_PATH);
 	PathCchRemoveFileSpec(wPath, MAX_PATH);
+	PathCchRemoveFileSpec(wLogPath, MAX_PATH);
+
 	swprintf(buffer, MAX_PATH, L"\\Test\\dummy_%d.dat", GENERATE_NUM);
 	swprintf(wPath, MAX_PATH, L"%s%s", wPath, buffer);
+	swprintf(buffer, MAX_PATH, L"\\Test\\benchmark_%d.txt", GENERATE_NUM);
+	swprintf(wLogPath, MAX_PATH, L"%s%s", wLogPath, buffer);
 
 	int age = 0;
 	char name[MAX_NAME_LEN] = { 0 };
 	char phone[MAX_PHONE_LEN] = { 0 };
 	srand((unsigned int)time(NULL));
 
-	ContactStore* pStore = ContactStore_Create();
-
-	for (int i = 0; i < GENERATE_NUM; i++)
+	double initDuration = 0.0;
+	double total = 0.0;
+	for (int i = 0; i < BENCH_ITERATION; i++)
 	{
-		CreateRandomFields(&age, name, phone);
-		Contact* pContact = Contact_Create(age, name, phone);
-		if (ContactStore_HasPhone(pStore, phone) == 0)
-			ContactStore_AddToEnd(pStore, pContact);
-		Contact_Destroy(pContact);
+		clock_t start = clock();
+
+		ContactStore* pStore = ContactStore_Create();
+
+		for (int i = 0; i < GENERATE_NUM; i++)
+		{
+			CreateRandomFields(&age, name, phone);
+			Contact* pContact = Contact_Create(age, name, phone);
+			if (ContactStore_HasPhone(pStore, phone) == 0)
+				ContactStore_AddToEnd(pStore, pContact);
+			Contact_Destroy(pContact);
+		}
+
+		// To delete existing file and create the new file
+		HANDLE hFile = CreateFile(
+			wPath,
+			GENERIC_WRITE,
+			0,
+			NULL,
+			CREATE_ALWAYS,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL
+		);
+		if (hFile == INVALID_HANDLE_VALUE)
+		{
+			DWORD err = GetLastError();
+			wprintf(L"File creation failed with error code: %lu\n", err);
+			return -1;
+		}
+		CloseHandle(hFile);
+
+		if (SaveListToFile_CS(pStore, wPath) == 1)
+			wprintf(L"Saved generated addresses to %s\n", wPath);
+		else
+			printf("Failed to save records to file\n");
+
+		ContactStore_Destroy(pStore);
+
+		clock_t end = clock();
+		if (i == 0)
+		{
+			initDuration = (double)(end - start) / CLOCKS_PER_SEC;
+		}
+		total += (double)(end - start) / CLOCKS_PER_SEC;
 	}
 
-	// To delete existing file and create the new file
+	// check file size
+	LARGE_INTEGER llFileSize = { 0 };
 	HANDLE hFile = CreateFile(
 		wPath,
+		GENERIC_READ,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		DWORD err = GetLastError();
+		wprintf(L"File creation failed with error code: %lu\n", err);
+		return -1;
+	}
+
+	GetFileSizeEx(hFile, &llFileSize);
+	CloseHandle(hFile);
+
+	// write log file
+	DWORD dwWritten = 0;
+	BOOL bResult = FALSE;
+	HANDLE hLogFile = CreateFile(
+		wLogPath,
 		GENERIC_WRITE,
 		0,
 		NULL,
@@ -66,18 +135,27 @@ int main(void)
 		FILE_ATTRIBUTE_NORMAL,
 		NULL
 	);
-	if (hFile == INVALID_HANDLE_VALUE)
+	if (hLogFile == INVALID_HANDLE_VALUE)
 	{
+		DWORD err = GetLastError();
+		wprintf(L"File creation failed with error code: %lu\n", err);
 		return -1;
 	}
-	CloseHandle(hFile);
 
-	if (SaveListToFile_CS(pStore, wPath) == 1)
-		wprintf(L"Saved generated addresses to %s\n", wPath);
-	else
-		printf("Failed to save to data.dat\n");
-
-	ContactStore_Destroy(pStore);
+	wchar_t logContent[BUFFSIZE] = { 0 };
+	swprintf(logContent, BUFFSIZE, L"Number of nodes: %d\nInitial load time: %.6f sec\nAvg time: %.6f sec\n", 
+		(int)(llFileSize.QuadPart / Contact_GetSize()), initDuration, total / BENCH_ITERATION);
+	
+	DWORD len = (DWORD)(wcslen(logContent) * sizeof(wchar_t));
+	bResult = WriteFile(hLogFile, logContent, len, &dwWritten, NULL);
+	if (!bResult)
+	{
+		printf("Failed to write log file\n");
+		CloseHandle(hLogFile);
+		return -1;
+	}
+	wprintf(L"Benchmark result saved to: %s\n", wLogPath);
+	CloseHandle(hLogFile);
 	return 0;
 }
 
