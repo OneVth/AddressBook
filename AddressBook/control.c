@@ -1120,7 +1120,7 @@ DELETERESULT DeleteRecordFromFileByPhone_CS(const char* phone, LPCWSTR path)
 	wchar_t wTempPath[MAX_PATH] = { 0 };
 	wcscpy_s(wTempPath, MAX_PATH, path);
 	PathCchRemoveFileSpec(wTempPath, MAX_PATH);
-	PathCchAppend(wTempPath, MAX_PATH, L"temp.dat");
+	swprintf(wTempPath, MAX_PATH, L"%s\\%s", wTempPath, L"temp.dat");
 
 	HANDLE hFileTarget = CreateFile(
 		wTempPath,
