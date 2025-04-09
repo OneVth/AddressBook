@@ -10,7 +10,7 @@
 #pragma comment(lib, "Pathcch.lib")
 
 #define NAME_POOL_SIZE 50
-#define	GENERATE_NUM 40000
+#define	GENERATE_NUM 1000
 #define BENCH_ITERATION 10
 
 const char* g_namePool[NAME_POOL_SIZE] = {
