@@ -2,11 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <Windows.h>
+#include <Pathcch.h>
 #include "../AddressBook/common.h"
 #include "../AddressBook/control.h"
 
+#pragma comment(lib, "Pathcch.lib")
+
 #define NAME_POOL_SIZE 50
-#define	GENERATE_NUM 50000
+#define	GENERATE_NUM 1000
 
 const char* g_namePool[NAME_POOL_SIZE] = {
 		"James", "Mary", "John", "Patricia", "Robert",
@@ -26,26 +30,54 @@ void Test_CreateRandomFields(void);
 
 int main(void)
 {
+	CreateDirectory(L"..\\Data", NULL);
+	CreateDirectory(L"..\\Data\\Test", NULL);
+
+	wchar_t wPath[MAX_PATH] = { 0 };
+	wchar_t buffer[MAX_PATH] = { 0 };
+	wcscpy_s(wPath, MAX_PATH, FILE_PATH);
+	PathCchRemoveFileSpec(wPath, MAX_PATH);
+	swprintf(buffer, MAX_PATH, L"\\Test\\dummy_%d.dat", GENERATE_NUM);
+	swprintf(wPath, MAX_PATH, L"%s%s", wPath, buffer);
+
 	int age = 0;
 	char name[MAX_NAME_LEN] = { 0 };
 	char phone[MAX_PHONE_LEN] = { 0 };
 	srand((unsigned int)time(NULL));
 
-	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	List_Init(pList);
+	ContactStore* pStore = ContactStore_Create();
 
 	for (int i = 0; i < GENERATE_NUM; i++)
 	{
 		CreateRandomFields(&age, name, phone);
-		List_InsertAtEnd(pList, age, name, phone);
+		Contact* pContact = Contact_Create(age, name, phone);
+		if (ContactStore_HasPhone(pStore, phone) == 0)
+			ContactStore_AddToEnd(pStore, pContact);
+		Contact_Destroy(pContact);
 	}
-	if (SaveListToFile(pList, FILE_PATH) == 1)
-		printf("Saved generated addresses to data.dat\n");
+
+	// To delete existing file and create the new file
+	HANDLE hFile = CreateFile(
+		wPath,
+		GENERIC_WRITE,
+		0,
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return -1;
+	}
+	CloseHandle(hFile);
+
+	if (SaveListToFile_CS(pStore, wPath) == 1)
+		wprintf(L"Saved generated addresses to %s\n", wPath);
 	else
 		printf("Failed to save to data.dat\n");
 
-	List_Release(pList);
-	free(pList);
+	ContactStore_Destroy(pStore);
 	return 0;
 }
 
