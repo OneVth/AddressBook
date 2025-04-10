@@ -21,16 +21,6 @@ typedef enum {
 	SEARCH_ERROR = 0, SEARCH_SUCCESS = 1, PARSE_FAILED, CONVERT_FAILED, NO_MATCH
 } SEARCHRESULT;
 
-LOADRESULT LoadRecordsFromFileByPhone(LIST* pL, const char* phone, LPCWSTR path);
-LOADRESULT LoadRecordsFromFileByName(LIST* pL, const char* name, LPCWSTR path);
-LOADRESULT LoadRecordsFromFileByAge(LIST* pL, const int age, LPCWSTR path);
-EDITRESULT EditRecordAgeFromFile(NODE* ptr, const int age, LPCWSTR path);
-EDITRESULT EditRecordNameFromFile(NODE* ptr, const char* name, LPCWSTR path);
-EDITRESULT EditRecordPhoneFromFile(NODE* ptr, const char* phone, LPCWSTR path);
-DELETERESULT DeleteRecordFromFileByPhone(const char* phone, LPCWSTR path);
-SEARCHRESULT SearchRecordsFromFile(LIST* pResult, const char* input, LPCWSTR path);
-int SaveListToFile(LIST* pL, LPCWSTR path);
-
 int TryAddContact(ContactStore* store, const Contact* contact, LPCWSTR path);
 LOADRESULT LoadRecordsFromFileByPhone_CS(ContactStore* store, const char* phone, LPCWSTR path);
 LOADRESULT LoadRecordsFromFileByName_CS(ContactStore* store, const char* name, LPCWSTR path);

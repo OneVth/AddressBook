@@ -256,46 +256,6 @@ void UI_PrintList_CS(ContactStore* store)
 	_getch();
 }
 
-void UI_PrintList(LIST* pL)
-{
-	if (List_IsEmpty(pL))
-		return;
-
-	char ch = 0;
-	int pageNumber = 0;
-	int isEnd = 0;
-	NODE* ptr = pL->head.next;
-	do
-	{
-		system("cls");
-		pageNumber++;
-		printf("Page #%d:\n", pageNumber);
-		for (int i = 0; i < RECORDS_PER_PAGE; i++)
-		{
-			if (ptr == &pL->tail)
-			{
-				isEnd = 1;
-				break;
-			}
-
-			printf("%3d - %-5s - %s\n", ptr->age, ptr->name, ptr->phone);
-			ptr = ptr->next;
-		}
-
-		if (isEnd)
-		{
-			printf("\nEnd of file: Press any key to exit.\n");
-			break;
-		}
-		else
-			printf("\nPress any key to continue (or 'q' to exit) : ");
-		ch = getchar();
-	} while (ch != 'q' && ch != 'Q');
-
-	_getch();
-	return;
-}
-
 OPTION PrintMenu(void)
 {
 	OPTION val = -1;
@@ -393,83 +353,9 @@ int UI_PrintAll_CS(LPCWSTR path)
 			printf("\nPress any key to continue (or 'q' to exit) : ");
 		ch = getchar();
 	} while (ch != 'q' && ch != 'Q');
+	ClearInputBuffer();
 	free(pContact);
 	CloseHandle(hFile);
-
-	_getch();
-	return 0;
-}
-
-int UI_PrintAll(LPCWSTR path)
-{
-	printf("Print all records ******************************\n");
-
-	DWORD dwRead = 0;
-	BOOL bResult = FALSE;
-	HANDLE hFile = CreateFile(
-		path, 
-		GENERIC_READ,
-		FILE_SHARE_READ,
-		NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		printf("Failed to open file.\n");
-		return 0;
-	}
-
-	char ch = 0;
-	int pageNumber = 0;
-	NODE* temp = (NODE*)malloc(sizeof(NODE));
-	do
-	{
-		system("cls");
-		pageNumber++;
-		printf("Page #%d **************************\n", pageNumber);
-		int isEnd = 0;
-		for (int i = 0; i < RECORDS_PER_PAGE; i++)
-		{
-			ZeroMemory(temp, sizeof(NODE));
-			bResult = ReadFile(hFile, temp, sizeof(NODE), &dwRead, NULL);
-			if (!bResult)
-			{
-				printf("Failed to read file.\n");
-				CloseHandle(hFile);
-				return 0;
-			}
-
-			if (dwRead == 0)
-			{
-				isEnd = 1;
-				break;
-			}
-
-			if (dwRead < sizeof(NODE))
-			{
-				printf("File format error.\n");
-				CloseHandle(hFile);
-				return 0;
-			}
-
-			printf("[%d]: %2d %-5s %s\n", i + 1, temp->age, temp->name, temp->phone);
-		}
-
-		if (isEnd)
-		{
-			printf("\nEnd of file: Press any key to exit.\n");
-			break;
-		}
-		else
-			printf("\nPress any key to continue (or 'q' to exit) : ");
-		ch = getchar();
-	} while (ch != 'q' && ch != 'Q');
-	free(temp);
-	CloseHandle(hFile);
-
-	printf("Exit to menu.\n");
-	_getch();
 	return 0;
 }
 
@@ -498,46 +384,9 @@ int UI_InsertNode_CS(LPCWSTR path)
 		if (c == 'q' || c == 'Q')
 			break;
 	}
-
+	ClearInputBuffer();
 	SaveListToFile_CS(pStore, path);
 	ContactStore_Destroy(pStore);
-	return 1;
-}
-
-int UI_InsertNode(LPCWSTR path)
-{
-	int age = 0;
-	char name[MAX_NAME_LEN] = { 0 };
-	char phone[MAX_PHONE_LEN] = { 0 };
-
-	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	List_Init(pList);
-
-	if (UI_GetInsertInfo(name, &age, phone))
-	{
-		if (LoadRecordsFromFileByPhone(NULL, phone, path) != LOAD_SUCCESS)
-		{
-			List_InsertAtEnd(pList, age, name, phone);
-			SaveListToFile(pList, path);
-		}
-		else
-		{
-			printf("\nInsert failed: Phone number is already exist.\n");
-			List_Release(pList);
-			free(pList);
-			return 0;
-		}
-	}
-	else
-	{
-		printf("Insertion terminate.\n");
-		List_Release(pList);
-		free(pList);
-		return 0;
-	}
-
-	List_Release(pList);
-	free(pList);
 	return 1;
 }
 
@@ -617,81 +466,6 @@ int UI_DeleteNode_CS(LPCWSTR path)
 	return 1;
 }
 
-DWORD WINAPI Thread_DeleteRecord(void* param)
-{
-	DELETEPARAM* params = (DELETEPARAM*)param;
-	if (LoadRecordsFromFileByPhone(NULL, params->phone, params->path) != LOAD_SUCCESS)
-	{
-		return 0;
-	}
-	else
-	{
-		if ((params->result = DeleteRecordFromFileByPhone(params->phone, params->path)) != DELETE_SUCCESS)
-		{
-			return 0;
-		}
-	}
-	return 1;
-}
-
-int UI_DeleteNode(LPCWSTR path)
-{
-	int flag = 1;
-	char phone[MAX_PHONE_LEN] = { 0 };
-
-	const char* dots[] = { " ", ".", "..", "..." };
-	int dotIndex = 0;
-	DELETEPARAM* param = (DELETEPARAM*)malloc(sizeof(DELETEPARAM));
-	param->path = path;
-	do
-	{
-		printf("Need the phone number to delete **************\n");
-		UI_GetPhone(phone);
-		
-		param->result = -1;
-		strcpy_s(param->phone, sizeof(param->phone), phone);
-		HANDLE hThread = (HANDLE)_beginthreadex(
-			NULL, 
-			0, 
-			Thread_DeleteRecord, 
-			(LPVOID)param, 
-			0, 
-			NULL);
-		if (hThread == 0)
-		{
-			printf("Failed to create thread.\n");
-			free(param);
-			return 0;
-		}
-
-		while (WaitForSingleObject(hThread, 300) == WAIT_TIMEOUT)
-		{
-			printf("\rDeleting%s  ", dots[dotIndex]);
-			fflush(stdout);
-			dotIndex = (dotIndex + 1) % 4;	// Console animation
-		}
-		CloseHandle((HANDLE)hThread);
-		
-		if (param->result == DELETE_SUCCESS)
-			printf("Record deleted successfully.\n");
-		else
-			printf("Failed to delete record.\n");
-
-		char ch = 0;
-		printf("Press any key to continue (or 'q' to exit) : ");
-		ch = getchar();
-		if (ch == 'q' || ch == 'Q')
-		{
-			flag = 0;
-		}
-		ClearInputBuffer();
-		putchar('\n');
-	} while (flag);
-
-	free(param);
-	return 1;
-}
-
 int UI_Search_CS(LPCWSTR path)
 {
 	SEARCHRESULT result = SEARCH_ERROR;
@@ -733,48 +507,6 @@ int UI_Search_CS(LPCWSTR path)
 	}
 
 	ContactStore_Destroy(pResult);
-	return 1;
-}
-
-int UI_Search(LPCWSTR path)
-{
-	SEARCHRESULT result = 0;
-	LIST* pResult = (LIST*)malloc(sizeof(LIST));
-	List_Init(pResult);
-
-	printf("You can use \"AND\" or \"OR\" to search.\n");
-	char buffer[BUFFSIZE] = { 0 };
-	if (UI_GetSearchString(buffer))
-	{
-		result = SearchRecordsFromFile(pResult, buffer, path);
-		if (result == SEARCH_SUCCESS)
-		{
-			printf("Search result **********************************\n");
-			UI_PrintList(pResult);
-		}
-		else if (result == PARSE_FAILED)
-		{
-			printf("Input failed: Input format must be [str] [AND/OR] [str].\n");
-			return 0;
-		}
-		else if (result == CONVERT_FAILED)
-		{
-			printf("Input failed: Allowed max [AGE: %d], [NAME LEN: %d], [PHONE LEN: %d]\n", MAXAGE, MAX_NAME_LEN, MAX_PHONE_LEN);
-			return 0;
-		}
-		else if (result == NO_MATCH)
-		{
-			printf("Search failed: No matching records here.\n");
-			return 0;
-		}
-	}
-	else
-	{
-		return 0;
-	}
-
-	List_Release(pResult);
-	free(pResult);
 	return 1;
 }
 
@@ -862,80 +594,4 @@ int UI_EditNode_CS(LPCWSTR path)
 	return 1;
 }
 
-int UI_EditNode(LPCWSTR path)
-{
-	int age = 0;
-	char name[MAX_NAME_LEN] = { 0 };
-	char phone[MAX_PHONE_LEN] = { 0 };
-
-	LIST* pList = (LIST*)malloc(sizeof(LIST));
-	List_Init(pList);
-
-	printf("Need phone number of the node to edit **************\n");
-	UI_GetPhone(phone);
-
-	if (LoadRecordsFromFileByPhone(pList, phone, path) != LOAD_SUCCESS)
-	{
-		printf("Cannot find the node.\n");
-		return 0;
-	}
-
-	int flag = 1;
-	NODE* ptr = pList->head.next;
-	do
-	{
-		system("cls");
-		printf("Now: %d %s %s\n", ptr->age, ptr->name, ptr->phone);
-		printf("Edit [0] Exit [1] Age [2] Name [3] Phone\n");
-		printf("Enter: ");
-		int option = getchar() - '0';
-		ClearInputBuffer();
-
-		if (option <= 3 && option >= 0)
-		{
-			switch (option)
-			{
-			case 0:
-				break;
-			case 1:
-				UI_GetAge(&age);
-				EditRecordAgeFromFile(ptr, age, path);
-
-				break;
-			case 2:
-				UI_GetName(name);
-				EditRecordNameFromFile(ptr, name, path);
-
-				break;
-			case 3:
-				UI_GetPhone(phone);
-
-				if (LoadRecordsFromFileByPhone(NULL, phone, path) == LOAD_SUCCESS)
-				{
-					printf("Edit failed: Phone number is already exist.\n");
-				}
-				else
-					EditRecordPhoneFromFile(ptr, phone, path);
-				break;
-			default:
-				break;
-			}
-		}
-		else
-		{
-			printf("Invalid option.\n");
-		}
-
-		char ch = 0;
-		printf("Press any key to continue (or 'q' to exit) : ");
-		ch = getchar();
-		if (ch == 'q' || ch == 'Q')
-		{
-			flag = 0;
-		}
-		ClearInputBuffer();
-	} while (flag);
-
-	return 1;
-}
 

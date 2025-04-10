@@ -6,19 +6,6 @@
 #define MAXAGE 120
 #define FILE_PATH L"..\\Data\\data.dat"
 
-typedef struct node {
-	int age;
-	char name[MAX_NAME_LEN];
-	char phone[MAX_PHONE_LEN];
-	struct node* next;
-	struct node* prev;
-} NODE;
-
-typedef struct {
-	NODE head;
-	NODE tail;
-} LIST;
-
 // Util functions *******************************************
 
 void ClearInputBuffer(void);
@@ -48,16 +35,3 @@ int SplitSearchExpression(const char* input, char token1[], char token2[], char 
 /// </summary>
 /// <returns>1 if classification succeeds, 0 otherwise.</returns>
 int ClassifyToken(const char* token, int* age, char* name, char* phone);
-
-// Data structure functions *******************************************
-
-void List_Init(LIST* pL);
-void List_Release(LIST* pL);
-int List_IsEmpty(LIST* pL);
-int List_HasPhone(LIST* pL, const char* phone);
-int List_InsertAtBeg(LIST* pL, const int age, const char* name, const char* phone);
-int List_InsertAtEnd(LIST* pL, const int age, const char* name, const char* phone);
-int List_DeleteAtEnd(LIST* pL);
-int List_DeleteAtBeg(LIST* pL);
-int List_DeleteByPhone(LIST* pL, const char* phone);
-int List_CombineByOp(LIST* pResultList, LIST* pList1, LIST* pList2, const char* op);
