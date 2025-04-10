@@ -87,7 +87,7 @@ int main(void)
 		}
 		CloseHandle(hFile);
 
-		if (SaveListToFile_CS(pStore, wPath) == 1)
+		if (SaveListToFile(pStore, wPath) == 1)
 			wprintf(L"Saved generated addresses to %s\n", wPath);
 		else
 			printf("Failed to save records to file\n");

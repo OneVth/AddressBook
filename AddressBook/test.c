@@ -445,7 +445,7 @@ void Test_ClassifyToken(void)
 	return;
 }
 
-int CreateTestDataFile_CS(void)
+int CreateTestDataFile(void)
 {
 	CreateDirectory(L"./Test", NULL);
 
@@ -504,7 +504,7 @@ int CreateTestDataFile_CS(void)
 	return 1;
 }
 
-int CheckNode_CS(const Contact* contact, int expectedAge, const char* expectedName, const char* expectedPhone)
+int CheckNode(const Contact* contact, int expectedAge, const char* expectedName, const char* expectedPhone)
 {
 	int firstCorrect = 0;
 	int secondCorrect = 0;
@@ -519,7 +519,7 @@ int CheckNode_CS(const Contact* contact, int expectedAge, const char* expectedNa
 	return 1;
 }
 
-void Test_CreateTestDataFile_CS(void)
+void Test_CreateTestDataFile(void)
 {
 	int pass = 1;
 
@@ -533,10 +533,10 @@ void Test_CreateTestDataFile_CS(void)
 		"010-0000-0003"
 	};
 
-	if (!CreateTestDataFile_CS())
+	if (!CreateTestDataFile())
 	{
 		pass = 0;
-		printf("FAIL: Test_CreateTestDataFile_CS() failed to create test file\n");
+		printf("FAIL: Test_CreateTestDataFile() failed to create test file\n");
 	}
 	else
 	{
@@ -557,13 +557,13 @@ void Test_CreateTestDataFile_CS(void)
 		if (hFile == INVALID_HANDLE_VALUE)
 		{
 			pass = 0;
-			printf("FAIL: Test_CreateTestDataFile_CS() could not open test data file\n");
+			printf("FAIL: Test_CreateTestDataFile() could not open test data file\n");
 			return;
 		}
 
 		if (!GetFileSizeEx(hFile, &llFileSize))
 		{
-			printf("FAIL: Test_CreateTestDataFile_CS() couldn't get file size\n");
+			printf("FAIL: Test_CreateTestDataFile() couldn't get file size\n");
 			CloseHandle(hFile);
 			return;
 		}
@@ -572,7 +572,7 @@ void Test_CreateTestDataFile_CS(void)
 		if (temp == NULL)
 		{
 			pass = 0;
-			printf("FAIL: Test_CreateTestDataFile_CS() failed to allocate memory\n");
+			printf("FAIL: Test_CreateTestDataFile() failed to allocate memory\n");
 			CloseHandle(hFile);
 			return;
 		}
@@ -584,10 +584,10 @@ void Test_CreateTestDataFile_CS(void)
 			if (bResult && dwRead == dwContactSize)
 			{
 				llTotalReadSize += dwRead;
-				if (!CheckNode_CS(temp, ages[i], names[i], phones[i]))
+				if (!CheckNode(temp, ages[i], names[i], phones[i]))
 				{
 					pass = 0;
-					printf("FAIL: Test_CreateTestDataFile_CS() test file doesn't match with [%d]-th expected data\n", i + 1);
+					printf("FAIL: Test_CreateTestDataFile() test file doesn't match with [%d]-th expected data\n", i + 1);
 					break;
 				}
 			}
@@ -596,7 +596,7 @@ void Test_CreateTestDataFile_CS(void)
 		if (pass && (llTotalReadSize != llFileSize.QuadPart))
 		{
 			pass = 0;
-			printf("FAIL: Test_CreateTestDataFile_CS() get wrong file size\n");
+			printf("FAIL: Test_CreateTestDataFile() get wrong file size\n");
 		}
 
 		free(temp);
@@ -605,7 +605,7 @@ void Test_CreateTestDataFile_CS(void)
 
 	if (pass)
 	{
-		printf("PASS: Test_CreateTestDataFile_CS() correctly created test file\n");
+		printf("PASS: Test_CreateTestDataFile() correctly created test file\n");
 	}
 
 	putchar('\n');
@@ -631,7 +631,7 @@ void Test_ContactStore_Take(void)
 	ContactStore_AddToEnd(pStore, secondContact);
 
 	const Contact* ptr = ContactStore_Take(pStore);
-	if (!CheckNode_CS(ptr, 10, "Alice", "010-0000-1111"))
+	if (!CheckNode(ptr, 10, "Alice", "010-0000-1111"))
 	{
 		pass = 0;
 		printf("FAIL: Test_ContactStore_Take() failed to take first contact\n");
@@ -641,7 +641,7 @@ void Test_ContactStore_Take(void)
 	{
 		Contact_Destroy(ptr);
 		ptr = ContactStore_Take(pStore);
-		if (!CheckNode_CS(ptr, 20, "Betty", "010-0000-2222"))
+		if (!CheckNode(ptr, 20, "Betty", "010-0000-2222"))
 		{
 			pass = 0;
 			printf("FAIL: Test_ContactStore_Take() failed to take second contact\n");
@@ -674,11 +674,11 @@ void Test_ContactStore_Take(void)
 	return;
 }
 
-void Test_LoadRecordsFromFileByPhone_CS(void)
+void Test_LoadRecordsFromFileByPhone(void)
 {
-	if (!CreateTestDataFile_CS())
+	if (!CreateTestDataFile())
 	{
-		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() failed to create test file\n");
+		printf("FAIL: Test_LoadRecordsFromFileByPhone() failed to create test file\n");
 		putchar('\n');
 		return;
 	}
@@ -688,39 +688,39 @@ void Test_LoadRecordsFromFileByPhone_CS(void)
 	ContactStore* pStore = ContactStore_Create();
 	if (pStore == NULL)
 	{
-		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() failed to create ContactStore\n");
+		printf("FAIL: Test_LoadRecordsFromFileByPhone() failed to create ContactStore\n");
 		putchar('\n');
 		return;
 	}
 
 	// Case 1: valid phone number
-	if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() returned false for valid phone number\n");
+		printf("FAIL: Test_LoadRecordsFromFileByPhone() returned false for valid phone number\n");
 	}
 	else
 	{
 		const Contact* ptr = ContactStore_Take(pStore);
-		if (!CheckNode_CS(ptr, 10, "A", "010-0000-0001"))
+		if (!CheckNode(ptr, 10, "A", "010-0000-0001"))
 		{
 			pass = 0;
-			printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() failed to load expected data\n");
+			printf("FAIL: Test_LoadRecordsFromFileByPhone() failed to load expected data\n");
 		}
 		Contact_Destroy(ptr);
 	}
 
 	// Case 2: invalid phone number
-	if (LoadRecordsFromFileByPhone_CS(pStore, "010-9999-9999", FILE_PATH_TEST) == LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(pStore, "010-9999-9999", FILE_PATH_TEST) == LOAD_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_LoadRecordsFromFileByPhone_CS() returned true for invalid phone number\n");
+		printf("FAIL: Test_LoadRecordsFromFileByPhone() returned true for invalid phone number\n");
 	}
 
 	if (pass)
 	{
-		printf("PASS: Test_LoadRecordsFromFileByPhone_CS() returned correct result for valid phone number\n");
-		printf("PASS: Test_LoadRecordsFromFileByPhone_CS() returned correct result for invalid phone number\n");
+		printf("PASS: Test_LoadRecordsFromFileByPhone() returned correct result for valid phone number\n");
+		printf("PASS: Test_LoadRecordsFromFileByPhone() returned correct result for invalid phone number\n");
 	}
 
 	putchar('\n');
@@ -728,11 +728,11 @@ void Test_LoadRecordsFromFileByPhone_CS(void)
 	return;
 }
 
-void Test_SaveListToFile_CS(void)
+void Test_SaveListToFile(void)
 {
-	if (!CreateTestDataFile_CS())
+	if (!CreateTestDataFile())
 	{
-		printf("FAIL: Test_SaveStoreToFile_CS() file creation failed\n");
+		printf("FAIL: Test_SaveStoreToFile() file creation failed\n");
 		putchar('\n');
 		return;
 	}
@@ -751,7 +751,7 @@ void Test_SaveListToFile_CS(void)
 	ContactStore* pStore = ContactStore_Create();
 	if (pStore == NULL)
 	{
-		printf("FAIL: Test_SaveStoreToFile_CS() failed to create ContactStore\n");
+		printf("FAIL: Test_SaveStoreToFile() failed to create ContactStore\n");
 		ContactStore_Destroy(pStore);
 		putchar('\n');
 		return;
@@ -761,7 +761,7 @@ void Test_SaveListToFile_CS(void)
 	if (TryAddContact(pStore, ptr, FILE_PATH_TEST) != 0)
 	{
 		pass = 0;
-		printf("FAIL: Test_SaveListToFile_CS() failed check existence contact to the list\n");
+		printf("FAIL: Test_SaveListToFile() failed check existence contact to the list\n");
 	}
 	Contact_Destroy(ptr);
 
@@ -771,15 +771,15 @@ void Test_SaveListToFile_CS(void)
 		if (TryAddContact(pStore, ptr, FILE_PATH_TEST) != 1)
 		{
 			pass = 0;
-			printf("FAIL: Test_SaveListToFile_CS() failed to add non-existence contact to the list\n");
+			printf("FAIL: Test_SaveListToFile() failed to add non-existence contact to the list\n");
 		}
 		Contact_Destroy(ptr);
 	}
 
-	if (SaveListToFile_CS(pStore, FILE_PATH_TEST) != 1)
+	if (SaveListToFile(pStore, FILE_PATH_TEST) != 1)
 	{
 		pass = 0;
-		printf("FAIL: Test_SaveListToFile_CS() failed to save list to file\n");
+		printf("FAIL: Test_SaveListToFile() failed to save list to file\n");
 	}
 	else
 	{
@@ -795,35 +795,35 @@ void Test_SaveListToFile_CS(void)
 		);
 		if (hFile == INVALID_HANDLE_VALUE)
 		{
-			printf("FAIL: Test_SaveListToFile_CS() failed to open file\n");
+			printf("FAIL: Test_SaveListToFile() failed to open file\n");
 			return;
 		}
 
 		if (!GetFileSizeEx(hFile, &llFileSize))
 		{
-			printf("FAIL: Test_SaveListToFile_CS() failed to get file size\n");
+			printf("FAIL: Test_SaveListToFile() failed to get file size\n");
 			return;
 		}
 
 		if (llFileSize.QuadPart != (NUM_TEST_NODE + 3) * Contact_GetSize())
 		{
 			pass = 0;
-			printf("FAIL: Test_SaveListToFile_CS() file size doesn't match with expected size\n");
+			printf("FAIL: Test_SaveListToFile() file size doesn't match with expected size\n");
 		}
 		CloseHandle(hFile);
 
-		if (LoadRecordsFromFileByPhone_CS(NULL, "010-9999-9999", FILE_PATH_TEST) != LOAD_SUCCESS)
+		if (LoadRecordsFromFileByPhone(NULL, "010-9999-9999", FILE_PATH_TEST) != LOAD_SUCCESS)
 		{
 			pass = 0;
-			printf("FAIL: Test_SaveListToFile_CS() didn't save the list properly\n");
+			printf("FAIL: Test_SaveListToFile() didn't save the list properly\n");
 		}
 	}
 
 	if (pass)
 	{
-		printf("PASS: Test_SaveListToFile_CS() correctly save list to file\n");
-		printf("PASS: Test_SaveListToFile_CS() wrote correct number of bytes\n");
-		printf("PASS: Test_SaveListToFile_CS() created file successfully\n");
+		printf("PASS: Test_SaveListToFile() correctly save list to file\n");
+		printf("PASS: Test_SaveListToFile() wrote correct number of bytes\n");
+		printf("PASS: Test_SaveListToFile() created file successfully\n");
 	}
 
 	ContactStore_Destroy(pStore);
@@ -831,11 +831,11 @@ void Test_SaveListToFile_CS(void)
 	return;
 }
 
-void Test_LoadRecordsFromFileByName_CS(void)
+void Test_LoadRecordsFromFileByName(void)
 {
-	if (!CreateTestDataFile_CS())
+	if (!CreateTestDataFile())
 	{
-		printf("FAIL: Test_LoadRecordsFromFileByName_CS() failed to create test file\n");
+		printf("FAIL: Test_LoadRecordsFromFileByName() failed to create test file\n");
 		putchar('\n');
 		return;
 	}
@@ -845,49 +845,49 @@ void Test_LoadRecordsFromFileByName_CS(void)
 	ContactStore* pStore = ContactStore_Create();
 	if (pStore == NULL)
 	{
-		printf("FAIL: Test_LoadRecordsFromFileByName_CS() failed to create ContactStore\n");
+		printf("FAIL: Test_LoadRecordsFromFileByName() failed to create ContactStore\n");
 		putchar('\n');
 		return;
 	}
 
 	// Case 1: valid name
-	if (LoadRecordsFromFileByName_CS(pStore, "A", FILE_PATH_TEST) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByName(pStore, "A", FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_LoadRecordsFromFileByName_CS() returned false for valid phone number\n");
+		printf("FAIL: Test_LoadRecordsFromFileByName() returned false for valid phone number\n");
 	}
 	else
 	{
 		const Contact* ptr = ContactStore_Take(pStore);
-		if (!CheckNode_CS(ptr, 10, "A", "010-0000-0001"))
+		if (!CheckNode(ptr, 10, "A", "010-0000-0001"))
 		{
 			pass = 0;
-			printf("FAIL: Test_LoadRecordsFromFileByName_CS() failed to load first expected data\n");
+			printf("FAIL: Test_LoadRecordsFromFileByName() failed to load first expected data\n");
 		}
 		else
 		{
 			Contact_Destroy(ptr);
 			ptr = ContactStore_Take(pStore);
-			if (!CheckNode_CS(ptr, 11, "A", "010-0000-0011"))
+			if (!CheckNode(ptr, 11, "A", "010-0000-0011"))
 			{
 				pass = 0;
-				printf("FAIL: Test_LoadRecordsFromFileByName_CS() failed to load second expected data\n");
+				printf("FAIL: Test_LoadRecordsFromFileByName() failed to load second expected data\n");
 			}
 			Contact_Destroy(ptr);
 		}
 	}
 
 	// Case 2: invalid phone number
-	if (LoadRecordsFromFileByName_CS(pStore, "Z", FILE_PATH_TEST) == LOAD_SUCCESS)
+	if (LoadRecordsFromFileByName(pStore, "Z", FILE_PATH_TEST) == LOAD_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_LoadRecordsFromFileByName_CS() returned true for invalid name\n");
+		printf("FAIL: Test_LoadRecordsFromFileByName() returned true for invalid name\n");
 	}
 
 	if (pass)
 	{
-		printf("PASS: Test_LoadRecordsFromFileByName_CS() returned correct result for valid name\n");
-		printf("PASS: Test_LoadRecordsFromFileByName_CS() returned correct result for invalid name\n");
+		printf("PASS: Test_LoadRecordsFromFileByName() returned correct result for valid name\n");
+		printf("PASS: Test_LoadRecordsFromFileByName() returned correct result for invalid name\n");
 	}
 
 	putchar('\n');
@@ -895,11 +895,11 @@ void Test_LoadRecordsFromFileByName_CS(void)
 	return;
 }
 
-void Test_LoadRecordsFromFileByAge_CS(void)
+void Test_LoadRecordsFromFileByAge(void)
 {
-	if (!CreateTestDataFile_CS())
+	if (!CreateTestDataFile())
 	{
-		printf("FAIL: Test_LoadRecordsFromFileByAge_CS() failed to create test file\n");
+		printf("FAIL: Test_LoadRecordsFromFileByAge() failed to create test file\n");
 		putchar('\n');
 		return;
 	}
@@ -909,49 +909,49 @@ void Test_LoadRecordsFromFileByAge_CS(void)
 	ContactStore* pStore = ContactStore_Create();
 	if (pStore == NULL)
 	{
-		printf("FAIL: Test_LoadRecordsFromFileByAge_CS() failed to create ContactStore\n");
+		printf("FAIL: Test_LoadRecordsFromFileByAge() failed to create ContactStore\n");
 		putchar('\n');
 		return;
 	}
 
 	// Case 1: valid name
-	if (LoadRecordsFromFileByAge_CS(pStore, 20, FILE_PATH_TEST) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByAge(pStore, 20, FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_LoadRecordsFromFileByAge_CS() returned false for valid phone number\n");
+		printf("FAIL: Test_LoadRecordsFromFileByAge() returned false for valid phone number\n");
 	}
 	else
 	{
 		const Contact* ptr = ContactStore_Take(pStore);
-		if (!CheckNode_CS(ptr, 20, "B", "010-0000-0002"))
+		if (!CheckNode(ptr, 20, "B", "010-0000-0002"))
 		{
 			pass = 0;
-			printf("FAIL: Test_LoadRecordsFromFileByAge_CS() failed to load first expected data\n");
+			printf("FAIL: Test_LoadRecordsFromFileByAge() failed to load first expected data\n");
 		}
 		else
 		{
 			Contact_Destroy(ptr);
 			ptr = ContactStore_Take(pStore);
-			if (!CheckNode_CS(ptr, 20, "C", "010-0000-0022"))
+			if (!CheckNode(ptr, 20, "C", "010-0000-0022"))
 			{
 				pass = 0;
-				printf("FAIL: Test_LoadRecordsFromFileByAge_CS() failed to load second expected data\n");
+				printf("FAIL: Test_LoadRecordsFromFileByAge() failed to load second expected data\n");
 			}
 			Contact_Destroy(ptr);
 		}
 	}
 
 	// Case 2: invalid phone number
-	if (LoadRecordsFromFileByAge_CS(pStore, 99, FILE_PATH_TEST) == LOAD_SUCCESS)
+	if (LoadRecordsFromFileByAge(pStore, 99, FILE_PATH_TEST) == LOAD_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_LoadRecordsFromFileByAge_CS() returned true for invalid name\n");
+		printf("FAIL: Test_LoadRecordsFromFileByAge() returned true for invalid name\n");
 	}
 
 	if (pass)
 	{
-		printf("PASS: Test_LoadRecordsFromFileByAge_CS() returned correct result for valid name\n");
-		printf("PASS: Test_LoadRecordsFromFileByAge_CS() returned correct result for invalid name\n");
+		printf("PASS: Test_LoadRecordsFromFileByAge() returned correct result for valid name\n");
+		printf("PASS: Test_LoadRecordsFromFileByAge() returned correct result for invalid name\n");
 	}
 
 	putchar('\n');
@@ -959,11 +959,11 @@ void Test_LoadRecordsFromFileByAge_CS(void)
 	return;
 }
 
-void Test_EditRecordAgeFromFile_CS(void)
+void Test_EditRecordAgeFromFile(void)
 {
-	if (!CreateTestDataFile_CS())
+	if (!CreateTestDataFile())
 	{
-		printf("FAIL: Test_EditRecordAgeFromFile_CS() failed to create test file\n");
+		printf("FAIL: Test_EditRecordAgeFromFile() failed to create test file\n");
 		putchar('\n');
 		return;
 	}
@@ -973,40 +973,40 @@ void Test_EditRecordAgeFromFile_CS(void)
 	ContactStore* pStore = ContactStore_Create();
 	if (pStore == NULL)
 	{
-		printf("FAIL: Test_EditRecordAgeFromFile_CS() failed to create ContactStore\n");
+		printf("FAIL: Test_EditRecordAgeFromFile() failed to create ContactStore\n");
 		putchar('\n');
 		return;
 	}
 
 	// Case 1: valid age
-	if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_EditRecordAgeFromFile_CS() failed to load test records\n");
+		printf("FAIL: Test_EditRecordAgeFromFile() failed to load test records\n");
 	}
 	else
 	{
 		const Contact* ptr = ContactStore_Take(pStore);
-		if (EditRecordAgeFromFile_CS(ptr, 99, FILE_PATH_TEST) != EDIT_SUCCESS)
+		if (EditRecordAgeFromFile(ptr, 99, FILE_PATH_TEST) != EDIT_SUCCESS)
 		{
 			pass = 0;
-			printf("FAIL: Test_EditRecordAgeFromFile_CS() properly open/write to file\n");
+			printf("FAIL: Test_EditRecordAgeFromFile() properly open/write to file\n");
 		}
 		else
 		{
 			Contact_Destroy(ptr);
-			if (LoadRecordsFromFileByAge_CS(pStore, 99, FILE_PATH_TEST) != LOAD_SUCCESS)
+			if (LoadRecordsFromFileByAge(pStore, 99, FILE_PATH_TEST) != LOAD_SUCCESS)
 			{
 				pass = 0;
-				printf("FAIL: Test_EditRecordAgeFromFile_CS() failed to load edited record\n");
+				printf("FAIL: Test_EditRecordAgeFromFile() failed to load edited record\n");
 			}
 			else
 			{
 				ptr = ContactStore_Take(pStore);
-				if (!CheckNode_CS(ptr, 99, "A", "010-0000-0001"))
+				if (!CheckNode(ptr, 99, "A", "010-0000-0001"))
 				{
 					pass = 0;
-					printf("FAIL: Test_EditRecordAgeFromFile_CS() didn't correctly edit record\n");
+					printf("FAIL: Test_EditRecordAgeFromFile() didn't correctly edit record\n");
 				}
 				Contact_Destroy(ptr);
 			}
@@ -1014,26 +1014,26 @@ void Test_EditRecordAgeFromFile_CS(void)
 	}
 
 	// Case 2: invalid age
-	if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_EditRecordAgeFromFile_CS() failed to load test records\n");
+		printf("FAIL: Test_EditRecordAgeFromFile() failed to load test records\n");
 	}
 	else
 	{
 		const Contact* ptr = ContactStore_Take(pStore);
-		if (EditRecordAgeFromFile_CS(ptr, MAXAGE + 1, FILE_PATH_TEST) == EDIT_SUCCESS)
+		if (EditRecordAgeFromFile(ptr, MAXAGE + 1, FILE_PATH_TEST) == EDIT_SUCCESS)
 		{
 			pass = 0;
-			printf("FAIL: Test_EditRecordAgeFromFile_CS() return EDIT_SUCCESS for invalid age\n");
+			printf("FAIL: Test_EditRecordAgeFromFile() return EDIT_SUCCESS for invalid age\n");
 		}
 		Contact_Destroy(ptr);
 	}
 
 	if (pass)
 	{
-		printf("PASS: Test_EditRecordAgeFromFile_CS() correctly edit record for valid age\n");
-		printf("PASS: Test_EditRecordAgeFromFile_CS() correctly return false for invalid age\n");
+		printf("PASS: Test_EditRecordAgeFromFile() correctly edit record for valid age\n");
+		printf("PASS: Test_EditRecordAgeFromFile() correctly return false for invalid age\n");
 	}
 
 	ContactStore_Destroy(pStore);
@@ -1041,11 +1041,11 @@ void Test_EditRecordAgeFromFile_CS(void)
 	return;
 }
 
-void Test_EditRecordNameFromFile_CS(void)
+void Test_EditRecordNameFromFile(void)
 {
-	if (!CreateTestDataFile_CS())
+	if (!CreateTestDataFile())
 	{
-		printf("FAIL: Test_EditRecordNameFromFile_CS() failed to create test file\n");
+		printf("FAIL: Test_EditRecordNameFromFile() failed to create test file\n");
 		putchar('\n');
 		return;
 	}
@@ -1055,40 +1055,40 @@ void Test_EditRecordNameFromFile_CS(void)
 	ContactStore* pStore = ContactStore_Create();
 	if (pStore == NULL)
 	{
-		printf("FAIL: Test_EditRecordNameFromFile_CS() failed to create ContactStore\n");
+		printf("FAIL: Test_EditRecordNameFromFile() failed to create ContactStore\n");
 		putchar('\n');
 		return;
 	}
 
 	// Case 1: valid name
-	if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_EditRecordNameFromFile_CS() failed to load test records\n");
+		printf("FAIL: Test_EditRecordNameFromFile() failed to load test records\n");
 	}
 	else
 	{
 		const Contact* ptr = ContactStore_Take(pStore);
-		if (EditRecordNameFromFile_CS(ptr, "Z", FILE_PATH_TEST) != EDIT_SUCCESS)
+		if (EditRecordNameFromFile(ptr, "Z", FILE_PATH_TEST) != EDIT_SUCCESS)
 		{
 			pass = 0;
-			printf("FAIL: Test_EditRecordNameFromFile_CS() properly open/write to file\n");
+			printf("FAIL: Test_EditRecordNameFromFile() properly open/write to file\n");
 		}
 		else
 		{
 			Contact_Destroy(ptr);
-			if (LoadRecordsFromFileByName_CS(pStore, "Z", FILE_PATH_TEST) != LOAD_SUCCESS)
+			if (LoadRecordsFromFileByName(pStore, "Z", FILE_PATH_TEST) != LOAD_SUCCESS)
 			{
 				pass = 0;
-				printf("FAIL: Test_EditRecordNameFromFile_CS() failed to load edited record\n");
+				printf("FAIL: Test_EditRecordNameFromFile() failed to load edited record\n");
 			}
 			else
 			{
 				ptr = ContactStore_Take(pStore);
-				if (!CheckNode_CS(ptr, 10, "Z", "010-0000-0001"))
+				if (!CheckNode(ptr, 10, "Z", "010-0000-0001"))
 				{
 					pass = 0;
-					printf("FAIL: Test_EditRecordNameFromFile_CS() didn't correctly edit record\n");
+					printf("FAIL: Test_EditRecordNameFromFile() didn't correctly edit record\n");
 				}
 				Contact_Destroy(ptr);
 			}
@@ -1096,26 +1096,26 @@ void Test_EditRecordNameFromFile_CS(void)
 	}
 
 	// Case 2: invalid name
-	if (!LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST))
+	if (!LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST))
 	{
 		pass = 0;
-		printf("FAIL: Test_EditRecordNameFromFile_CS() failed to load test records\n");
+		printf("FAIL: Test_EditRecordNameFromFile() failed to load test records\n");
 	}
 	else
 	{
 		const Contact* ptr = ContactStore_Take(pStore);
-		if (EditRecordNameFromFile_CS(ptr, "InvalidName!", FILE_PATH_TEST) == EDIT_SUCCESS)
+		if (EditRecordNameFromFile(ptr, "InvalidName!", FILE_PATH_TEST) == EDIT_SUCCESS)
 		{
 			pass = 0;
-			printf("FAIL: Test_EditRecordNameFromFile_CS() return EDIT_SUCCESS for invalid name\n");
+			printf("FAIL: Test_EditRecordNameFromFile() return EDIT_SUCCESS for invalid name\n");
 		}
 		Contact_Destroy(ptr);
 	}
 
 	if (pass)
 	{
-		printf("PASS: Test_EditRecordNameFromFile_CS() correctly edit record for valid name\n");
-		printf("PASS: Test_EditRecordNameFromFile_CS() correctly return false for invalid name\n");
+		printf("PASS: Test_EditRecordNameFromFile() correctly edit record for valid name\n");
+		printf("PASS: Test_EditRecordNameFromFile() correctly return false for invalid name\n");
 	}
 
 	ContactStore_Destroy(pStore);
@@ -1123,11 +1123,11 @@ void Test_EditRecordNameFromFile_CS(void)
 	return;
 }
 
-void Test_EditRecordPhoneFromFile_CS(void)
+void Test_EditRecordPhoneFromFile(void)
 {
-	if (!CreateTestDataFile_CS())
+	if (!CreateTestDataFile())
 	{
-		printf("FAIL: Test_EditRecordPhoneFromFile_CS() failed to create test file\n");
+		printf("FAIL: Test_EditRecordPhoneFromFile() failed to create test file\n");
 		putchar('\n');
 		return;
 	}
@@ -1137,40 +1137,40 @@ void Test_EditRecordPhoneFromFile_CS(void)
 	ContactStore* pStore = ContactStore_Create();
 	if (pStore == NULL)
 	{
-		printf("FAIL: Test_EditRecordPhoneFromFile_CS() failed to create ContactStore\n");
+		printf("FAIL: Test_EditRecordPhoneFromFile() failed to create ContactStore\n");
 		putchar('\n');
 		return;
 	}
 
 	// Case 1: valid phone number
-	if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_EditRecordPhoneFromFile_CS() failed to load test records\n");
+		printf("FAIL: Test_EditRecordPhoneFromFile() failed to load test records\n");
 	}
 	else
 	{
 		const Contact* ptr = ContactStore_Take(pStore);
-		if (EditRecordPhoneFromFile_CS(ptr, "010-0000-9999", FILE_PATH_TEST) != EDIT_SUCCESS)
+		if (EditRecordPhoneFromFile(ptr, "010-0000-9999", FILE_PATH_TEST) != EDIT_SUCCESS)
 		{
 			pass = 0;
-			printf("FAIL: Test_EditRecordPhoneFromFile_CS() properly open/write to file\n");
+			printf("FAIL: Test_EditRecordPhoneFromFile() properly open/write to file\n");
 		}
 		else
 		{
 			Contact_Destroy(ptr);
-			if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-9999", FILE_PATH_TEST) != LOAD_SUCCESS)
+			if (LoadRecordsFromFileByPhone(pStore, "010-0000-9999", FILE_PATH_TEST) != LOAD_SUCCESS)
 			{
 				pass = 0;
-				printf("FAIL: Test_EditRecordPhoneFromFile_CS() failed to load edited record\n");
+				printf("FAIL: Test_EditRecordPhoneFromFile() failed to load edited record\n");
 			}
 			else
 			{
 				ptr = ContactStore_Take(pStore);
-				if (!CheckNode_CS(ptr, 10, "A", "010-0000-9999"))
+				if (!CheckNode(ptr, 10, "A", "010-0000-9999"))
 				{
 					pass = 0;
-					printf("FAIL: Test_EditRecordPhoneFromFile_CS() didn't correctly edit record\n");
+					printf("FAIL: Test_EditRecordPhoneFromFile() didn't correctly edit record\n");
 				}
 				Contact_Destroy(ptr);
 			}
@@ -1178,26 +1178,26 @@ void Test_EditRecordPhoneFromFile_CS(void)
 	}
 
 	// Case 2: invalid phone number
-	if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0011", FILE_PATH_TEST) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(pStore, "010-0000-0011", FILE_PATH_TEST) != LOAD_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_EditRecordPhoneFromFile_CS() failed to load test records\n");
+		printf("FAIL: Test_EditRecordPhoneFromFile() failed to load test records\n");
 	}
 	else
 	{
 		const Contact* ptr = ContactStore_Take(pStore);
-		if (EditRecordPhoneFromFile_CS(ptr, "0000-0000-0000", FILE_PATH_TEST) == EDIT_SUCCESS)
+		if (EditRecordPhoneFromFile(ptr, "0000-0000-0000", FILE_PATH_TEST) == EDIT_SUCCESS)
 		{
 			pass = 0;
-			printf("FAIL: Test_EditRecordPhoneFromFile_CS() return EDIT_SUCCESS for invalid phone number\n");
+			printf("FAIL: Test_EditRecordPhoneFromFile() return EDIT_SUCCESS for invalid phone number\n");
 		}
 		Contact_Destroy(ptr);
 	}
 
 	if (pass)
 	{
-		printf("PASS: Test_EditRecordPhoneFromFile_CS() correctly edit record for valid phone number\n");
-		printf("PASS: Test_EditRecordPhoneFromFile_CS() correctly return false for invalid phone number\n");
+		printf("PASS: Test_EditRecordPhoneFromFile() correctly edit record for valid phone number\n");
+		printf("PASS: Test_EditRecordPhoneFromFile() correctly return false for invalid phone number\n");
 	}
 
 	ContactStore_Destroy(pStore);
@@ -1205,11 +1205,11 @@ void Test_EditRecordPhoneFromFile_CS(void)
 	return;
 }
 
-void Test_DeleteRecordFromFileByPhone_CS(void)
+void Test_DeleteRecordFromFileByPhone(void)
 {
-	if (!CreateTestDataFile_CS())
+	if (!CreateTestDataFile())
 	{
-		printf("FAIL: Test_DeleteRecordFromFileByPhone_CS() failed to create test file\n");
+		printf("FAIL: Test_DeleteRecordFromFileByPhone() failed to create test file\n");
 		putchar('\n');
 		return;
 	}
@@ -1217,17 +1217,17 @@ void Test_DeleteRecordFromFileByPhone_CS(void)
 	int pass = 1;
 
 	// Case 1: invalid phone number
-	if (DeleteRecordFromFileByPhone_CS("010-0000-9999", FILE_PATH_TEST) == DELETE_SUCCESS)
+	if (DeleteRecordFromFileByPhone("010-0000-9999", FILE_PATH_TEST) == DELETE_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_DeleteRecordFromFileByPhone_CS() returned true for invalid phone number\n");
+		printf("FAIL: Test_DeleteRecordFromFileByPhone() returned true for invalid phone number\n");
 	}
 
 	// Case 2: valid phone number
-	if (DeleteRecordFromFileByPhone_CS("010-0000-0001", FILE_PATH_TEST) != DELETE_SUCCESS)
+	if (DeleteRecordFromFileByPhone("010-0000-0001", FILE_PATH_TEST) != DELETE_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_DeleteRecordFromFileByPhone_CS() cannot properly open/write to file\n");
+		printf("FAIL: Test_DeleteRecordFromFileByPhone() cannot properly open/write to file\n");
 	}
 	else
 	{
@@ -1247,7 +1247,7 @@ void Test_DeleteRecordFromFileByPhone_CS(void)
 		);
 		if (hFile == INVALID_HANDLE_VALUE)
 		{
-			printf("FAIL: Test_DeleteRecordFromFileByPhone_CS() failed to open file\n");
+			printf("FAIL: Test_DeleteRecordFromFileByPhone() failed to open file\n");
 			putchar('\n');
 			return;
 		}
@@ -1256,15 +1256,15 @@ void Test_DeleteRecordFromFileByPhone_CS(void)
 		ContactStore* pStore = ContactStore_Create();
 		if (pStore == NULL)
 		{
-			printf("FAIL: Test_DeleteRecordFromFileByPhone_CS() failed to create ContactStore\n");
+			printf("FAIL: Test_DeleteRecordFromFileByPhone() failed to create ContactStore\n");
 			putchar('\n');
 			return;
 		}
 		
-		if (LoadRecordsFromFileByPhone_CS(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS || llFileSize.QuadPart != dwContactSize * (NUM_TEST_NODE - 1))
+		if (LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS || llFileSize.QuadPart != dwContactSize * (NUM_TEST_NODE - 1))
 		{
 			pass = 0;
-			printf("FAIL: Test_DeleteRecordFromFileByPhone_CS() failed to remove existing record\n");
+			printf("FAIL: Test_DeleteRecordFromFileByPhone() failed to remove existing record\n");
 		}
 		ContactStore_Destroy(pStore);
 		CloseHandle(hFile);
@@ -1272,19 +1272,19 @@ void Test_DeleteRecordFromFileByPhone_CS(void)
 
 	if (pass)
 	{
-		printf("PASS: Test_DeleteRecordFromFileByPhone_CS() successfully removed the record with given phone number\n");
-		printf("PASS: Test_DeleteRecordFromFileByPhone_CS() correctly return false for invalid phone number\n");
+		printf("PASS: Test_DeleteRecordFromFileByPhone() successfully removed the record with given phone number\n");
+		printf("PASS: Test_DeleteRecordFromFileByPhone() correctly return false for invalid phone number\n");
 	}
 
 	putchar('\n');
 	return;
 }
 
-void Test_SearchRecordsFromFile_CS(void)
+void Test_SearchRecordsFromFile(void)
 {
-	if (!CreateTestDataFile_CS())
+	if (!CreateTestDataFile())
 	{
-		printf("FAIL: Test_SearchRecordsFromFile_CS() failed to create test file\n");
+		printf("FAIL: Test_SearchRecordsFromFile() failed to create test file\n");
 		putchar('\n');
 		return;
 	}
@@ -1298,10 +1298,10 @@ void Test_SearchRecordsFromFile_CS(void)
 	int phoneCorrect = 0;
 
 	// Case 1: single result
-	if (SearchRecordsFromFile_CS(pResult, "10", FILE_PATH_TEST) != SEARCH_SUCCESS)
+	if (SearchRecordsFromFile(pResult, "10", FILE_PATH_TEST) != SEARCH_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search record for valid input\n");
+		printf("FAIL: Test_SearchRecordsFromFile() failed to search record for valid input\n");
 	}
 	else
 	{
@@ -1312,17 +1312,17 @@ void Test_SearchRecordsFromFile_CS(void)
 		if (!ageCorrect || !nameCorrect || !phoneCorrect)
 		{
 			pass = 0;
-			printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search from given record\n");
+			printf("FAIL: Test_SearchRecordsFromFile() failed to search from given record\n");
 		}
 		Contact_Destroy(ptr);
 	}
 
 
 	// Case 2: multiple result
-	if (SearchRecordsFromFile_CS(pResult, "A", FILE_PATH_TEST) != SEARCH_SUCCESS)
+	if (SearchRecordsFromFile(pResult, "A", FILE_PATH_TEST) != SEARCH_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search record for valid input\n");
+		printf("FAIL: Test_SearchRecordsFromFile() failed to search record for valid input\n");
 	}
 	else
 	{
@@ -1333,7 +1333,7 @@ void Test_SearchRecordsFromFile_CS(void)
 		if (!ageCorrect || !nameCorrect || !phoneCorrect)
 		{
 			pass = 0;
-			printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search for first expected record\n");
+			printf("FAIL: Test_SearchRecordsFromFile() failed to search for first expected record\n");
 		}
 		else
 		{
@@ -1345,17 +1345,17 @@ void Test_SearchRecordsFromFile_CS(void)
 			if (!ageCorrect || !nameCorrect || !phoneCorrect)
 			{
 				pass = 0;
-				printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search for second expected record\n");
+				printf("FAIL: Test_SearchRecordsFromFile() failed to search for second expected record\n");
 			}
 		}
 		Contact_Destroy(ptr);
 	}
 
 	// Case 3: search with operator
-	if (SearchRecordsFromFile_CS(pResult, "10 OR 010-0000-0003", FILE_PATH_TEST) != SEARCH_SUCCESS)
+	if (SearchRecordsFromFile(pResult, "10 OR 010-0000-0003", FILE_PATH_TEST) != SEARCH_SUCCESS)
 	{
 		pass = 0;
-		printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search record for valid input\n");
+		printf("FAIL: Test_SearchRecordsFromFile() failed to search record for valid input\n");
 	}
 	else
 	{
@@ -1366,7 +1366,7 @@ void Test_SearchRecordsFromFile_CS(void)
 		if (!ageCorrect || !nameCorrect || !phoneCorrect)
 		{
 			pass = 0;
-			printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search for first expected record\n");
+			printf("FAIL: Test_SearchRecordsFromFile() failed to search for first expected record\n");
 		}
 		else
 		{
@@ -1378,7 +1378,7 @@ void Test_SearchRecordsFromFile_CS(void)
 			if (!ageCorrect || !nameCorrect || !phoneCorrect)
 			{
 				pass = 0;
-				printf("FAIL: Test_SearchRecordsFromFile_CS() failed to search for second expected record\n");
+				printf("FAIL: Test_SearchRecordsFromFile() failed to search for second expected record\n");
 			}
 		}
 		Contact_Destroy(ptr);
@@ -1387,9 +1387,9 @@ void Test_SearchRecordsFromFile_CS(void)
 
 	if (pass)
 	{
-		printf("PASS: Test_SearchRecordsFromFile_CS() correctly search single record\n");
-		printf("PASS: Test_SearchRecordsFromFile_CS() correctly search multiple record\n");
-		printf("PASS: Test_SearchRecordsFromFile_CS() correctly search single record with operator\n");
+		printf("PASS: Test_SearchRecordsFromFile() correctly search single record\n");
+		printf("PASS: Test_SearchRecordsFromFile() correctly search multiple record\n");
+		printf("PASS: Test_SearchRecordsFromFile() correctly search single record with operator\n");
 	}
 	putchar('\n');
 	return;

@@ -22,13 +22,13 @@ typedef enum {
 } SEARCHRESULT;
 
 int TryAddContact(ContactStore* store, const Contact* contact, LPCWSTR path);
-LOADRESULT LoadRecordsFromFileByPhone_CS(ContactStore* store, const char* phone, LPCWSTR path);
-LOADRESULT LoadRecordsFromFileByName_CS(ContactStore* store, const char* name, LPCWSTR path);
-LOADRESULT LoadRecordsFromFileByAge_CS(ContactStore* store, const int age, LPCWSTR path);
-EDITRESULT EditRecordAgeFromFile_CS(const Contact* target, const int age, LPCWSTR path);
-EDITRESULT EditRecordNameFromFile_CS(const Contact* target, const char* name, LPCWSTR path);
-EDITRESULT EditRecordPhoneFromFile_CS(const Contact* target, const char* phone, LPCWSTR path);
-DELETERESULT DeleteRecordFromFileByPhone_CS(const char* phone, LPCWSTR path);
-SEARCHRESULT SearchRecordsFromFile_CS(ContactStore* result, const char* input, LPCWSTR path);
-int SaveListToFile_CS(ContactStore* store, LPCWSTR path);
+LOADRESULT LoadRecordsFromFileByPhone(ContactStore* store, const char* phone, LPCWSTR path);
+LOADRESULT LoadRecordsFromFileByName(ContactStore* store, const char* name, LPCWSTR path);
+LOADRESULT LoadRecordsFromFileByAge(ContactStore* store, const int age, LPCWSTR path);
+EDITRESULT EditRecordAgeFromFile(const Contact* target, const int age, LPCWSTR path);
+EDITRESULT EditRecordNameFromFile(const Contact* target, const char* name, LPCWSTR path);
+EDITRESULT EditRecordPhoneFromFile(const Contact* target, const char* phone, LPCWSTR path);
+DELETERESULT DeleteRecordFromFileByPhone(const char* phone, LPCWSTR path);
+SEARCHRESULT SearchRecordsFromFile(ContactStore* result, const char* input, LPCWSTR path);
+int SaveListToFile(ContactStore* store, LPCWSTR path);
 

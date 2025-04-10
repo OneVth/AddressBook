@@ -19,18 +19,18 @@ void Test_SplitSearchExpression(void);
 
 // Control functions *******************************************
 
-int CreateTestDataFile_CS(void);
-void Test_CreateTestDataFile_CS(void);
+int CreateTestDataFile(void);
+void Test_CreateTestDataFile(void);
 void Test_ContactStore_Take(void);
-void Test_LoadRecordsFromFileByPhone_CS(void);
-void Test_SaveListToFile_CS(void);
-void Test_LoadRecordsFromFileByName_CS(void);
-void Test_LoadRecordsFromFileByAge_CS(void);
-void Test_EditRecordAgeFromFile_CS(void);
-void Test_EditRecordNameFromFile_CS(void);
-void Test_EditRecordPhoneFromFile_CS(void);
-void Test_DeleteRecordFromFileByPhone_CS(void);
-void Test_SearchRecordsFromFile_CS(void);
+void Test_LoadRecordsFromFileByPhone(void);
+void Test_SaveListToFile(void);
+void Test_LoadRecordsFromFileByName(void);
+void Test_LoadRecordsFromFileByAge(void);
+void Test_EditRecordAgeFromFile(void);
+void Test_EditRecordNameFromFile(void);
+void Test_EditRecordPhoneFromFile(void);
+void Test_DeleteRecordFromFileByPhone(void);
+void Test_SearchRecordsFromFile(void);
 
 // ContactStore functions *******************************************
 

@@ -69,7 +69,7 @@
 //
 //			clock_t start = clock();
 //
-//			DeleteRecordFromFileByPhone_CS(Contact_GetPhone(pContact), wPath);
+//			DeleteRecordFromFileByPhone(Contact_GetPhone(pContact), wPath);
 //
 //			clock_t end = clock();
 //			if (i == 0)

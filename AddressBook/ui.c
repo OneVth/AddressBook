@@ -248,7 +248,7 @@ int PrintStoreCallback(const Contact* c, void* userData)
 	return 1;
 }
 
-void UI_PrintList_CS(ContactStore* store)
+void UI_PrintList(ContactStore* store)
 {
 	PrintStoreInfo storeInfo = { 0, 0 };
 	ContactStore_Iterate(store, PrintStoreCallback, &storeInfo);
@@ -280,7 +280,7 @@ int UI_ExitMenu(LPCWSTR path)
 	return 1;
 }
 
-int UI_PrintAll_CS(LPCWSTR path)
+int UI_PrintAll(LPCWSTR path)
 {
 	printf("Print all records ******************************\n");
 
@@ -359,7 +359,7 @@ int UI_PrintAll_CS(LPCWSTR path)
 	return 0;
 }
 
-int UI_InsertNode_CS(LPCWSTR path)
+int UI_InsertNode(LPCWSTR path)
 {
 	char c = 0;
 	int age = 0;
@@ -385,21 +385,21 @@ int UI_InsertNode_CS(LPCWSTR path)
 			break;
 	}
 	ClearInputBuffer();
-	SaveListToFile_CS(pStore, path);
+	SaveListToFile(pStore, path);
 	ContactStore_Destroy(pStore);
 	return 1;
 }
 
-DWORD WINAPI Thread_DeleteRecord_CS(void* param)
+DWORD WINAPI Thread_DeleteRecord(void* param)
 {
 	DELETEPARAM* params = (DELETEPARAM*)param;
-	if (LoadRecordsFromFileByPhone_CS(NULL, params->phone, params->path) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(NULL, params->phone, params->path) != LOAD_SUCCESS)
 	{
 		return 0;
 	}
 	else
 	{
-		if ((params->result = DeleteRecordFromFileByPhone_CS(params->phone, params->path)) != DELETE_SUCCESS)
+		if ((params->result = DeleteRecordFromFileByPhone(params->phone, params->path)) != DELETE_SUCCESS)
 		{
 			return 0;
 		}
@@ -407,7 +407,7 @@ DWORD WINAPI Thread_DeleteRecord_CS(void* param)
 	return 1;
 }
 
-int UI_DeleteNode_CS(LPCWSTR path)
+int UI_DeleteNode(LPCWSTR path)
 {
 	int flag = 1;
 	char phone[MAX_PHONE_LEN] = { 0 };
@@ -427,7 +427,7 @@ int UI_DeleteNode_CS(LPCWSTR path)
 		HANDLE hThread = (HANDLE)_beginthreadex(
 			NULL,
 			0,
-			Thread_DeleteRecord_CS,
+			Thread_DeleteRecord,
 			(LPVOID)param,
 			0,
 			NULL);
@@ -466,7 +466,7 @@ int UI_DeleteNode_CS(LPCWSTR path)
 	return 1;
 }
 
-int UI_Search_CS(LPCWSTR path)
+int UI_Search(LPCWSTR path)
 {
 	SEARCHRESULT result = SEARCH_ERROR;
 	ContactStore* pResult = ContactStore_Create();
@@ -475,11 +475,11 @@ int UI_Search_CS(LPCWSTR path)
 	char buffer[BUFFSIZE] = { 0 };
 	if (UI_GetSearchString(buffer))
 	{
-		result = SearchRecordsFromFile_CS(pResult, buffer, path);
+		result = SearchRecordsFromFile(pResult, buffer, path);
 		if (result == SEARCH_SUCCESS)
 		{
 			printf("Search result **********************************\n");
-			UI_PrintList_CS(pResult);
+			UI_PrintList(pResult);
 		}
 		else if (result == PARSE_FAILED)
 		{
@@ -510,7 +510,7 @@ int UI_Search_CS(LPCWSTR path)
 	return 1;
 }
 
-int UI_EditNode_CS(LPCWSTR path)
+int UI_EditNode(LPCWSTR path)
 {
 	char c = 0;
 	int age = 0;
@@ -522,7 +522,7 @@ int UI_EditNode_CS(LPCWSTR path)
 	printf("Need phone number of the node to edit **************\n");
 	UI_GetPhone(phone);
 
-	if (LoadRecordsFromFileByPhone_CS(pStore, phone, path) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(pStore, phone, path) != LOAD_SUCCESS)
 	{
 		printf("Cannot find the node. Returning to main menu...\n");
 		_getch();
@@ -552,27 +552,27 @@ int UI_EditNode_CS(LPCWSTR path)
 				break;
 			case 1:
 				UI_GetAge(&age);
-				if (EditRecordAgeFromFile_CS(pContact, age, path) == EDIT_SUCCESS)
+				if (EditRecordAgeFromFile(pContact, age, path) == EDIT_SUCCESS)
 					printf("Edit successful\n");
 				else
 					printf("Edit failure\n");
 				break;
 			case 2:
 				UI_GetName(name);
-				if (EditRecordNameFromFile_CS(pContact, name, path) == EDIT_SUCCESS)
+				if (EditRecordNameFromFile(pContact, name, path) == EDIT_SUCCESS)
 					printf("Edit successful\n");
 				else
 					printf("Edit failure\n");
 				break;
 			case 3:
 				UI_GetPhone(phone);
-				if (LoadRecordsFromFileByPhone_CS(NULL, phone, path) == LOAD_SUCCESS)
+				if (LoadRecordsFromFileByPhone(NULL, phone, path) == LOAD_SUCCESS)
 				{
 					printf("Edit failed: Phone number already exists.\n");
 				}
 				else
 				{
-					if (EditRecordPhoneFromFile_CS(pContact, phone, path) == EDIT_SUCCESS)
+					if (EditRecordPhoneFromFile(pContact, phone, path) == EDIT_SUCCESS)
 						printf("Edit successful\n");
 					else
 						printf("Edit failure\n");

@@ -29,11 +29,11 @@ int main(void)
 	// UI event loop handler
 	int (*pfMenu[UI_FUNC_COUNT])(LPCWSTR) = {
 		UI_ExitMenu,
-		UI_PrintAll_CS,
-		UI_InsertNode_CS,
-		UI_DeleteNode_CS,
-		UI_Search_CS,
-		UI_EditNode_CS
+		UI_PrintAll,
+		UI_InsertNode,
+		UI_DeleteNode,
+		UI_Search,
+		UI_EditNode
 	};
 
 	OPTION option = MENU_EXIT;
@@ -53,6 +53,6 @@ int main(void)
 //	Test_ContactStore_Destroy();
 //	Test_Contact_Destroy();
 //#endif
-//	Test_DeleteRecordFromFileByPhone_CS();
+//	Test_DeleteRecordFromFileByPhone();
 //	return 0;
 //}

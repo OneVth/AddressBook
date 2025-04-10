@@ -17,7 +17,7 @@ int TryAddContact(ContactStore* store, const Contact* contact, LPCWSTR path)
 	if (store == NULL || contact == NULL || path == NULL)
 		return 0;
 
-	LOADRESULT result = LoadRecordsFromFileByPhone_CS(
+	LOADRESULT result = LoadRecordsFromFileByPhone(
 		NULL, Contact_GetPhone(contact), path
 	);
 
@@ -36,7 +36,7 @@ int TryAddContact(ContactStore* store, const Contact* contact, LPCWSTR path)
 	return 0;
 }
 
-LOADRESULT LoadRecordsFromFileByPhone_CS(ContactStore* store, const char* phone, LPCWSTR path)
+LOADRESULT LoadRecordsFromFileByPhone(ContactStore* store, const char* phone, LPCWSTR path)
 {
 	if (!Str_IsPhoneFormat(phone))
 		return LOAD_ERROR;
@@ -100,7 +100,7 @@ LOADRESULT LoadRecordsFromFileByPhone_CS(ContactStore* store, const char* phone,
 	return LOAD_NOT_FOUND;
 }
 
-LOADRESULT LoadRecordsFromFileByName_CS(ContactStore* store, const char* name, LPCWSTR path)
+LOADRESULT LoadRecordsFromFileByName(ContactStore* store, const char* name, LPCWSTR path)
 {
 	if (!Str_IsAllAlpha(name))
 		return LOAD_ERROR;
@@ -167,7 +167,7 @@ LOADRESULT LoadRecordsFromFileByName_CS(ContactStore* store, const char* name, L
 		return LOAD_NOT_FOUND;
 }
 
-LOADRESULT LoadRecordsFromFileByAge_CS(ContactStore* store, const int age, LPCWSTR path)
+LOADRESULT LoadRecordsFromFileByAge(ContactStore* store, const int age, LPCWSTR path)
 {
 	if (age < 0 || age > MAXAGE)
 		return LOAD_ERROR;
@@ -234,7 +234,7 @@ LOADRESULT LoadRecordsFromFileByAge_CS(ContactStore* store, const int age, LPCWS
 		return LOAD_NOT_FOUND;
 }
 
-EDITRESULT EditRecordAgeFromFile_CS(const Contact* target, const int age, LPCWSTR path)
+EDITRESULT EditRecordAgeFromFile(const Contact* target, const int age, LPCWSTR path)
 {
 	if (age < 0 || age >= MAXAGE)
 		return EDIT_ERROR;
@@ -306,7 +306,7 @@ EDITRESULT EditRecordAgeFromFile_CS(const Contact* target, const int age, LPCWST
 	return EDIT_NOT_FOUND;
 }
 
-EDITRESULT EditRecordNameFromFile_CS(const Contact* target, const char* name, LPCWSTR path)
+EDITRESULT EditRecordNameFromFile(const Contact* target, const char* name, LPCWSTR path)
 {
 	if (!Str_IsAllAlpha(name))
 		return EDIT_ERROR;
@@ -378,7 +378,7 @@ EDITRESULT EditRecordNameFromFile_CS(const Contact* target, const char* name, LP
 	return EDIT_NOT_FOUND;
 }
 
-EDITRESULT EditRecordPhoneFromFile_CS(const Contact* target, const char* phone, LPCWSTR path)
+EDITRESULT EditRecordPhoneFromFile(const Contact* target, const char* phone, LPCWSTR path)
 {
 	if (!Str_IsPhoneFormat(phone))
 		return EDIT_ERROR;
@@ -450,7 +450,7 @@ EDITRESULT EditRecordPhoneFromFile_CS(const Contact* target, const char* phone, 
 	return EDIT_NOT_FOUND;
 }
 
-DELETERESULT DeleteRecordFromFileByPhone_CS(const char* phone, LPCWSTR path)
+DELETERESULT DeleteRecordFromFileByPhone(const char* phone, LPCWSTR path)
 {
 	if (!Str_IsPhoneFormat(phone))
 		return DELETE_ERROR;
@@ -546,7 +546,7 @@ DELETERESULT DeleteRecordFromFileByPhone_CS(const char* phone, LPCWSTR path)
 	return recordFound;
 }
 
-SEARCHRESULT SearchRecordsFromFile_CS(ContactStore* result, const char* input, LPCWSTR path)
+SEARCHRESULT SearchRecordsFromFile(ContactStore* result, const char* input, LPCWSTR path)
 {
 	int age1 = 0;
 	int age2 = 0;
@@ -581,15 +581,15 @@ SEARCHRESULT SearchRecordsFromFile_CS(ContactStore* result, const char* input, L
 	{
 		if (age1 != 0)
 		{
-			LoadRecordsFromFileByAge_CS(result, age1, path);
+			LoadRecordsFromFileByAge(result, age1, path);
 		}
 		else if (name1[0] != 0)
 		{
-			LoadRecordsFromFileByName_CS(result, name1, path);
+			LoadRecordsFromFileByName(result, name1, path);
 		}
 		else if (phone1[0] != 0)
 		{
-			LoadRecordsFromFileByPhone_CS(result, phone1, path);
+			LoadRecordsFromFileByPhone(result, phone1, path);
 		}
 	}
 	else if (op[0] != 0)	// op is "AND" or "OR"
@@ -599,56 +599,56 @@ SEARCHRESULT SearchRecordsFromFile_CS(ContactStore* result, const char* input, L
 
 		if (age1 != 0 && age2 != 0)
 		{
-			LoadRecordsFromFileByAge_CS(pTempStore1, age1, path);
-			LoadRecordsFromFileByAge_CS(pTempStore2, age2, path);
+			LoadRecordsFromFileByAge(pTempStore1, age1, path);
+			LoadRecordsFromFileByAge(pTempStore2, age2, path);
 			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
 		}
 		else if (age1 != 0 && name2[0] != 0)
 		{
-			LoadRecordsFromFileByAge_CS(pTempStore1, age1, path);
-			LoadRecordsFromFileByName_CS(pTempStore2, name2, path);
+			LoadRecordsFromFileByAge(pTempStore1, age1, path);
+			LoadRecordsFromFileByName(pTempStore2, name2, path);
 			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
 		}
 		else if (age1 != 0 && phone2[0] != 0)
 		{
-			LoadRecordsFromFileByAge_CS(pTempStore1, age1, path);
-			LoadRecordsFromFileByPhone_CS(pTempStore2, phone2, path);
+			LoadRecordsFromFileByAge(pTempStore1, age1, path);
+			LoadRecordsFromFileByPhone(pTempStore2, phone2, path);
 			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
 		}
 		else if (name1[0] != 0 && age2 != 0)
 		{
-			LoadRecordsFromFileByName_CS(pTempStore1, name1, path);
-			LoadRecordsFromFileByAge_CS(pTempStore2, age2, path);
+			LoadRecordsFromFileByName(pTempStore1, name1, path);
+			LoadRecordsFromFileByAge(pTempStore2, age2, path);
 			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
 		}
 		else if (name1[0] != 0 && name2[0] != 0)
 		{
-			LoadRecordsFromFileByName_CS(pTempStore1, name1, path);
-			LoadRecordsFromFileByName_CS(pTempStore2, name2, path);
+			LoadRecordsFromFileByName(pTempStore1, name1, path);
+			LoadRecordsFromFileByName(pTempStore2, name2, path);
 			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
 		}
 		else if (name1[0] != 0 && phone2[0] != 0)
 		{
-			LoadRecordsFromFileByName_CS(pTempStore1, name1, path);
-			LoadRecordsFromFileByPhone_CS(pTempStore2, phone2, path);
+			LoadRecordsFromFileByName(pTempStore1, name1, path);
+			LoadRecordsFromFileByPhone(pTempStore2, phone2, path);
 			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
 		}
 		else if (phone1[0] != 0 && age2 != 0)
 		{
-			LoadRecordsFromFileByPhone_CS(pTempStore1, phone1, path);
-			LoadRecordsFromFileByAge_CS(pTempStore2, age2, path);
+			LoadRecordsFromFileByPhone(pTempStore1, phone1, path);
+			LoadRecordsFromFileByAge(pTempStore2, age2, path);
 			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
 		}
 		else if (phone1[0] != 0 && name2[0] != 0)
 		{
-			LoadRecordsFromFileByPhone_CS(pTempStore1, phone1, path);
-			LoadRecordsFromFileByName_CS(pTempStore2, name2, path);
+			LoadRecordsFromFileByPhone(pTempStore1, phone1, path);
+			LoadRecordsFromFileByName(pTempStore2, name2, path);
 			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
 		}
 		else if (phone1[0] != 0 && phone2[0] != 0)
 		{
-			LoadRecordsFromFileByPhone_CS(pTempStore1, phone1, path);
-			LoadRecordsFromFileByPhone_CS(pTempStore2, phone2, path);
+			LoadRecordsFromFileByPhone(pTempStore1, phone1, path);
+			LoadRecordsFromFileByPhone(pTempStore2, phone2, path);
 			ContactStore_CombineByOp(result, pTempStore1, pTempStore2, op);
 		}
 		ContactStore_Destroy(pTempStore1);
@@ -682,7 +682,7 @@ int SaveContactToFile(const Contact* contact, void* userData)
 	return 1;
 }
 
-int SaveListToFile_CS(ContactStore* store, LPCWSTR path)
+int SaveListToFile(ContactStore* store, LPCWSTR path)
 {
 	if (ContactStore_IsEmpty(store))
 		return -1;
