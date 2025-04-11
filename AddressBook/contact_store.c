@@ -248,8 +248,26 @@ ContactStore_RBT* ContactStore_RBT_Create(void)
 	return pStore;
 }
 
+static void FreeRBTree(ContactStore_RBT* store, RBNode* node)
+{
+	if (node == store->nil) return;
+
+	FreeRBTree(store, node->left);
+	FreeRBTree(store, node->right);
+
+	free((void*)node->data);
+	free(node);
+	return;
+}
+
 void ContactStore_RBT_Destroy(ContactStore_RBT* store)
 {
+	if (store == NULL) return;
+
+	FreeRBTree(store, store->root);
+
+	free(store->nil);
+	free(store);
 	return;
 }
 
