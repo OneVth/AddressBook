@@ -11,6 +11,7 @@
 #include "control.h"
 #include "ui.h"
 #include "test.h"
+#include "internal/contact_store_internal.h"
 
 #define NODE_MATCH(n, a, b, p) ((n)->age == a && strcmp((n)->name, b) == 0 && strcmp((n)->phone, p) == 0)
 #define NUM_TEST_NODE 5
@@ -1704,9 +1705,19 @@ void Test_ContactStore_CombineByOp(void)
 	return;
 }
 
-//ContactStore_RBT* Test_RBT_Create(void)
-//{
-//	ContactStore_RBT* pStore = ContactStore_RBT_Create();
-//	assert(pStore != NULL);
-//	assert(pStore->root == pStore->nil);
-//}
+void Test_RBT_Create(void)
+{
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+	assert(pStore->root != NULL);
+	assert(pStore->nil != NULL);
+	assert(pStore->root == pStore->nil);
+	assert(pStore->nil->color == BLACK);
+	assert(pStore->nil->left == pStore->nil);
+	assert(pStore->nil->right == pStore->nil);
+	assert(pStore->nil->parent == pStore->nil);
+	assert(pStore->nil->data == NULL);
+
+	// NOTE: Destroy is intentionally omitted to isolate Craete() testing
+	// This test Leaks memory but ensures Create() works independently
+}
