@@ -448,7 +448,7 @@ void Test_ClassifyToken(void)
 
 int CreateTestDataFile(void)
 {
-	CreateDirectory(L"./Test", NULL);
+	CreateDirectory(L"./tests", NULL);
 
 	int ages[] = { 10, 11, 20, 20, 30 };
 	char* names[] = { "A", "A", "B", "C", "D" };
