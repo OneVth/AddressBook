@@ -143,6 +143,7 @@
     <ClInclude Include="include\contact.h" />
     <ClInclude Include="include\contact_store.h" />
     <ClInclude Include="include\control.h" />
+    <ClInclude Include="include\internal\contact_store_internal.h" />
     <ClInclude Include="include\ui.h" />
     <ClInclude Include="tests\test.h" />
   </ItemGroup>
