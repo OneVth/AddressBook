@@ -226,7 +226,26 @@ int ContactStore__RBT_HasPhone(const ContactStore_RBT* store, const char* phone)
 
 ContactStore_RBT* ContactStore_RBT_Create(void)
 {
-	return NULL;
+	ContactStore_RBT* pStore = malloc(sizeof(ContactStore_RBT));
+	if (pStore == NULL) return NULL;
+
+	// sentinel node
+	pStore->nil = malloc(sizeof(RBNode));
+	if (pStore->nil == NULL)
+	{
+		free(pStore);
+		return NULL;
+	}
+
+	pStore->nil->color = BLACK;
+	pStore->nil->data = NULL;
+	pStore->nil->left = pStore->nil;
+	pStore->nil->right = pStore->nil;
+	pStore->nil->parent = pStore->nil;
+
+	pStore->root = pStore->nil;
+
+	return pStore;
 }
 
 void ContactStore_RBT_Destroy(ContactStore_RBT* store)
