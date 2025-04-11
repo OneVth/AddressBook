@@ -18,16 +18,16 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AddressBook\common.c">
+    <ClCompile Include="..\AddressBook\src\common.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AddressBook\control.c">
+    <ClCompile Include="..\AddressBook\src\contact.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AddressBook\contact.c">
+    <ClCompile Include="..\AddressBook\src\contact_store.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AddressBook\contact_store.c">
+    <ClCompile Include="..\AddressBook\src\control.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

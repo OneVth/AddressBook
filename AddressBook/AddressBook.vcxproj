@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)AddressBook\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,21 +130,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="benchmark.c" />
-    <ClCompile Include="common.c" />
-    <ClCompile Include="contact.c" />
-    <ClCompile Include="contact_store.c" />
-    <ClCompile Include="control.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="test.c" />
-    <ClCompile Include="ui.c" />
+    <ClCompile Include="src\common.c" />
+    <ClCompile Include="src\contact.c" />
+    <ClCompile Include="src\contact_store.c" />
+    <ClCompile Include="src\control.c" />
+    <ClCompile Include="src\ui.c" />
+    <ClCompile Include="tests\test.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="common.h" />
-    <ClInclude Include="contact.h" />
-    <ClInclude Include="contact_store.h" />
-    <ClInclude Include="control.h" />
-    <ClInclude Include="test.h" />
-    <ClInclude Include="ui.h" />
+    <ClInclude Include="include\common.h" />
+    <ClInclude Include="include\contact.h" />
+    <ClInclude Include="include\contact_store.h" />
+    <ClInclude Include="include\control.h" />
+    <ClInclude Include="include\ui.h" />
+    <ClInclude Include="tests\test.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

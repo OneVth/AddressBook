@@ -4,8 +4,9 @@
 #include <time.h>
 #include <Windows.h>
 #include <Pathcch.h>
-#include "../AddressBook/common.h"
-#include "../AddressBook/control.h"
+#include "common.h"
+#include "control.h"
+
 
 #pragma comment(lib, "Pathcch.lib")
 

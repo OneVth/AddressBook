@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <Windows.h>
+#include <assert.h>
 #include "contact.h"
 #include "contact_store.h"
 #include "common.h"
@@ -1702,3 +1703,10 @@ void Test_ContactStore_CombineByOp(void)
 	ContactStore_Destroy(pRightStore);
 	return;
 }
+
+//ContactStore_RBT* Test_RBT_Create(void)
+//{
+//	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+//	assert(pStore != NULL);
+//	assert(pStore->root == pStore->nil);
+//}

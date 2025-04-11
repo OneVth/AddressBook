@@ -15,7 +15,7 @@
 #include "common.h"
 #include "control.h"
 #include "ui.h"
-#include "test.h"
+#include "tests/test.h"
 
 // Contact include
 #include "contact.h"
