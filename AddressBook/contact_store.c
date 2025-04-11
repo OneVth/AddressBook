@@ -3,15 +3,30 @@
 #include <string.h>
 #include "contact_store.h"
 
+typedef enum { RED, BLACK } COLOR;
+
 typedef struct _Node {
 	const Contact* data;
 	struct _Node* next;
 	struct _Node* prev;
 } Node;
 
+typedef struct _RBNode {
+	const Contact* data;
+	COLOR color;
+	struct _RBNode* parent;
+	struct _RBNode* left;
+	struct _RBNode* right;
+} RBNode;
+
 struct _ContactStore {
 	Node head;
 	Node tail;
+};
+
+struct _ContactStore_RBT {
+	RBNode* root;
+	RBNode* nil;
 };
 
 int ContactStore_IsEmpty(const ContactStore* store)
@@ -196,4 +211,30 @@ int ContactStore_Iterate(const ContactStore* store, ContactCallback callback, vo
 	}
 
 	return 1;
+}
+
+// RBT
+int ContactStore_RBT_IsEmpty(const ContactStore_RBT* store)
+{
+	return 0;
+}
+
+int ContactStore__RBT_HasPhone(const ContactStore_RBT* store, const char* phone)
+{
+	return 0;
+}
+
+ContactStore_RBT* ContactStore_RBT_Create(void)
+{
+	return NULL;
+}
+
+void ContactStore_RBT_Destroy(ContactStore_RBT* store)
+{
+	return;
+}
+
+int ContactStore_RBT_Insert(ContactStore_RBT* store, const Contact* data)
+{
+	return 0;
 }
