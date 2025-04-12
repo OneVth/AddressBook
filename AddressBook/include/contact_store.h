@@ -24,5 +24,10 @@ int ContactStore__RBT_HasPhone(const ContactStore_RBT* store, const char* phone)
 
 ContactStore_RBT* ContactStore_RBT_Create(void);
 void ContactStore_RBT_Destroy(ContactStore_RBT* store);
+
+/// <summary>
+/// Inserts a Contact into the tree. The tree takes ownership of the contact.
+/// The caller must not free the contact after insertion.
+/// </summary>
 int ContactStore_RBT_Insert(ContactStore_RBT* store, const Contact* data);
 

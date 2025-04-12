@@ -271,7 +271,141 @@ void ContactStore_RBT_Destroy(ContactStore_RBT* store)
 	return;
 }
 
+static void RotateLeft(ContactStore_RBT* store, RBNode* x)
+{
+	RBNode* y = x->right;
+	x->right = y->left;
+
+	if (y->left != store->nil)
+		y->left->parent = x;
+
+	y->parent = x->parent;
+
+	if (x->parent == store->nil)
+		store->root = y;
+	else if (x == x->parent->left)
+		x->parent->left = y;
+	else
+		x->parent->right = y;
+
+	y->left = x;
+	x->parent = y;
+	return;
+}
+
+static void RotateRight(ContactStore_RBT* store, RBNode* y)
+{
+	RBNode* x = y->left;
+	y->left = x->right;
+
+	if (x->left != store->nil)
+		x->right->parent = y;
+
+	x->parent = y->parent;
+
+	if (y->parent == store->nil)
+		store->root = x;
+	else if (y == y->parent->left)
+		y->parent->left = x;
+	else
+		y->parent->right = x;
+
+	x->right = y;
+	y->parent = x;
+	return;
+}
+
+static void InsertFixUp(ContactStore_RBT* store, RBNode* z)
+{
+	while (z->parent->color == RED)
+	{
+		if (z->parent == z->parent->parent->left)
+		{
+			RBNode* y = z->parent->parent->right;	// Uncle
+
+			// Case 1: Uncle is RED
+			if (y->color == RED)
+			{
+				z->parent->color = BLACK;
+				y->color = BLACK;
+				z->parent->parent->color = RED;
+				z = z->parent->parent;
+			}
+			else
+			{
+				// Case 2: Left-Right
+				if (z == z->parent->right)
+				{
+					z = z->parent;
+					RotateLeft(store, z);
+				}
+
+				// Case 3: Left-Left
+				z->parent->color = BLACK;
+				z->parent->parent->color = RED;
+				RotateRight(store, z->parent->parent);
+			}
+		}
+		else // z->parent == z->parent->parent->right (mirror case)
+		{
+			RBNode* y = z->parent->parent->left;	// Uncle
+
+			// Case 1 (mirror)
+			if (y->color == RED)
+			{
+				z->parent->color = BLACK;
+				y->color = BLACK;
+				z->parent->parent->color = RED;
+				z = z->parent->parent;
+			}
+			else
+			{
+				// Case 2 (mirror)
+				if (z == z->parent->left)
+				{
+					z = z->parent;
+					RotateRight(store, z);
+				}
+
+				// Case 3 (mirror)
+				z->parent->color = BLACK;
+				z->parent->parent->color = RED;
+				RotateLeft(store, z->parent->parent);
+			}
+		}
+	}
+
+	store->root->color = BLACK;
+}
+
 int ContactStore_RBT_Insert(ContactStore_RBT* store, const Contact* data)
 {
-	return 0;
+	RBNode* y = store->nil;
+	RBNode* x = store->root;
+	RBNode* z = malloc(sizeof(RBNode));
+	if (z == NULL) return 0;
+
+	z->data = data;
+	z->color = RED;
+	z->left = z->right = z->parent = store->nil;
+
+	while (x != store->nil)
+	{
+		y = x;
+		if (strcmp(Contact_GetPhone(data), Contact_GetPhone(x->data)) < 0)
+			x = x->left;
+		else
+			x = x->right;
+	}
+
+	z->parent = y;
+	if (y == store->nil)
+		store->root = z;
+	else if (strcmp(Contact_GetPhone(data), Contact_GetPhone(y->data)) < 0)
+		y->left = z;
+	else
+		y->right = z;
+
+	InsertFixUp(store, z);
+	return 1;
 }

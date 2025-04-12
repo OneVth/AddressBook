@@ -52,17 +52,13 @@ int main(void)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	Test_ContactStore_Destroy();
 	Test_Contact_Destroy();
+	Test_RBT_Destroy();
 #endif
 	ContactStore_RBT* pStore = ContactStore_RBT_Create();
-	if (pStore == NULL)
-	{
-		printf("Failed to create RBT\n");
-		return 1;
-	}
 
-	printf("Success creating RBT\n");
+	Contact* pContact = Contact_Create(10, "Alice", "010-0000-1111");
+	ContactStore_RBT_Insert(pStore, pContact);
 
 	ContactStore_RBT_Destroy(pStore);
-	printf("Success destroying RBT\n");
 	return 0;
 }
