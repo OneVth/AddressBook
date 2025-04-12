@@ -1720,4 +1720,16 @@ void Test_RBT_Create(void)
 
 	// NOTE: Destroy is intentionally omitted to isolate Craete() testing
 	// This test Leaks memory but ensures Create() works independently
+	printf("PASS: Test_RBT_Create() comleted\n");
+}
+
+void Test_RBT_Destroy(void)
+{
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	ContactStore_RBT_Destroy(pStore);
+
+	printf("PASS: Test_RBT_Destroy completed without crash\n");
+	return;
 }
