@@ -404,4 +404,4 @@ FodyWeavers.xsd
 /Logs/
 
 # Ignore test file
-/AddressBook/Test
+/AddressBook/tests/test.dat

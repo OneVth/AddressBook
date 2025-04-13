@@ -32,6 +32,17 @@ void Test_UtilFunctions(void)
 
 // ***********************************************
 
+static int VerifyPhoneOrderCallback(const Contact* c, void* userData)
+{
+	VerifyContext* verifyContext = (VerifyContext*)userData;
+	const char** expected = (const char**)verifyContext->expectedPhones;
+
+	assert(strcmp(Contact_GetPhone(c), expected[verifyContext->index]) == 0);
+	verifyContext->index++;
+
+	return 1;
+}
+
 void Test_Str_IsAllDigit(void)
 {
 	int pass = 1;
@@ -1406,12 +1417,95 @@ void Test_SearchRecordsFromFile(void)
 
 void Test_LoadRecordsFromFileByPhone_RBT(void)
 {
+	assert(CreateTestDataFile() == 1);
+
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	// Case 1: valid phone number
+	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0002", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0003", FILE_PATH_TEST) == LOAD_SUCCESS);
 	
+	const char* expected[] = { 
+		"010-0000-0001",
+		"010-0000-0002",
+		"010-0000-0003"
+	};
+
+	VerifyContext verifyContext = { expected, 0 };
+	ContactStore_RBT_Iterate(pStore, VerifyPhoneOrderCallback, &verifyContext);
+	assert(verifyContext.index == sizeof(expected) / sizeof(expected[0]));
+
+	// Case 2: invalid phone number
+	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-9999-9999", FILE_PATH_TEST) != LOAD_SUCCESS);
+	
+	printf("PASS: Test_LoadRecordsFromFileByPhone_RBT() returned correct result for valid phone number\n");
+	printf("PASS: Test_LoadRecordsFromFileByPhone_RBT() returned correct result for invalid phone number\n");
+	putchar('\n');
+	ContactStore_RBT_Destroy(pStore);
 	return;
 }
 
 void Test_SaveListToFile_RBT(void)
 {
+	assert(CreateTestDataFile() == 1);
+
+	int ages[] = { 10, 99, 98, 97 };
+	char* names[] = { "A", "Z", "Y", "X" };
+	char* phones[] = {
+		"010-0000-0001",	// already existing data
+		"010-9999-9999",
+		"010-9999-9998",
+		"010-9999-9997"
+	};
+
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	Contact* ptr = Contact_Create(ages[0], names[0], phones[0]);
+	assert(ptr != NULL);
+
+	assert(TryInsertContact_RBT(pStore, ptr, FILE_PATH_TEST) == 0);
+	Contact_Destroy(ptr);
+
+	for (int i = 1; i < 4; i++)
+	{
+		ptr = Contact_Create(ages[i], names[i], phones[i]);
+		assert(ptr != NULL);
+		assert(TryInsertContact_RBT(pStore, ptr, FILE_PATH_TEST) == 1);
+		Contact_Destroy(ptr);
+	}
+
+	assert(SaveListToFile_RBT(pStore, FILE_PATH_TEST) == 1);
+
+	LARGE_INTEGER llFileSize = { 0 };
+	HANDLE hFile = CreateFile(
+		FILE_PATH_TEST,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	assert(hFile != INVALID_HANDLE_VALUE);
+	
+	assert(GetFileSizeEx(hFile, &llFileSize) == TRUE);
+	assert(llFileSize.QuadPart == (NUM_TEST_NODE + 3) * Contact_GetSize());
+	
+	assert(CloseHandle(hFile) == TRUE);
+
+	assert(LoadRecordsFromFileByPhone(NULL, "010-9999-9999", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone(NULL, "010-9999-9998", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone(NULL, "010-9999-9997", FILE_PATH_TEST) == LOAD_SUCCESS);
+	
+	ContactStore_RBT_Destroy(pStore);
+
+	printf("PASS: Test_SaveListToFile_RBT() correctly save list to file\n");
+	printf("PASS: Test_SaveListToFile_RBT() wrote correct number of bytes\n");
+	printf("PASS: Test_SaveListToFile_RBT() created file successfully\n");
+	putchar('\n');
 	return;
 }
 
@@ -1835,17 +1929,6 @@ void Test_RBT_Insert(void)
 	Contact_Destroy(c3);
 	ContactStore_RBT_Destroy(pStore);
 	return;
-}
-
-static int VerifyPhoneOrderCallback(const Contact* c, void* userData)
-{
-	VerifyContext* verifyContext = (VerifyContext*)userData;
-	const char** expected = (const char**)verifyContext->expectedPhones;
-
-	assert(strcmp(Contact_GetPhone(c), expected[verifyContext->index]) == 0);
-	verifyContext->index++;
-
-	return 1;
 }
 
 void Test_ContactStore_RBT_Iterate(void)

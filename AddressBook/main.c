@@ -54,6 +54,6 @@ int main(void)
 	Test_Contact_Destroy();
 	Test_RBT_Destroy();
 #endif
-	Test_ContactStore_RBT_CombineByOp();
+	Test_SaveListToFile_RBT();
 	return 0;
 }
