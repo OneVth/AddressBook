@@ -216,10 +216,14 @@ int ContactStore_Iterate(const ContactStore* store, ContactCallback callback, vo
 // RBT
 int ContactStore_RBT_IsEmpty(const ContactStore_RBT* store)
 {
+	if (store == NULL) return 0;
+	if (store->root == store->nil)
+		return 1;
+
 	return 0;
 }
 
-int ContactStore__RBT_HasPhone(const ContactStore_RBT* store, const char* phone)
+int ContactStore_RBT_HasPhone(const ContactStore_RBT* store, const char* phone)
 {
 	return 0;
 }

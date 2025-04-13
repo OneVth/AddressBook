@@ -1705,6 +1705,26 @@ void Test_ContactStore_CombineByOp(void)
 	return;
 }
 
+void Test_ContactStore_RBT_IsEmpty(void)
+{
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	// Initially should be empty
+	assert(ContactStore_RBT_IsEmpty(pStore) == 1);
+
+	// Insert one contact
+	Contact* c1 = Contact_Create(10, "Test", "010-1234-5678");
+	ContactStore_RBT_Insert(pStore, c1);
+
+	// Now it shouldn't be empty
+	assert(ContactStore_RBT_IsEmpty(pStore) == 0);
+
+	ContactStore_RBT_Destroy(pStore);
+
+	printf("PASS: Test_RBT_IsEmpty\n");
+}
+
 void Test_RBT_Create(void)
 {
 	ContactStore_RBT* pStore = ContactStore_RBT_Create();
