@@ -1850,7 +1850,8 @@ void Test_ContactStore_RBT_Iterate(void)
 
 void Test_ContactStore_RBT_CombineByOp(void)
 {
-	/*ContactStore_RBT* pResult = ContactStore_RBT_Create();
+	ContactStore_RBT* pResultOR = ContactStore_RBT_Create();
+	ContactStore_RBT* pResultAND = ContactStore_RBT_Create();
 	ContactStore_RBT* pLeft = ContactStore_RBT_Create();
 	ContactStore_RBT* pRight = ContactStore_RBT_Create();
 
@@ -1864,13 +1865,35 @@ void Test_ContactStore_RBT_CombineByOp(void)
 	ContactStore_RBT_Insert(pRight, c3);
 	ContactStore_RBT_Insert(pRight, c4);
 
-	ContactStore_RBT_CombineByOp(pResult, pLeft, pRight, "OR");
+	ContactStore_RBT_CombineByOp(pResultOR, pLeft, pRight, "OR");
+	ContactStore_RBT_CombineByOp(pResultAND, pLeft, pRight, "AND");
+
+	const char* expectedOR[] = {
+		"010-0000-1111",
+		"010-0000-2222",
+		"010-0000-3333"
+	};
+
+	const char* expectedAND[] = {
+		"010-0000-2222"
+	};
+
+	VerifyContext contextOR = { expectedOR, 0 };
+	VerifyContext contextAND = { expectedAND, 0 };
+
+	ContactStore_RBT_Iterate(pResultOR, VerifyPhoneOrderCallback, &contextOR);
+	ContactStore_RBT_Iterate(pResultAND, VerifyPhoneOrderCallback, &contextAND);
+	assert(contextOR.index == sizeof(expectedOR) / sizeof(expectedOR[0]));
+	assert(contextAND.index == sizeof(expectedAND) / sizeof(expectedAND[0]));
+
+	printf("PASS: Test_ContactStore_RBT_CombineByOp()\n");
 
 	Contact_Destroy(c1);
 	Contact_Destroy(c2);
 	Contact_Destroy(c3);
 	Contact_Destroy(c4);
-	ContactStore_RBT_Destroy(pResult);
+	ContactStore_RBT_Destroy(pResultOR);
+	ContactStore_RBT_Destroy(pResultAND);
 	ContactStore_RBT_Destroy(pLeft);
-	ContactStore_RBT_Destroy(pRight);*/
+	ContactStore_RBT_Destroy(pRight);
 }

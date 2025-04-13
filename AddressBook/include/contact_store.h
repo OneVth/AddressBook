@@ -32,4 +32,10 @@ void ContactStore_RBT_Destroy(ContactStore_RBT* store);
 /// </summary>
 int ContactStore_RBT_Insert(ContactStore_RBT* store, const Contact* data);
 int ContactStore_RBT_Iterate(const ContactStore_RBT* store, ContactCallback callback, void* userData);
+
+/// <summary>
+/// Combines two contact stores into a result store.
+/// - If a contact exists in both 'leftStore' and 'rightStore', the contact from 'LeftStore is used.
+/// - The result store receives a deep copy of each contact.
+/// </summary>
 int ContactStore_RBT_CombineByOp(ContactStore_RBT* resultStore, ContactStore_RBT* leftStore, ContactStore_RBT* rightStore, const char* op);
