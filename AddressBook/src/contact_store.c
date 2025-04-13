@@ -405,6 +405,9 @@ static void InsertFixUp(ContactStore_RBT* store, RBNode* z)
 
 int ContactStore_RBT_Insert(ContactStore_RBT* store, const Contact* data)
 {
+	if (store == NULL || data == NULL)
+		return 0;
+
 	RBNode* y = store->nil;
 	RBNode* x = store->root;
 	RBNode* z = malloc(sizeof(RBNode));
