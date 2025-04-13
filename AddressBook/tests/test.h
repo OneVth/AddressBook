@@ -32,6 +32,12 @@ void Test_EditRecordPhoneFromFile(void);
 void Test_DeleteRecordFromFileByPhone(void);
 void Test_SearchRecordsFromFile(void);
 
+void Test_LoadRecordsFromFileByPhone_RBT(void);
+void Test_SaveListToFile_RBT(void);
+void Test_LoadRecordsFromFileByName_RBT(void);
+void Test_LoadRecordsFromFileByAge_RBT(void);
+void Test_SearchRecordsFromFile_RBT(void);
+
 // ContactStore functions *******************************************
 
 void Test_Contact_Destroy(void);

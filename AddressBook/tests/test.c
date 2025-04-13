@@ -1402,6 +1402,37 @@ void Test_SearchRecordsFromFile(void)
 	return;
 }
 
+// RBT
+
+void Test_LoadRecordsFromFileByPhone_RBT(void)
+{
+	
+	return;
+}
+
+void Test_SaveListToFile_RBT(void)
+{
+	return;
+}
+
+void Test_LoadRecordsFromFileByName_RBT(void)
+{
+	
+	return;
+}
+
+void Test_LoadRecordsFromFileByAge_RBT(void)
+{
+	
+	return;
+}
+
+void Test_SearchRecordsFromFile_RBT(void)
+{
+	
+	return;
+}
+
 // ***********************************************
 
 void Test_Contact_Destroy(void)
