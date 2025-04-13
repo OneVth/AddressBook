@@ -1544,7 +1544,34 @@ void Test_LoadRecordsFromFileByName_RBT(void)
 
 void Test_LoadRecordsFromFileByAge_RBT(void)
 {
-	
+	assert(CreateTestDataFile() == 1);
+
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	// Case 1: valid age
+	assert(LoadRecordsFromFileByAge_RBT(pStore, 10, FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByAge_RBT(pStore, 20, FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByAge_RBT(pStore, 30, FILE_PATH_TEST) == LOAD_SUCCESS);
+
+	const char* expected[] = {
+		"010-0000-0001",	// A
+		"010-0000-0002",	// B
+		"010-0000-0003",	// D
+		"010-0000-0022",	// C
+	};
+
+	VerifyContext verifyContext = { expected, 0 };
+	ContactStore_RBT_Iterate(pStore, VerifyPhoneOrderCallback, &verifyContext);
+	assert(verifyContext.index == sizeof(expected) / sizeof(expected[0]));
+
+	// Case 2: invalid age
+	assert(LoadRecordsFromFileByAge_RBT(pStore, 99, FILE_PATH_TEST) != LOAD_SUCCESS);
+
+	printf("PASS: Test_LoadRecordsFromFileByAge_RBT() returned correct result for valid age\n");
+	printf("PASS: Test_LoadRecordsFromFileByAge_RBT() returned correct result for invalid age\n");
+	putchar('\n');
+	ContactStore_RBT_Destroy(pStore);
 	return;
 }
 
