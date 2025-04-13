@@ -54,30 +54,6 @@ int main(void)
 	Test_Contact_Destroy();
 	Test_RBT_Destroy();
 #endif
-	/*ContactStore_RBT* pResult = ContactStore_RBT_Create();
-	ContactStore_RBT* pLeft = ContactStore_RBT_Create();
-	ContactStore_RBT* pRight = ContactStore_RBT_Create();
-
-	Contact* c1 = Contact_Create(10, "Alice", "010-0000-1111");
-	Contact* c2 = Contact_Create(20, "Betty", "010-0000-2222");
-	Contact* c3 = Contact_Create(25, "Edward", "010-0000-2222");
-	Contact* c4 = Contact_Create(30, "Kevin", "010-0000-3333");
-
-	ContactStore_RBT_Insert(pLeft, c1);
-	ContactStore_RBT_Insert(pLeft, c2);
-	ContactStore_RBT_Insert(pRight, c3);
-	ContactStore_RBT_Insert(pRight, c4);
-
-	ContactStore_RBT_CombineByOp(pResult, pLeft, pRight, "OR");
-	UI_PrintRBT(pResult);
-
-	Contact_Destroy(c1);
-	Contact_Destroy(c2);
-	Contact_Destroy(c3);
-	Contact_Destroy(c4);
-	ContactStore_RBT_Destroy(pResult);
-	ContactStore_RBT_Destroy(pLeft);
-	ContactStore_RBT_Destroy(pRight);*/
-	Test_RBT_Insert();
+	Test_ContactStore_RBT_Iterate();
 	return 0;
 }

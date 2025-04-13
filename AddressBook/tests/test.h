@@ -51,3 +51,4 @@ void Test_RBT_Create(void);
 void Test_RBT_Destroy(void);
 void Test_RBT_Insert(void);
 void Test_ContactStore_RBT_CombineByOp(void);
+void Test_ContactStore_RBT_Iterate(void);

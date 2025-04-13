@@ -16,6 +16,11 @@
 #define NODE_MATCH(n, a, b, p) ((n)->age == a && strcmp((n)->name, b) == 0 && strcmp((n)->phone, p) == 0)
 #define NUM_TEST_NODE 5
 
+typedef struct {
+	const char** expectedPhones;
+	int index;
+} VerifyContext;
+
 void Test_UtilFunctions(void)
 {
 	Test_Str_IsAllDigit();
@@ -1801,7 +1806,71 @@ void Test_RBT_Insert(void)
 	return;
 }
 
+static int VerifyPhoneOrderCallback(const Contact* c, void* userData)
+{
+	VerifyContext* verifyContext = (VerifyContext*)userData;
+	const char** expected = (const char**)verifyContext->expectedPhones;
+
+	assert(strcmp(Contact_GetPhone(c), expected[verifyContext->index]) == 0);
+	verifyContext->index++;
+
+	return 1;
+}
+
+void Test_ContactStore_RBT_Iterate(void)
+{
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	Contact* a = Contact_Create(10, "A", "010-0000-0001");
+	Contact* b = Contact_Create(20, "B", "010-0000-0002");
+	Contact* c = Contact_Create(30, "C", "010-0000-0003");
+
+	ContactStore_RBT_Insert(pStore, a);
+	ContactStore_RBT_Insert(pStore, b);
+	ContactStore_RBT_Insert(pStore, c);
+
+	const char* expected[] = {
+		"010-0000-0001",
+		"010-0000-0002",
+		"010-0000-0003"
+	};
+
+	VerifyContext verifyContext;
+	verifyContext.expectedPhones = expected;
+	verifyContext.index = 0;
+
+	ContactStore_RBT_Iterate(pStore, VerifyPhoneOrderCallback, &verifyContext);
+
+	printf("PASS: Test_ContactStore_RBT_Iterate()\n");
+
+	Contact_Destroy(a);
+	Contact_Destroy(b);
+	Contact_Destroy(c);
+	ContactStore_RBT_Destroy(pStore);
+}
+
 void Test_ContactStore_RBT_CombineByOp(void)
 {
+	/*ContactStore_RBT* pResult = ContactStore_RBT_Create();
+	ContactStore_RBT* pLeft = ContactStore_RBT_Create();
+	ContactStore_RBT* pRight = ContactStore_RBT_Create();
 
+	Contact* c1 = Contact_Create(10, "Alice", "010-0000-1111");
+	Contact* c2 = Contact_Create(20, "Betty", "010-0000-2222");
+	Contact* c3 = Contact_Create(25, "Edward", "010-0000-2222");
+	Contact* c4 = Contact_Create(30, "Kevin", "010-0000-3333");
+
+	ContactStore_RBT_Insert(pLeft, c1);
+	ContactStore_RBT_Insert(pLeft, c2);
+	ContactStore_RBT_Insert(pRight, c3);
+	ContactStore_RBT_Insert(pRight, c4);
+
+	ContactStore_RBT_CombineByOp(pResult, pLeft, pRight, "OR");
+
+	Contact_Destroy(c1);
+	Contact_Destroy(c2);
+	Contact_Destroy(c3);
+	Contact_Destroy(c4);
+	ContactStore_RBT_Destroy(pResult);
+	ContactStore_RBT_Destroy(pLeft);
+	ContactStore_RBT_Destroy(pRight);*/
 }
