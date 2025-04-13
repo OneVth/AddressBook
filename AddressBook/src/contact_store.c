@@ -29,6 +29,11 @@ struct _ContactStore_RBT {
 	RBNode* nil;
 };
 
+typedef struct {
+	ContactStore_RBT* result;
+	const ContactStore_RBT* right;
+} CombineContext;
+
 int ContactStore_IsEmpty(const ContactStore* store)
 {
 	if (store == NULL)
@@ -431,5 +436,75 @@ int ContactStore_RBT_Insert(ContactStore_RBT* store, const Contact* data)
 		y->right = z;
 
 	InsertFixUp(store, z);
+	return 1;
+}
+
+static int RBT_InOrderTraverse(RBNode* node, RBNode* nil, ContactCallback callback, void* userData)
+{
+	if (node == nil) return 1;
+
+	if (!RBT_InOrderTraverse(node->left, nil, callback, userData))
+		return 0;
+
+	if (!callback(node->data, userData))
+		return 0;
+
+	if (!RBT_InOrderTraverse(node->right, nil, callback, userData))
+		return 0;
+
+	return 1;
+}
+
+int ContactStore_RBT_Iterate(const ContactStore_RBT* store, ContactCallback callback, void* userData)
+{
+	if (store == NULL || callback == NULL) return 0;
+
+	return RBT_InOrderTraverse(store->root, store->nil, callback, userData);
+}
+
+static int InsertAllCallback(const Contact* contact, void* userData)
+{
+	ContactStore_RBT* pResultStore = (ContactStore_RBT*)userData;
+	ContactStore_RBT_Insert(pResultStore, contact);
+	return 1;
+}
+
+static int InsertIfAbsentCallback(const Contact* contact, void* userData)
+{
+	ContactStore_RBT* pResultStore = (ContactStore_RBT*)userData;
+	if (!ContactStore_RBT_HasPhone(pResultStore, Contact_GetPhone(contact)))
+		ContactStore_RBT_Insert(pResultStore, contact);
+	return 1;
+}
+
+static int InsertIfPresentInRightCallback(const Contact* contact, void* userData)
+{
+	CombineContext* pCombineContext = (CombineContext*)userData;
+	ContactStore_RBT* pResultStore = pCombineContext->result;
+	const ContactStore_RBT* pRightStore = pCombineContext->right;
+	if (ContactStore_RBT_HasPhone(pRightStore, Contact_GetPhone(contact)))
+		ContactStore_RBT_Insert(pResultStore, contact);
+	return 1;
+}
+
+int ContactStore_RBT_CombineByOp(ContactStore_RBT* resultStore, ContactStore_RBT* leftStore, ContactStore_RBT* rightStore, const char* op)
+{
+	if (op == NULL || resultStore == NULL || leftStore == NULL || rightStore == NULL)
+		return 0;
+
+	if (strcmp(op, "OR") == 0 || strcmp(op, "or") == 0)
+	{
+		ContactStore_RBT_Iterate(leftStore, InsertAllCallback, resultStore);
+		ContactStore_RBT_Iterate(rightStore, InsertIfAbsentCallback, resultStore);
+	}
+	else if (strcmp(op, "AND") == 0 || strcmp(op, "and") == 0)
+	{
+		CombineContext combineContext = { resultStore, rightStore };
+		ContactStore_RBT_Iterate(leftStore, InsertIfPresentInRightCallback, &combineContext);
+	}
+	else
+	{
+		return 0;
+	}
 	return 1;
 }

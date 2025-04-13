@@ -31,4 +31,5 @@ void ContactStore_RBT_Destroy(ContactStore_RBT* store);
 /// The caller must not free or reuse the original Contact after insertion.
 /// </summary>
 int ContactStore_RBT_Insert(ContactStore_RBT* store, const Contact* data);
-
+int ContactStore_RBT_Iterate(const ContactStore_RBT* store, ContactCallback callback, void* userData);
+int ContactStore_RBT_CombineByOp(ContactStore_RBT* resultStore, ContactStore_RBT* leftStore, ContactStore_RBT* rightStore, const char* op);
