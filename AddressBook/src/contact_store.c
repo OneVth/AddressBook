@@ -405,7 +405,11 @@ int ContactStore_RBT_Insert(ContactStore_RBT* store, const Contact* data)
 	RBNode* z = malloc(sizeof(RBNode));
 	if (z == NULL) return 0;
 
-	z->data = data;
+	z->data = Contact_Create(
+		Contact_GetAge(data), 
+		Contact_GetName(data), 
+		Contact_GetPhone(data)
+	);
 	z->color = RED;
 	z->left = z->right = z->parent = store->nil;
 
