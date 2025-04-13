@@ -1733,3 +1733,28 @@ void Test_RBT_Destroy(void)
 	printf("PASS: Test_RBT_Destroy completed without crash\n");
 	return;
 }
+
+void Test_RBT_Insert(void)
+{
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	Contact* c1 = Contact_Create(10, "Alice", "010-0000-2222");
+	Contact* c2 = Contact_Create(20, "Betty", "010-0000-1111");
+	Contact* c3 = Contact_Create(30, "Charlie", "010-0000-3333");
+
+	ContactStore_RBT_Insert(pStore, c1);
+	ContactStore_RBT_Insert(pStore, c2);
+	ContactStore_RBT_Insert(pStore, c3);
+
+	assert(pStore->root == pStore->root->left->parent);
+	assert(pStore->root == pStore->root->right->parent);
+	assert(strcmp(Contact_GetPhone(pStore->root->data), "010-0000-2222") == 0);
+	assert(strcmp(Contact_GetPhone(pStore->root->left->data), "010-0000-1111") == 0);
+	assert(strcmp(Contact_GetPhone(pStore->root->right->data), "010-0000-3333") == 0);
+
+	printf("PASS: Test_RBT_Insert\n");
+
+	ContactStore_RBT_Destroy(pStore);
+	return;
+}

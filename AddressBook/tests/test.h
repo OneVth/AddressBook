@@ -47,3 +47,4 @@ void Test_ContactStore_CombineByOp(void);
 
 void Test_RBT_Create(void);
 void Test_RBT_Destroy(void);
+void Test_RBT_Insert(void);
