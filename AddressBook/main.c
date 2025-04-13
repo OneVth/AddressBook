@@ -54,7 +54,7 @@ int main(void)
 	Test_Contact_Destroy();
 	Test_RBT_Destroy();
 #endif
-	ContactStore_RBT* pResult = ContactStore_RBT_Create();
+	/*ContactStore_RBT* pResult = ContactStore_RBT_Create();
 	ContactStore_RBT* pLeft = ContactStore_RBT_Create();
 	ContactStore_RBT* pRight = ContactStore_RBT_Create();
 
@@ -77,6 +77,7 @@ int main(void)
 	Contact_Destroy(c4);
 	ContactStore_RBT_Destroy(pResult);
 	ContactStore_RBT_Destroy(pLeft);
-	ContactStore_RBT_Destroy(pRight);
+	ContactStore_RBT_Destroy(pRight);*/
+	Test_RBT_Insert();
 	return 0;
 }

@@ -1792,8 +1792,16 @@ void Test_RBT_Insert(void)
 	assert(strcmp(Contact_GetPhone(pStore->root->left->data), "010-0000-1111") == 0);
 	assert(strcmp(Contact_GetPhone(pStore->root->right->data), "010-0000-3333") == 0);
 
-	printf("PASS: Test_RBT_Insert\n");
+	printf("PASS: Test_RBT_Insert()\n");
 
+	Contact_Destroy(c1);
+	Contact_Destroy(c2);
+	Contact_Destroy(c3);
 	ContactStore_RBT_Destroy(pStore);
 	return;
+}
+
+void Test_ContactStore_RBT_CombineByOp(void)
+{
+
 }
