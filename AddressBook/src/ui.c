@@ -248,6 +248,40 @@ int PrintStoreCallback(const Contact* c, void* userData)
 	return 1;
 }
 
+static int PrintRBTCallback(const Contact* c, void* userData)
+{
+
+	PrintStoreInfo* pStoreInfo = (PrintStoreInfo*)userData;
+	if (pStoreInfo->count % RECORDS_PER_PAGE == 0)
+	{
+		system("cls");
+		printf("Print records in the list:\n");
+		pStoreInfo->pageNum = pStoreInfo->count / RECORDS_PER_PAGE;
+		printf("Page #%d\n", pStoreInfo->pageNum + 1);
+	}
+
+	printf("%d %s %s\n", Contact_GetAge(c), Contact_GetName(c), Contact_GetPhone(c));
+
+	pStoreInfo->count++;
+	if (pStoreInfo->count % RECORDS_PER_PAGE == 0)
+	{
+		char c = 0;
+		printf("\nPress any key to continue (or 'q' to exit) : ");
+		c = getchar();
+		if (c == 'q' || c == 'Q')
+			return 0;
+	}
+	return 1;
+}
+
+void UI_PrintRBT(ContactStore_RBT* store)
+{
+	PrintStoreInfo storeInfo = { 0, 0 };
+	ContactStore_RBT_Iterate(store, PrintRBTCallback, &storeInfo);
+	printf("\nEnd of list: Press any key to exit.\n");
+	_getch();
+}
+
 void UI_PrintList(ContactStore* store)
 {
 	PrintStoreInfo storeInfo = { 0, 0 };

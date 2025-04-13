@@ -69,6 +69,7 @@ int main(void)
 	ContactStore_RBT_Insert(pRight, c4);
 
 	ContactStore_RBT_CombineByOp(pResult, pLeft, pRight, "OR");
+	UI_PrintRBT(pResult);
 
 	Contact_Destroy(c1);
 	Contact_Destroy(c2);
