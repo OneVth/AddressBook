@@ -225,6 +225,22 @@ int ContactStore_RBT_IsEmpty(const ContactStore_RBT* store)
 
 int ContactStore_RBT_HasPhone(const ContactStore_RBT* store, const char* phone)
 {
+	if (store == NULL || phone == NULL)
+		return 0;
+
+	RBNode* cur = store->root;
+
+	while (cur != store->nil)
+	{
+		int cmp = strcmp(Contact_GetPhone(cur->data), phone);
+		if (cmp == 0)
+			return 1;
+
+		if (cmp < 0)
+			cur = cur->right;
+		else
+			cur = cur->left;
+	}
 	return 0;
 }
 

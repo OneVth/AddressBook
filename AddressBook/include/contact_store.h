@@ -20,7 +20,7 @@ int ContactStore_Iterate(const ContactStore* store, ContactCallback callback, vo
 
 // RBT
 int ContactStore_RBT_IsEmpty(const ContactStore_RBT* store);
-int ContactStore__RBT_HasPhone(const ContactStore_RBT* store, const char* phone);
+int ContactStore_RBT_HasPhone(const ContactStore_RBT* store, const char* phone);
 
 ContactStore_RBT* ContactStore_RBT_Create(void);
 void ContactStore_RBT_Destroy(ContactStore_RBT* store);

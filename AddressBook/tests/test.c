@@ -1722,7 +1722,26 @@ void Test_ContactStore_RBT_IsEmpty(void)
 
 	ContactStore_RBT_Destroy(pStore);
 
-	printf("PASS: Test_RBT_IsEmpty\n");
+	printf("PASS: Test_RBT_IsEmpty()\n");
+}
+
+void Test_ContactStore_RBT_HasPhone(void)
+{
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	Contact* c1 = Contact_Create(10, "Alice", "010-1111-1111");
+	Contact* c2 = Contact_Create(20, "Betty", "010-2222-2222");
+
+	ContactStore_RBT_Insert(pStore, c1);
+	ContactStore_RBT_Insert(pStore, c2);
+
+	assert(ContactStore_RBT_HasPhone(pStore, "010-1111-1111") == 1);
+	assert(ContactStore_RBT_HasPhone(pStore, "010-2222-2222") == 1);
+	assert(ContactStore_RBT_HasPhone(pStore, "010-3333-3333") == 0);
+
+	ContactStore_RBT_Destroy(pStore);
+	printf("PASS: Test_RBT_HasPhone()\n");
 }
 
 void Test_RBT_Create(void)
