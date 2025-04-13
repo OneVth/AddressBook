@@ -1511,7 +1511,34 @@ void Test_SaveListToFile_RBT(void)
 
 void Test_LoadRecordsFromFileByName_RBT(void)
 {
-	
+	assert(CreateTestDataFile() == 1);
+
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	// Case 1: valid name
+	assert(LoadRecordsFromFileByName_RBT(pStore, "A", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByName_RBT(pStore, "B", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByName_RBT(pStore, "C", FILE_PATH_TEST) == LOAD_SUCCESS);
+
+	const char* expected[] = {
+		"010-0000-0001",	// A
+		"010-0000-0002",	// B
+		"010-0000-0011",	// A
+		"010-0000-0022",	// C
+	};
+
+	VerifyContext verifyContext = { expected, 0 };
+	ContactStore_RBT_Iterate(pStore, VerifyPhoneOrderCallback, &verifyContext);
+	assert(verifyContext.index == sizeof(expected) / sizeof(expected[0]));
+
+	// Case 2: invalid name
+	assert(LoadRecordsFromFileByName_RBT(pStore, "Z", FILE_PATH_TEST) != LOAD_SUCCESS);
+
+	printf("PASS: Test_LoadRecordsFromFileByName_RBT() returned correct result for valid name\n");
+	printf("PASS: Test_LoadRecordsFromFileByName_RBT() returned correct result for invalid name\n");
+	putchar('\n');
+	ContactStore_RBT_Destroy(pStore);
 	return;
 }
 
