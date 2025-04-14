@@ -551,20 +551,20 @@ int UI_EditNode(LPCWSTR path)
 	char name[MAX_NAME_LEN] = { 0 };
 	char phone[MAX_PHONE_LEN] = { 0 };
 
-	ContactStore* pStore = ContactStore_Create();
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
 
 	printf("Need phone number of the node to edit **************\n");
 	UI_GetPhone(phone);
 
-	if (LoadRecordsFromFileByPhone(pStore, phone, path) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone_RBT(pStore, phone, path) != LOAD_SUCCESS)
 	{
 		printf("Cannot find the node. Returning to main menu...\n");
 		_getch();
-		ContactStore_Destroy(pStore);
+		ContactStore_RBT_Destroy(pStore);
 		return 0;
 	}
 
-	const Contact* pContact = ContactStore_Take(pStore);
+	const Contact* pContact = ContactStore_RBT_FindByPhone(pStore, phone);
 	system("cls");
 	printf("Now: %d %s %s\n",
 		Contact_GetAge(pContact),
@@ -600,7 +600,7 @@ int UI_EditNode(LPCWSTR path)
 				break;
 			case 3:
 				UI_GetPhone(phone);
-				if (LoadRecordsFromFileByPhone(NULL, phone, path) == LOAD_SUCCESS)
+				if (LoadRecordsFromFileByPhone_RBT(NULL, phone, path) == LOAD_SUCCESS)
 				{
 					printf("Edit failed: Phone number already exists.\n");
 				}
@@ -622,8 +622,7 @@ int UI_EditNode(LPCWSTR path)
 	else
 		printf("Invalid input.\n");
 
-	Contact_Destroy(pContact);
-	ContactStore_Destroy(pStore);
+	ContactStore_RBT_Destroy(pStore);
 	_getch();
 	return 1;
 }

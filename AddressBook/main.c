@@ -54,6 +54,6 @@ int main(void)
 	Test_Contact_Destroy();
 	Test_RBT_Destroy();
 #endif
-	Test_ContactStore_RBT_FindByPhone();
+	UI_EditNode(FILE_PATH_TEST);
 	return 0;
 }
