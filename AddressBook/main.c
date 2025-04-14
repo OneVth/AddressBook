@@ -54,6 +54,23 @@ int main(void)
 	Test_Contact_Destroy();
 	Test_RBT_Destroy();
 #endif
-	UI_Search(FILE_PATH_TEST);
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+
+	Contact* pContact = Contact_Create(10, "A", "010-0000-0001");
+	ContactStore_RBT_Insert(pStore, pContact);
+	Contact_Destroy(pContact);
+
+	pContact = Contact_Create(20, "B", "010-0000-0002");
+	ContactStore_RBT_Insert(pStore, pContact);
+	Contact_Destroy(pContact);
+
+	pContact = Contact_Create(30, "C", "010-0000-0003");
+	ContactStore_RBT_Insert(pStore, pContact);
+	Contact_Destroy(pContact);
+
+	Contact* temp = ContactStore_RBT_FindByPhone(pStore, "010-0000-0003");
+	printf("%d %s %s\n", Contact_GetAge(temp), Contact_GetName(temp), Contact_GetPhone(temp));
+
+	ContactStore_RBT_Destroy(pStore);
 	return 0;
 }

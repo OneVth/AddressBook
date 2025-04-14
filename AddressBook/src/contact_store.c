@@ -442,6 +442,25 @@ int ContactStore_RBT_Insert(ContactStore_RBT* store, const Contact* data)
 	return 1;
 }
 
+const Contact* ContactStore_RBT_FindByPhone(ContactStore_RBT* store, const char* phone)
+{
+	if (store == NULL || phone == NULL)
+		return NULL;
+
+	RBNode* current = store->root;
+	while (current != store->nil)
+	{
+		int cmp = strcmp(phone, Contact_GetPhone(current->data));
+		if (cmp == 0)
+			return current->data;
+		else if (cmp < 0)
+			current = current->left;
+		else
+			current = current->right;
+	}
+	return NULL;
+}
+
 static int RBT_InOrderTraverse(RBNode* node, RBNode* nil, ContactCallback callback, void* userData)
 {
 	if (node == nil) return 1;
