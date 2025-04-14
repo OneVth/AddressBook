@@ -1633,6 +1633,42 @@ void Test_EditRecordAgeFromFile_RBT(void)
 	return;
 }
 
+void Test_EditRecordNameFromFile_RBT(void)
+{
+	assert(CreateTestDataFile() == 1);
+
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	// Case 1: valid name
+	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
+	const Contact* pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	assert(pContact != NULL);
+	assert(EditRecordNameFromFile(pContact, "Z", FILE_PATH_TEST) == EDIT_SUCCESS);
+	ContactStore_RBT_Destroy(pStore);
+
+	pStore = ContactStore_RBT_Create();
+	assert(LoadRecordsFromFileByName_RBT(pStore, "Z", FILE_PATH_TEST) == LOAD_SUCCESS);
+	pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	assert(Contact_GetAge(pContact) == 10);
+	assert(strcmp(Contact_GetName(pContact), "Z") == 0);
+	assert(strcmp(Contact_GetPhone(pContact), "010-0000-0001") == 0);
+	ContactStore_RBT_Destroy(pStore);
+
+	// Case 2: invalid name
+	pStore = ContactStore_RBT_Create();
+	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
+	pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	assert(pContact != NULL);
+	assert(EditRecordNameFromFile(pContact, "Invalid!", FILE_PATH_TEST) == EDIT_ERROR);
+	ContactStore_RBT_Destroy(pStore);
+
+	printf("PASS: Test_EditRecordNameFromFile_RBT() correctly edit record for valid name\n");
+	printf("PASS: Test_EditRecordNameFromFile_RBT() correctly return false for invalid name\n");
+	putchar('\n');
+	return;
+}
+
 void Test_SearchRecordsFromFile_RBT(void)
 {
 	assert(CreateTestDataFile() == 1);
