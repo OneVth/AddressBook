@@ -2141,3 +2141,34 @@ void Test_ContactStore_RBT_CombineByOp(void)
 	ContactStore_RBT_Destroy(pLeft);
 	ContactStore_RBT_Destroy(pRight);
 }
+
+void Test_ContactStore_RBT_FindByPhone(void)
+{
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	Contact* pContact = Contact_Create(10, "A", "010-0000-0001");
+	assert(pContact != NULL);
+	assert(ContactStore_RBT_Insert(pStore, pContact) == 1);
+	Contact_Destroy(pContact);
+
+	pContact = Contact_Create(20, "B", "010-0000-0002");
+	assert(pContact != NULL);
+	assert(ContactStore_RBT_Insert(pStore, pContact) == 1);
+	Contact_Destroy(pContact);
+
+	pContact = Contact_Create(30, "C", "010-0000-0003");
+	assert(pContact != NULL);
+	assert(ContactStore_RBT_Insert(pStore, pContact) == 1);
+	Contact_Destroy(pContact);
+
+	const Contact* temp = ContactStore_RBT_FindByPhone(pStore, "010-0000-0003");
+	assert(temp != NULL);
+	assert(Contact_GetAge(temp) == 30);
+	assert(strcmp(Contact_GetName(temp), "C") == 0);
+	assert(strcmp(Contact_GetPhone(temp), "010-0000-0003") == 0);
+
+	printf("PASS: Test_ContactStore_RBT_FindByPhone correctly find expected contact in tree\n");
+
+	ContactStore_RBT_Destroy(pStore);
+}
