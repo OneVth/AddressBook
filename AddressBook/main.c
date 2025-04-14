@@ -54,6 +54,6 @@ int main(void)
 	Test_Contact_Destroy();
 	Test_RBT_Destroy();
 #endif
-	UI_InsertNode(FILE_PATH_TEST);
+	UI_Search(FILE_PATH_TEST);
 	return 0;
 }

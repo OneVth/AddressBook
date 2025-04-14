@@ -503,44 +503,44 @@ int UI_DeleteNode(LPCWSTR path)
 int UI_Search(LPCWSTR path)
 {
 	SEARCHRESULT result = SEARCH_ERROR;
-	ContactStore* pResult = ContactStore_Create();
+	ContactStore_RBT* pResult = ContactStore_RBT_Create();
 
 	printf("You can use \"AND\" or \"OR\" to search.\n");
 	char buffer[BUFFSIZE] = { 0 };
 	if (UI_GetSearchString(buffer))
 	{
-		result = SearchRecordsFromFile(pResult, buffer, path);
+		result = SearchRecordsFromFile_RBT(pResult, buffer, path);
 		if (result == SEARCH_SUCCESS)
 		{
 			printf("Search result **********************************\n");
-			UI_PrintList(pResult);
+			UI_PrintRBT(pResult);
 		}
 		else if (result == PARSE_FAILED)
 		{
 			printf("Input failed: Input format must be [str] [AND/OR] [str].\n");
-			ContactStore_Destroy(pResult);
+			ContactStore_RBT_Destroy(pResult);
 			return 0;
 		}
 		else if (result == CONVERT_FAILED)
 		{
 			printf("Input failed: Allowed max [AGE: %d], [NAME LEN: %d], [PHONE LEN: %d]\n", MAXAGE, MAX_NAME_LEN, MAX_PHONE_LEN);
-			ContactStore_Destroy(pResult);
+			ContactStore_RBT_Destroy(pResult);
 			return 0;
 		}
 		else if (result == NO_MATCH)
 		{
 			printf("Search failed: No matching records here.\n");
-			ContactStore_Destroy(pResult);
+			ContactStore_RBT_Destroy(pResult);
 			return 0;
 		}
 	}
 	else
 	{
-		ContactStore_Destroy(pResult);
+		ContactStore_RBT_Destroy(pResult);
 		return 0;
 	}
 
-	ContactStore_Destroy(pResult);
+	ContactStore_RBT_Destroy(pResult);
 	return 1;
 }
 
