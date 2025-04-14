@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "contact_store.h"
+#include "common.h"
 
 typedef enum { RED, BLACK } COLOR;
 
@@ -445,6 +446,9 @@ int ContactStore_RBT_Insert(ContactStore_RBT* store, const Contact* data)
 const Contact* ContactStore_RBT_FindByPhone(ContactStore_RBT* store, const char* phone)
 {
 	if (store == NULL || phone == NULL)
+		return NULL;
+
+	if (!Str_IsPhoneFormat(phone))
 		return NULL;
 
 	RBNode* current = store->root;
