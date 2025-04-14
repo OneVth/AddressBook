@@ -400,13 +400,13 @@ int UI_InsertNode(LPCWSTR path)
 	char name[MAX_NAME_LEN] = { 0 };
 	char phone[MAX_PHONE_LEN] = { 0 };
 
-	ContactStore* pStore = ContactStore_Create();
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
 	while (1)
 	{
 		if (UI_GetInsertInfo(name, &age, phone))
 		{
 			Contact* pContact = Contact_Create(age, name, phone);
-			if (TryAddContact(pStore, pContact, path) != 1)
+			if (TryInsertContact_RBT(pStore, pContact, path) != 1)
 			{
 				printf("[ERROR] The record(phone number) is already in the file\n");
 			}
@@ -419,8 +419,8 @@ int UI_InsertNode(LPCWSTR path)
 			break;
 	}
 	ClearInputBuffer();
-	SaveListToFile(pStore, path);
-	ContactStore_Destroy(pStore);
+	SaveListToFile_RBT(pStore, path);
+	ContactStore_RBT_Destroy(pStore);
 	return 1;
 }
 
