@@ -661,7 +661,7 @@ SEARCHRESULT SearchRecordsFromFile(ContactStore* result, const char* input, LPCW
 		return NO_MATCH;
 }
 
-int SaveContactToFile(const Contact* contact, void* userData)
+static int SaveContactToFile(const Contact* contact, void* userData)
 {
 	if (contact == NULL || userData == NULL)
 		return 0;
