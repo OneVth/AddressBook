@@ -32,6 +32,7 @@ void Test_EditRecordPhoneFromFile(void);
 void Test_DeleteRecordFromFileByPhone(void);
 void Test_SearchRecordsFromFile(void);
 
+void Test_TryInsertContact_RBT(void);
 void Test_LoadRecordsFromFileByPhone_RBT(void);
 void Test_SaveListToFile_RBT(void);
 void Test_LoadRecordsFromFileByName_RBT(void);

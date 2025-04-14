@@ -54,6 +54,6 @@ int main(void)
 	Test_Contact_Destroy();
 	Test_RBT_Destroy();
 #endif
-	Test_SearchRecordsFromFile_RBT();
+	Test_TryInsertContact_RBT();
 	return 0;
 }

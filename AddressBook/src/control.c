@@ -1055,27 +1055,6 @@ SEARCHRESULT SearchRecordsFromFile_RBT(ContactStore_RBT* result, const char* inp
 		return NO_MATCH;
 }
 
-int SaveContactToFile_RBT(const Contact* contact, void* userData)
-{
-	if (contact == NULL || userData == NULL)
-		return 0;
-
-	HANDLE hFile = (HANDLE)userData;
-	if (hFile == NULL || hFile == INVALID_HANDLE_VALUE)
-		return 0;
-
-	DWORD dwContactSize = (DWORD)Contact_GetSize();
-	DWORD dwWritten = 0;
-	BOOL bResult = FALSE;
-
-	bResult = WriteFile(hFile, contact, dwContactSize, &dwWritten, NULL);
-	if (!bResult || dwWritten < dwContactSize)
-	{
-		return 0;
-	}
-	return 1;
-}
-
 int SaveListToFile_RBT(ContactStore_RBT* store, LPCWSTR path)
 {
 	if (ContactStore_RBT_IsEmpty(store))

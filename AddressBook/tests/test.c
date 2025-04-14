@@ -1415,6 +1415,28 @@ void Test_SearchRecordsFromFile(void)
 
 // RBT
 
+void Test_TryInsertContact_RBT(void)
+{
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	// Case 1: Already exists in file (invalid input)
+	Contact* pContact = Contact_Create(10, "A", "010-0000-0001");
+	assert(pContact != NULL);
+	assert(TryInsertContact_RBT(pStore, pContact, FILE_PATH_TEST) == 0);
+	Contact_Destroy(pContact);
+
+	// Case 2: Non-existence contact (valid input)
+	pContact = Contact_Create(99, "Z", "010-0000-9999");
+	assert(pContact != NULL);
+	assert(TryInsertContact_RBT(pStore, pContact, FILE_PATH_TEST) == 1);
+	Contact_Destroy(pContact);
+
+	printf("PASS: Test_TryInsertContact_RBT() correctly didn't insert an already existence contact\n");
+	printf("PASS: Test_TryInsertContact_RBT() correctly insert a contact\n");
+	ContactStore_RBT_Destroy(pStore);
+}
+
 void Test_LoadRecordsFromFileByPhone_RBT(void)
 {
 	assert(CreateTestDataFile() == 1);
