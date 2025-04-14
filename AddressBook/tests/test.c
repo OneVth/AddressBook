@@ -1577,7 +1577,61 @@ void Test_LoadRecordsFromFileByAge_RBT(void)
 
 void Test_SearchRecordsFromFile_RBT(void)
 {
-	
+	assert(CreateTestDataFile() == 1);
+
+	ContactStore_RBT* pResult = ContactStore_RBT_Create();
+	assert(pResult != NULL);
+
+	// Case 1: single result
+	assert(SearchRecordsFromFile_RBT(pResult, "10", FILE_PATH_TEST) == SEARCH_SUCCESS);
+
+	const char* expectedSingle[] = {
+		"010-0000-0001",	// A
+	};
+
+	VerifyContext verifyContext = { expectedSingle, 0 };
+	ContactStore_RBT_Iterate(pResult, VerifyPhoneOrderCallback, &verifyContext);
+	assert(verifyContext.index == sizeof(expectedSingle) / sizeof(expectedSingle[0]));
+
+	ContactStore_RBT_Destroy(pResult);
+
+	// Case 2: multiple result
+	pResult = ContactStore_RBT_Create();
+	assert(pResult != NULL);
+
+	assert(SearchRecordsFromFile_RBT(pResult, "20", FILE_PATH_TEST) == SEARCH_SUCCESS);
+
+	const char* expectedMultiple[] = {
+		"010-0000-0002",	// B
+		"010-0000-0022",	// C
+	};
+
+	verifyContext.expectedPhones = expectedMultiple;
+	verifyContext.index = 0;
+	ContactStore_RBT_Iterate(pResult, VerifyPhoneOrderCallback, &verifyContext);
+	assert(verifyContext.index == sizeof(expectedMultiple) / sizeof(expectedMultiple[0]));
+	ContactStore_RBT_Destroy(pResult);
+
+	// Case 3: search with operator
+	pResult = ContactStore_RBT_Create();
+	assert(pResult != NULL);
+
+	assert(SearchRecordsFromFile_RBT(pResult, "10 OR 010-0000-0003", FILE_PATH_TEST) == SEARCH_SUCCESS);
+
+	const char* expectedOp[] = {
+		"010-0000-0001",	// A
+		"010-0000-0003",	// D
+	};
+
+	verifyContext.expectedPhones = expectedOp;
+	verifyContext.index = 0;
+	ContactStore_RBT_Iterate(pResult, VerifyPhoneOrderCallback, &verifyContext);
+	assert(verifyContext.index == sizeof(expectedOp) / sizeof(expectedOp[0]));
+	ContactStore_RBT_Destroy(pResult);
+
+	printf("PASS: Test_SearchRecordsFromFile_RBT() correctly search single record\n");
+	printf("PASS: Test_SearchRecordsFromFile_RBT() correctly search multiple record\n");
+	printf("PASS: Test_SearchRecordsFromFile_RBT() correctly search multiple record with operator\n");
 	return;
 }
 

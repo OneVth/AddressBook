@@ -54,6 +54,6 @@ int main(void)
 	Test_Contact_Destroy();
 	Test_RBT_Destroy();
 #endif
-	Test_LoadRecordsFromFileByAge_RBT();
+	Test_SearchRecordsFromFile_RBT();
 	return 0;
 }
