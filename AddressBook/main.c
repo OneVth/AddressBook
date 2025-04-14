@@ -53,6 +53,6 @@ int main(void)
 //	Test_Contact_Destroy();
 //	Test_ContactStore_Destroy();
 //#endif
-//	Test_DeleteRecordFromFileByPhone();
+//	Test_CreateTestDataFile();
 //	return 0;
 //}
