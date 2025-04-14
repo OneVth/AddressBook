@@ -1518,9 +1518,9 @@ void Test_SaveListToFile_RBT(void)
 	
 	assert(CloseHandle(hFile) == TRUE);
 
-	assert(LoadRecordsFromFileByPhone(NULL, "010-9999-9999", FILE_PATH_TEST) == LOAD_SUCCESS);
-	assert(LoadRecordsFromFileByPhone(NULL, "010-9999-9998", FILE_PATH_TEST) == LOAD_SUCCESS);
-	assert(LoadRecordsFromFileByPhone(NULL, "010-9999-9997", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone_RBT(NULL, "010-9999-9999", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone_RBT(NULL, "010-9999-9998", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone_RBT(NULL, "010-9999-9997", FILE_PATH_TEST) == LOAD_SUCCESS);
 	
 	ContactStore_RBT_Destroy(pStore);
 
