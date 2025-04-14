@@ -1705,6 +1705,49 @@ void Test_EditRecordPhoneFromFile_RBT(void)
 	return;
 }
 
+void Test_DeleteRecordFromFileByPhone_RBT(void)
+{
+	assert(CreateTestDataFile() == 1);
+
+	// Case 1: invalid phone number
+	assert(DeleteRecordFromFileByPhone("010-0000-9999", FILE_PATH_TEST) == DELETE_NOT_FOUND);
+
+	// Case 2: valid phone number
+	assert(DeleteRecordFromFileByPhone("010-0000-0001", FILE_PATH_TEST) == DELETE_SUCCESS);
+	
+	LARGE_INTEGER llFileSize = { 0 };
+	DWORD dwContactSize = (DWORD)Contact_GetSize();
+	DWORD dwRead = 0;
+	BOOL bResult = FALSE;
+
+	HANDLE hFile = CreateFile(
+		FILE_PATH_TEST,
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	assert(hFile != INVALID_HANDLE_VALUE);
+	
+	GetFileSizeEx(hFile, &llFileSize);
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	assert(
+		LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_NOT_FOUND && 
+		llFileSize.QuadPart == dwContactSize * (NUM_TEST_NODE - 1)
+	);
+	ContactStore_RBT_Destroy(pStore);
+	CloseHandle(hFile);
+	
+	printf("PASS: Test_DeleteRecordFromFileByPhone_RBT() successfully removed the record with given phone number\n");
+	printf("PASS: Test_DeleteRecordFromFileByPhone_RBT() correctly return false for invalid phone number\n");
+	putchar('\n');
+	return;
+}
+
 void Test_SearchRecordsFromFile_RBT(void)
 {
 	assert(CreateTestDataFile() == 1);
