@@ -282,14 +282,6 @@ void UI_PrintRBT(ContactStore_RBT* store)
 	_getch();
 }
 
-void UI_PrintList(ContactStore* store)
-{
-	PrintStoreInfo storeInfo = { 0, 0 };
-	ContactStore_Iterate(store, PrintStoreCallback, &storeInfo);
-	printf("\nEnd of list: Press any key to exit.\n");
-	_getch();
-}
-
 OPTION PrintMenu(void)
 {
 	OPTION val = -1;
@@ -427,7 +419,7 @@ int UI_InsertNode(LPCWSTR path)
 DWORD WINAPI Thread_DeleteRecord(void* param)
 {
 	DELETEPARAM* params = (DELETEPARAM*)param;
-	if (LoadRecordsFromFileByPhone(NULL, params->phone, params->path) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone_RBT(NULL, params->phone, params->path) != LOAD_SUCCESS)
 	{
 		return 0;
 	}
@@ -626,5 +618,3 @@ int UI_EditNode(LPCWSTR path)
 	_getch();
 	return 1;
 }
-
-

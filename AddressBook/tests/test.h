@@ -21,19 +21,9 @@ void Test_SplitSearchExpression(void);
 
 int CreateTestDataFile(void);
 void Test_CreateTestDataFile(void);
-void Test_ContactStore_Take(void);
-void Test_LoadRecordsFromFileByPhone(void);
-void Test_SaveListToFile(void);
-void Test_LoadRecordsFromFileByName(void);
-void Test_LoadRecordsFromFileByAge(void);
-void Test_EditRecordAgeFromFile(void);
 void Test_EditRecordAgeFromFile_RBT(void);
-void Test_EditRecordNameFromFile(void);
 void Test_EditRecordNameFromFile_RBT(void);
-void Test_EditRecordPhoneFromFile(void);
 void Test_EditRecordPhoneFromFile_RBT(void);
-void Test_DeleteRecordFromFileByPhone(void);
-void Test_SearchRecordsFromFile(void);
 void Test_DeleteRecordFromFileByPhone_RBT(void);
 
 void Test_TryInsertContact_RBT(void);
@@ -50,11 +40,6 @@ void Test_ContactLifecycle(void);
 void Test_Contact_SetAge(void);
 void Test_Contact_SetName(void);
 void Test_Contact_SetPhone(void);
-void Test_ContactStore_IsEmpty(void);
-void Test_ContactStore_HasPhone(void);
-void Test_ContactStore_Destroy(void);
-void Test_ContactStore_Add(void);
-void Test_ContactStore_CombineByOp(void);
 
 void Test_ContactStore_RBT_IsEmpty(void);
 void Test_ContactStore_RBT_HasPhone(void);
