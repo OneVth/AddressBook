@@ -274,10 +274,10 @@ static int PrintRBTCallback(const Contact* c, void* userData)
 	return 1;
 }
 
-void UI_PrintRBT(ContactStore_RBT* store)
+void UI_PrintRBT(ContactStore* store)
 {
 	PrintStoreInfo storeInfo = { 0, 0 };
-	ContactStore_RBT_Iterate(store, PrintRBTCallback, &storeInfo);
+	ContactStore_Iterate(store, PrintRBTCallback, &storeInfo);
 	printf("\nEnd of list: Press any key to exit.\n");
 	_getch();
 }
@@ -392,13 +392,13 @@ int UI_InsertNode(LPCWSTR path)
 	char name[MAX_NAME_LEN] = { 0 };
 	char phone[MAX_PHONE_LEN] = { 0 };
 
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	while (1)
 	{
 		if (UI_GetInsertInfo(name, &age, phone))
 		{
 			Contact* pContact = Contact_Create(age, name, phone);
-			if (TryInsertContact_RBT(pStore, pContact, path) != 1)
+			if (TryInsertContact(pStore, pContact, path) != 1)
 			{
 				printf("[ERROR] The record(phone number) is already in the file\n");
 			}
@@ -411,15 +411,15 @@ int UI_InsertNode(LPCWSTR path)
 			break;
 	}
 	ClearInputBuffer();
-	SaveListToFile_RBT(pStore, path);
-	ContactStore_RBT_Destroy(pStore);
+	SaveListToFile(pStore, path);
+	ContactStore_Destroy(pStore);
 	return 1;
 }
 
 DWORD WINAPI Thread_DeleteRecord(void* param)
 {
 	DELETEPARAM* params = (DELETEPARAM*)param;
-	if (LoadRecordsFromFileByPhone_RBT(NULL, params->phone, params->path) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(NULL, params->phone, params->path) != LOAD_SUCCESS)
 	{
 		return 0;
 	}
@@ -495,13 +495,13 @@ int UI_DeleteNode(LPCWSTR path)
 int UI_Search(LPCWSTR path)
 {
 	SEARCHRESULT result = SEARCH_ERROR;
-	ContactStore_RBT* pResult = ContactStore_RBT_Create();
+	ContactStore* pResult = ContactStore_Create();
 
 	printf("You can use \"AND\" or \"OR\" to search.\n");
 	char buffer[BUFFSIZE] = { 0 };
 	if (UI_GetSearchString(buffer))
 	{
-		result = SearchRecordsFromFile_RBT(pResult, buffer, path);
+		result = SearchRecordsFromFile(pResult, buffer, path);
 		if (result == SEARCH_SUCCESS)
 		{
 			printf("Search result **********************************\n");
@@ -510,29 +510,29 @@ int UI_Search(LPCWSTR path)
 		else if (result == PARSE_FAILED)
 		{
 			printf("Input failed: Input format must be [str] [AND/OR] [str].\n");
-			ContactStore_RBT_Destroy(pResult);
+			ContactStore_Destroy(pResult);
 			return 0;
 		}
 		else if (result == CONVERT_FAILED)
 		{
 			printf("Input failed: Allowed max [AGE: %d], [NAME LEN: %d], [PHONE LEN: %d]\n", MAXAGE, MAX_NAME_LEN, MAX_PHONE_LEN);
-			ContactStore_RBT_Destroy(pResult);
+			ContactStore_Destroy(pResult);
 			return 0;
 		}
 		else if (result == NO_MATCH)
 		{
 			printf("Search failed: No matching records here.\n");
-			ContactStore_RBT_Destroy(pResult);
+			ContactStore_Destroy(pResult);
 			return 0;
 		}
 	}
 	else
 	{
-		ContactStore_RBT_Destroy(pResult);
+		ContactStore_Destroy(pResult);
 		return 0;
 	}
 
-	ContactStore_RBT_Destroy(pResult);
+	ContactStore_Destroy(pResult);
 	return 1;
 }
 
@@ -543,20 +543,20 @@ int UI_EditNode(LPCWSTR path)
 	char name[MAX_NAME_LEN] = { 0 };
 	char phone[MAX_PHONE_LEN] = { 0 };
 
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 
 	printf("Need phone number of the node to edit **************\n");
 	UI_GetPhone(phone);
 
-	if (LoadRecordsFromFileByPhone_RBT(pStore, phone, path) != LOAD_SUCCESS)
+	if (LoadRecordsFromFileByPhone(pStore, phone, path) != LOAD_SUCCESS)
 	{
 		printf("Cannot find the node. Returning to main menu...\n");
 		_getch();
-		ContactStore_RBT_Destroy(pStore);
+		ContactStore_Destroy(pStore);
 		return 0;
 	}
 
-	const Contact* pContact = ContactStore_RBT_FindByPhone(pStore, phone);
+	const Contact* pContact = ContactStore_FindByPhone(pStore, phone);
 	system("cls");
 	printf("Now: %d %s %s\n",
 		Contact_GetAge(pContact),
@@ -592,7 +592,7 @@ int UI_EditNode(LPCWSTR path)
 				break;
 			case 3:
 				UI_GetPhone(phone);
-				if (LoadRecordsFromFileByPhone_RBT(NULL, phone, path) == LOAD_SUCCESS)
+				if (LoadRecordsFromFileByPhone(NULL, phone, path) == LOAD_SUCCESS)
 				{
 					printf("Edit failed: Phone number already exists.\n");
 				}
@@ -614,7 +614,7 @@ int UI_EditNode(LPCWSTR path)
 	else
 		printf("Invalid input.\n");
 
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 	_getch();
 	return 1;
 }

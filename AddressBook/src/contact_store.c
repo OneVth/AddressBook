@@ -14,18 +14,17 @@ typedef struct _RBNode {
 	struct _RBNode* right;
 } RBNode;
 
-struct _ContactStore_RBT {
+struct _ContactStore {
 	RBNode* root;
 	RBNode* nil;
 };
 
 typedef struct {
-	ContactStore_RBT* result;
-	const ContactStore_RBT* right;
+	ContactStore* result;
+	const ContactStore* right;
 } CombineContext;
 
-// RBT
-int ContactStore_RBT_IsEmpty(const ContactStore_RBT* store)
+int ContactStore_IsEmpty(const ContactStore* store)
 {
 	if (store == NULL) return 0;
 	if (store->root == store->nil)
@@ -34,7 +33,7 @@ int ContactStore_RBT_IsEmpty(const ContactStore_RBT* store)
 	return 0;
 }
 
-int ContactStore_RBT_HasPhone(const ContactStore_RBT* store, const char* phone)
+int ContactStore_HasPhone(const ContactStore* store, const char* phone)
 {
 	if (store == NULL || phone == NULL)
 		return 0;
@@ -55,9 +54,9 @@ int ContactStore_RBT_HasPhone(const ContactStore_RBT* store, const char* phone)
 	return 0;
 }
 
-ContactStore_RBT* ContactStore_RBT_Create(void)
+ContactStore* ContactStore_Create(void)
 {
-	ContactStore_RBT* pStore = malloc(sizeof(ContactStore_RBT));
+	ContactStore* pStore = malloc(sizeof(ContactStore));
 	if (pStore == NULL) return NULL;
 
 	// sentinel node
@@ -79,7 +78,7 @@ ContactStore_RBT* ContactStore_RBT_Create(void)
 	return pStore;
 }
 
-static void FreeRBTree(ContactStore_RBT* store, RBNode* node)
+static void FreeRBTree(ContactStore* store, RBNode* node)
 {
 	if (node == store->nil) return;
 
@@ -91,7 +90,7 @@ static void FreeRBTree(ContactStore_RBT* store, RBNode* node)
 	return;
 }
 
-void ContactStore_RBT_Destroy(ContactStore_RBT* store)
+void ContactStore_Destroy(ContactStore* store)
 {
 	if (store == NULL) return;
 
@@ -102,7 +101,7 @@ void ContactStore_RBT_Destroy(ContactStore_RBT* store)
 	return;
 }
 
-static void RotateLeft(ContactStore_RBT* store, RBNode* x)
+static void RotateLeft(ContactStore* store, RBNode* x)
 {
 	RBNode* y = x->right;
 	x->right = y->left;
@@ -124,7 +123,7 @@ static void RotateLeft(ContactStore_RBT* store, RBNode* x)
 	return;
 }
 
-static void RotateRight(ContactStore_RBT* store, RBNode* y)
+static void RotateRight(ContactStore* store, RBNode* y)
 {
 	RBNode* x = y->left;
 	y->left = x->right;
@@ -146,7 +145,7 @@ static void RotateRight(ContactStore_RBT* store, RBNode* y)
 	return;
 }
 
-static void InsertFixUp(ContactStore_RBT* store, RBNode* z)
+static void InsertFixUp(ContactStore* store, RBNode* z)
 {
 	while (z->parent->color == RED)
 	{
@@ -209,7 +208,7 @@ static void InsertFixUp(ContactStore_RBT* store, RBNode* z)
 	store->root->color = BLACK;
 }
 
-int ContactStore_RBT_Insert(ContactStore_RBT* store, const Contact* data)
+int ContactStore_Insert(ContactStore* store, const Contact* data)
 {
 	if (store == NULL || data == NULL)
 		return 0;
@@ -248,7 +247,7 @@ int ContactStore_RBT_Insert(ContactStore_RBT* store, const Contact* data)
 	return 1;
 }
 
-const Contact* ContactStore_RBT_FindByPhone(ContactStore_RBT* store, const char* phone)
+const Contact* ContactStore_FindByPhone(ContactStore* store, const char* phone)
 {
 	if (store == NULL || phone == NULL)
 		return NULL;
@@ -286,7 +285,7 @@ static int RBT_InOrderTraverse(RBNode* node, RBNode* nil, ContactCallback callba
 	return 1;
 }
 
-int ContactStore_RBT_Iterate(const ContactStore_RBT* store, ContactCallback callback, void* userData)
+int ContactStore_Iterate(const ContactStore* store, ContactCallback callback, void* userData)
 {
 	if (store == NULL || callback == NULL) return 0;
 
@@ -295,43 +294,43 @@ int ContactStore_RBT_Iterate(const ContactStore_RBT* store, ContactCallback call
 
 static int InsertAllCallback(const Contact* contact, void* userData)
 {
-	ContactStore_RBT* pResultStore = (ContactStore_RBT*)userData;
-	ContactStore_RBT_Insert(pResultStore, contact);
+	ContactStore* pResultStore = (ContactStore*)userData;
+	ContactStore_Insert(pResultStore, contact);
 	return 1;
 }
 
 static int InsertIfAbsentCallback(const Contact* contact, void* userData)
 {
-	ContactStore_RBT* pResultStore = (ContactStore_RBT*)userData;
-	if (!ContactStore_RBT_HasPhone(pResultStore, Contact_GetPhone(contact)))
-		ContactStore_RBT_Insert(pResultStore, contact);
+	ContactStore* pResultStore = (ContactStore*)userData;
+	if (!ContactStore_HasPhone(pResultStore, Contact_GetPhone(contact)))
+		ContactStore_Insert(pResultStore, contact);
 	return 1;
 }
 
 static int InsertIfPresentInRightCallback(const Contact* contact, void* userData)
 {
 	CombineContext* pCombineContext = (CombineContext*)userData;
-	ContactStore_RBT* pResultStore = pCombineContext->result;
-	const ContactStore_RBT* pRightStore = pCombineContext->right;
-	if (ContactStore_RBT_HasPhone(pRightStore, Contact_GetPhone(contact)))
-		ContactStore_RBT_Insert(pResultStore, contact);
+	ContactStore* pResultStore = pCombineContext->result;
+	const ContactStore* pRightStore = pCombineContext->right;
+	if (ContactStore_HasPhone(pRightStore, Contact_GetPhone(contact)))
+		ContactStore_Insert(pResultStore, contact);
 	return 1;
 }
 
-int ContactStore_RBT_CombineByOp(ContactStore_RBT* resultStore, ContactStore_RBT* leftStore, ContactStore_RBT* rightStore, const char* op)
+int ContactStore_CombineByOp(ContactStore* resultStore, ContactStore* leftStore, ContactStore* rightStore, const char* op)
 {
 	if (op == NULL || resultStore == NULL || leftStore == NULL || rightStore == NULL)
 		return 0;
 
 	if (strcmp(op, "OR") == 0 || strcmp(op, "or") == 0)
 	{
-		ContactStore_RBT_Iterate(leftStore, InsertAllCallback, resultStore);
-		ContactStore_RBT_Iterate(rightStore, InsertIfAbsentCallback, resultStore);
+		ContactStore_Iterate(leftStore, InsertAllCallback, resultStore);
+		ContactStore_Iterate(rightStore, InsertIfAbsentCallback, resultStore);
 	}
 	else if (strcmp(op, "AND") == 0 || strcmp(op, "and") == 0)
 	{
 		CombineContext combineContext = { resultStore, rightStore };
-		ContactStore_RBT_Iterate(leftStore, InsertIfPresentInRightCallback, &combineContext);
+		ContactStore_Iterate(leftStore, InsertIfPresentInRightCallback, &combineContext);
 	}
 	else
 	{

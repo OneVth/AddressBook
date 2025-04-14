@@ -463,6 +463,8 @@ void Test_ClassifyToken(void)
 	return;
 }
 
+// ***********************************************
+
 int CreateTestDataFile(void)
 {
 	CreateDirectory(L"./tests", NULL);
@@ -630,41 +632,39 @@ void Test_CreateTestDataFile(void)
 	return;
 }
 
-// RBT
-
-void Test_TryInsertContact_RBT(void)
+void Test_TryInsertContact(void)
 {
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	// Case 1: Already exists in file (invalid input)
 	Contact* pContact = Contact_Create(10, "A", "010-0000-0001");
 	assert(pContact != NULL);
-	assert(TryInsertContact_RBT(pStore, pContact, FILE_PATH_TEST) == 0);
+	assert(TryInsertContact(pStore, pContact, FILE_PATH_TEST) == 0);
 	Contact_Destroy(pContact);
 
 	// Case 2: Non-existence contact (valid input)
 	pContact = Contact_Create(99, "Z", "010-0000-9999");
 	assert(pContact != NULL);
-	assert(TryInsertContact_RBT(pStore, pContact, FILE_PATH_TEST) == 1);
+	assert(TryInsertContact(pStore, pContact, FILE_PATH_TEST) == 1);
 	Contact_Destroy(pContact);
 
-	printf("PASS: Test_TryInsertContact_RBT() correctly didn't insert an already existence contact\n");
-	printf("PASS: Test_TryInsertContact_RBT() correctly insert a contact\n");
-	ContactStore_RBT_Destroy(pStore);
+	printf("PASS: Test_TryInsertContact() correctly didn't insert an already existence contact\n");
+	printf("PASS: Test_TryInsertContact() correctly insert a contact\n");
+	ContactStore_Destroy(pStore);
 }
 
-void Test_LoadRecordsFromFileByPhone_RBT(void)
+void Test_LoadRecordsFromFileByPhone(void)
 {
 	assert(CreateTestDataFile() == 1);
 
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	// Case 1: valid phone number
-	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
-	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0002", FILE_PATH_TEST) == LOAD_SUCCESS);
-	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0003", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone(pStore, "010-0000-0002", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone(pStore, "010-0000-0003", FILE_PATH_TEST) == LOAD_SUCCESS);
 	
 	const char* expected[] = { 
 		"010-0000-0001",
@@ -673,20 +673,20 @@ void Test_LoadRecordsFromFileByPhone_RBT(void)
 	};
 
 	VerifyContext verifyContext = { expected, 0 };
-	ContactStore_RBT_Iterate(pStore, VerifyPhoneOrderCallback, &verifyContext);
+	ContactStore_Iterate(pStore, VerifyPhoneOrderCallback, &verifyContext);
 	assert(verifyContext.index == sizeof(expected) / sizeof(expected[0]));
 
 	// Case 2: invalid phone number
-	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-9999-9999", FILE_PATH_TEST) != LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone(pStore, "010-9999-9999", FILE_PATH_TEST) != LOAD_SUCCESS);
 	
-	printf("PASS: Test_LoadRecordsFromFileByPhone_RBT() returned correct result for valid phone number\n");
-	printf("PASS: Test_LoadRecordsFromFileByPhone_RBT() returned correct result for invalid phone number\n");
+	printf("PASS: Test_LoadRecordsFromFileByPhone() returned correct result for valid phone number\n");
+	printf("PASS: Test_LoadRecordsFromFileByPhone() returned correct result for invalid phone number\n");
 	putchar('\n');
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 	return;
 }
 
-void Test_SaveListToFile_RBT(void)
+void Test_SaveListToFile(void)
 {
 	assert(CreateTestDataFile() == 1);
 
@@ -699,24 +699,24 @@ void Test_SaveListToFile_RBT(void)
 		"010-9999-9997"
 	};
 
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	Contact* ptr = Contact_Create(ages[0], names[0], phones[0]);
 	assert(ptr != NULL);
 
-	assert(TryInsertContact_RBT(pStore, ptr, FILE_PATH_TEST) == 0);
+	assert(TryInsertContact(pStore, ptr, FILE_PATH_TEST) == 0);
 	Contact_Destroy(ptr);
 
 	for (int i = 1; i < 4; i++)
 	{
 		ptr = Contact_Create(ages[i], names[i], phones[i]);
 		assert(ptr != NULL);
-		assert(TryInsertContact_RBT(pStore, ptr, FILE_PATH_TEST) == 1);
+		assert(TryInsertContact(pStore, ptr, FILE_PATH_TEST) == 1);
 		Contact_Destroy(ptr);
 	}
 
-	assert(SaveListToFile_RBT(pStore, FILE_PATH_TEST) == 1);
+	assert(SaveListToFile(pStore, FILE_PATH_TEST) == 1);
 
 	LARGE_INTEGER llFileSize = { 0 };
 	HANDLE hFile = CreateFile(
@@ -735,30 +735,30 @@ void Test_SaveListToFile_RBT(void)
 	
 	assert(CloseHandle(hFile) == TRUE);
 
-	assert(LoadRecordsFromFileByPhone_RBT(NULL, "010-9999-9999", FILE_PATH_TEST) == LOAD_SUCCESS);
-	assert(LoadRecordsFromFileByPhone_RBT(NULL, "010-9999-9998", FILE_PATH_TEST) == LOAD_SUCCESS);
-	assert(LoadRecordsFromFileByPhone_RBT(NULL, "010-9999-9997", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone(NULL, "010-9999-9999", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone(NULL, "010-9999-9998", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByPhone(NULL, "010-9999-9997", FILE_PATH_TEST) == LOAD_SUCCESS);
 	
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 
-	printf("PASS: Test_SaveListToFile_RBT() correctly save list to file\n");
-	printf("PASS: Test_SaveListToFile_RBT() wrote correct number of bytes\n");
-	printf("PASS: Test_SaveListToFile_RBT() created file successfully\n");
+	printf("PASS: Test_SaveListToFile() correctly save list to file\n");
+	printf("PASS: Test_SaveListToFile() wrote correct number of bytes\n");
+	printf("PASS: Test_SaveListToFile() created file successfully\n");
 	putchar('\n');
 	return;
 }
 
-void Test_LoadRecordsFromFileByName_RBT(void)
+void Test_LoadRecordsFromFileByName(void)
 {
 	assert(CreateTestDataFile() == 1);
 
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	// Case 1: valid name
-	assert(LoadRecordsFromFileByName_RBT(pStore, "A", FILE_PATH_TEST) == LOAD_SUCCESS);
-	assert(LoadRecordsFromFileByName_RBT(pStore, "B", FILE_PATH_TEST) == LOAD_SUCCESS);
-	assert(LoadRecordsFromFileByName_RBT(pStore, "C", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByName(pStore, "A", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByName(pStore, "B", FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByName(pStore, "C", FILE_PATH_TEST) == LOAD_SUCCESS);
 
 	const char* expected[] = {
 		"010-0000-0001",	// A
@@ -768,30 +768,30 @@ void Test_LoadRecordsFromFileByName_RBT(void)
 	};
 
 	VerifyContext verifyContext = { expected, 0 };
-	ContactStore_RBT_Iterate(pStore, VerifyPhoneOrderCallback, &verifyContext);
+	ContactStore_Iterate(pStore, VerifyPhoneOrderCallback, &verifyContext);
 	assert(verifyContext.index == sizeof(expected) / sizeof(expected[0]));
 
 	// Case 2: invalid name
-	assert(LoadRecordsFromFileByName_RBT(pStore, "Z", FILE_PATH_TEST) != LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByName(pStore, "Z", FILE_PATH_TEST) != LOAD_SUCCESS);
 
-	printf("PASS: Test_LoadRecordsFromFileByName_RBT() returned correct result for valid name\n");
-	printf("PASS: Test_LoadRecordsFromFileByName_RBT() returned correct result for invalid name\n");
+	printf("PASS: Test_LoadRecordsFromFileByName() returned correct result for valid name\n");
+	printf("PASS: Test_LoadRecordsFromFileByName() returned correct result for invalid name\n");
 	putchar('\n');
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 	return;
 }
 
-void Test_LoadRecordsFromFileByAge_RBT(void)
+void Test_LoadRecordsFromFileByAge(void)
 {
 	assert(CreateTestDataFile() == 1);
 
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	// Case 1: valid age
-	assert(LoadRecordsFromFileByAge_RBT(pStore, 10, FILE_PATH_TEST) == LOAD_SUCCESS);
-	assert(LoadRecordsFromFileByAge_RBT(pStore, 20, FILE_PATH_TEST) == LOAD_SUCCESS);
-	assert(LoadRecordsFromFileByAge_RBT(pStore, 30, FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByAge(pStore, 10, FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByAge(pStore, 20, FILE_PATH_TEST) == LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByAge(pStore, 30, FILE_PATH_TEST) == LOAD_SUCCESS);
 
 	const char* expected[] = {
 		"010-0000-0001",	// A
@@ -801,128 +801,128 @@ void Test_LoadRecordsFromFileByAge_RBT(void)
 	};
 
 	VerifyContext verifyContext = { expected, 0 };
-	ContactStore_RBT_Iterate(pStore, VerifyPhoneOrderCallback, &verifyContext);
+	ContactStore_Iterate(pStore, VerifyPhoneOrderCallback, &verifyContext);
 	assert(verifyContext.index == sizeof(expected) / sizeof(expected[0]));
 
 	// Case 2: invalid age
-	assert(LoadRecordsFromFileByAge_RBT(pStore, 99, FILE_PATH_TEST) != LOAD_SUCCESS);
+	assert(LoadRecordsFromFileByAge(pStore, 99, FILE_PATH_TEST) != LOAD_SUCCESS);
 
-	printf("PASS: Test_LoadRecordsFromFileByAge_RBT() returned correct result for valid age\n");
-	printf("PASS: Test_LoadRecordsFromFileByAge_RBT() returned correct result for invalid age\n");
+	printf("PASS: Test_LoadRecordsFromFileByAge() returned correct result for valid age\n");
+	printf("PASS: Test_LoadRecordsFromFileByAge() returned correct result for invalid age\n");
 	putchar('\n');
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 	return;
 }
 
-void Test_EditRecordAgeFromFile_RBT(void)
+void Test_EditRecordAgeFromFile(void)
 {
 	assert(CreateTestDataFile() == 1);
 
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	// Case 1: valid age
-	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
-	const Contact* pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	assert(LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
+	const Contact* pContact = ContactStore_FindByPhone(pStore, "010-0000-0001");
 	assert(pContact != NULL);
 	assert(EditRecordAgeFromFile(pContact, 99, FILE_PATH_TEST) == EDIT_SUCCESS);
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 
-	pStore = ContactStore_RBT_Create();
-	assert(LoadRecordsFromFileByAge_RBT(pStore, 99, FILE_PATH_TEST) == LOAD_SUCCESS);
-	pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	pStore = ContactStore_Create();
+	assert(LoadRecordsFromFileByAge(pStore, 99, FILE_PATH_TEST) == LOAD_SUCCESS);
+	pContact = ContactStore_FindByPhone(pStore, "010-0000-0001");
 	assert(Contact_GetAge(pContact) == 99);
 	assert(strcmp(Contact_GetName(pContact), "A") == 0);
 	assert(strcmp(Contact_GetPhone(pContact), "010-0000-0001") == 0);
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 
 	// Case 2: invalid age
-	pStore = ContactStore_RBT_Create();
-	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
-	pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	pStore = ContactStore_Create();
+	assert(LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
+	pContact = ContactStore_FindByPhone(pStore, "010-0000-0001");
 	assert(pContact != NULL);
 	assert(EditRecordAgeFromFile(pContact, MAXAGE + 1, FILE_PATH_TEST) == EDIT_ERROR);
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 
-	printf("PASS: Test_EditRecordAgeFromFile_RBT() correctly edit record for valid age\n");
-	printf("PASS: Test_EditRecordAgeFromFile_RBT() correctly return false for invalid age\n");
+	printf("PASS: Test_EditRecordAgeFromFile() correctly edit record for valid age\n");
+	printf("PASS: Test_EditRecordAgeFromFile() correctly return false for invalid age\n");
 	putchar('\n');
 	return;
 }
 
-void Test_EditRecordNameFromFile_RBT(void)
+void Test_EditRecordNameFromFile(void)
 {
 	assert(CreateTestDataFile() == 1);
 
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	// Case 1: valid name
-	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
-	const Contact* pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	assert(LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
+	const Contact* pContact = ContactStore_FindByPhone(pStore, "010-0000-0001");
 	assert(pContact != NULL);
 	assert(EditRecordNameFromFile(pContact, "Z", FILE_PATH_TEST) == EDIT_SUCCESS);
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 
-	pStore = ContactStore_RBT_Create();
-	assert(LoadRecordsFromFileByName_RBT(pStore, "Z", FILE_PATH_TEST) == LOAD_SUCCESS);
-	pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	pStore = ContactStore_Create();
+	assert(LoadRecordsFromFileByName(pStore, "Z", FILE_PATH_TEST) == LOAD_SUCCESS);
+	pContact = ContactStore_FindByPhone(pStore, "010-0000-0001");
 	assert(Contact_GetAge(pContact) == 10);
 	assert(strcmp(Contact_GetName(pContact), "Z") == 0);
 	assert(strcmp(Contact_GetPhone(pContact), "010-0000-0001") == 0);
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 
 	// Case 2: invalid name
-	pStore = ContactStore_RBT_Create();
-	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
-	pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	pStore = ContactStore_Create();
+	assert(LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
+	pContact = ContactStore_FindByPhone(pStore, "010-0000-0001");
 	assert(pContact != NULL);
 	assert(EditRecordNameFromFile(pContact, "Invalid!", FILE_PATH_TEST) == EDIT_ERROR);
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 
-	printf("PASS: Test_EditRecordNameFromFile_RBT() correctly edit record for valid name\n");
-	printf("PASS: Test_EditRecordNameFromFile_RBT() correctly return false for invalid name\n");
+	printf("PASS: Test_EditRecordNameFromFile() correctly edit record for valid name\n");
+	printf("PASS: Test_EditRecordNameFromFile() correctly return false for invalid name\n");
 	putchar('\n');
 	return;
 }
 
-void Test_EditRecordPhoneFromFile_RBT(void)
+void Test_EditRecordPhoneFromFile(void)
 {
 	assert(CreateTestDataFile() == 1);
 
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	// Case 1: valid phone
-	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
-	const Contact* pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	assert(LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
+	const Contact* pContact = ContactStore_FindByPhone(pStore, "010-0000-0001");
 	assert(pContact != NULL);
 	assert(EditRecordPhoneFromFile(pContact, "010-0000-9999", FILE_PATH_TEST) == EDIT_SUCCESS);
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 
-	pStore = ContactStore_RBT_Create();
-	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-9999", FILE_PATH_TEST) == LOAD_SUCCESS);
-	pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-9999");
+	pStore = ContactStore_Create();
+	assert(LoadRecordsFromFileByPhone(pStore, "010-0000-9999", FILE_PATH_TEST) == LOAD_SUCCESS);
+	pContact = ContactStore_FindByPhone(pStore, "010-0000-9999");
 	assert(Contact_GetAge(pContact) == 10);
 	assert(strcmp(Contact_GetName(pContact), "A") == 0);
 	assert(strcmp(Contact_GetPhone(pContact), "010-0000-9999") == 0);
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 
 	// Case 2: invalid phone
-	pStore = ContactStore_RBT_Create();
-	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0011", FILE_PATH_TEST) == LOAD_SUCCESS);
-	pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0011");
+	pStore = ContactStore_Create();
+	assert(LoadRecordsFromFileByPhone(pStore, "010-0000-0011", FILE_PATH_TEST) == LOAD_SUCCESS);
+	pContact = ContactStore_FindByPhone(pStore, "010-0000-0011");
 	assert(pContact != NULL);
 	assert(EditRecordPhoneFromFile(pContact, "0000-0000-0000", FILE_PATH_TEST) == EDIT_ERROR);
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 
-	printf("PASS: Test_EditRecordPhoneFromFile_RBT() correctly edit record for valid phone number\n");
-	printf("PASS: Test_EditRecordPhoneFromFile_RBT() correctly return false for invalid phone number\n");
+	printf("PASS: Test_EditRecordPhoneFromFile() correctly edit record for valid phone number\n");
+	printf("PASS: Test_EditRecordPhoneFromFile() correctly return false for invalid phone number\n");
 	putchar('\n');
 	return;
 }
 
-void Test_DeleteRecordFromFileByPhone_RBT(void)
+void Test_DeleteRecordFromFileByPhone(void)
 {
 	assert(CreateTestDataFile() == 1);
 
@@ -949,47 +949,47 @@ void Test_DeleteRecordFromFileByPhone_RBT(void)
 	assert(hFile != INVALID_HANDLE_VALUE);
 	
 	GetFileSizeEx(hFile, &llFileSize);
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	assert(
-		LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_NOT_FOUND && 
+		LoadRecordsFromFileByPhone(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_NOT_FOUND && 
 		llFileSize.QuadPart == dwContactSize * (NUM_TEST_NODE - 1)
 	);
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 	CloseHandle(hFile);
 	
-	printf("PASS: Test_DeleteRecordFromFileByPhone_RBT() successfully removed the record with given phone number\n");
-	printf("PASS: Test_DeleteRecordFromFileByPhone_RBT() correctly return false for invalid phone number\n");
+	printf("PASS: Test_DeleteRecordFromFileByPhone() successfully removed the record with given phone number\n");
+	printf("PASS: Test_DeleteRecordFromFileByPhone() correctly return false for invalid phone number\n");
 	putchar('\n');
 	return;
 }
 
-void Test_SearchRecordsFromFile_RBT(void)
+void Test_SearchRecordsFromFile(void)
 {
 	assert(CreateTestDataFile() == 1);
 
-	ContactStore_RBT* pResult = ContactStore_RBT_Create();
+	ContactStore* pResult = ContactStore_Create();
 	assert(pResult != NULL);
 
 	// Case 1: single result
-	assert(SearchRecordsFromFile_RBT(pResult, "10", FILE_PATH_TEST) == SEARCH_SUCCESS);
+	assert(SearchRecordsFromFile(pResult, "10", FILE_PATH_TEST) == SEARCH_SUCCESS);
 
 	const char* expectedSingle[] = {
 		"010-0000-0001",	// A
 	};
 
 	VerifyContext verifyContext = { expectedSingle, 0 };
-	ContactStore_RBT_Iterate(pResult, VerifyPhoneOrderCallback, &verifyContext);
+	ContactStore_Iterate(pResult, VerifyPhoneOrderCallback, &verifyContext);
 	assert(verifyContext.index == sizeof(expectedSingle) / sizeof(expectedSingle[0]));
 
-	ContactStore_RBT_Destroy(pResult);
+	ContactStore_Destroy(pResult);
 
 	// Case 2: multiple result
-	pResult = ContactStore_RBT_Create();
+	pResult = ContactStore_Create();
 	assert(pResult != NULL);
 
-	assert(SearchRecordsFromFile_RBT(pResult, "20", FILE_PATH_TEST) == SEARCH_SUCCESS);
+	assert(SearchRecordsFromFile(pResult, "20", FILE_PATH_TEST) == SEARCH_SUCCESS);
 
 	const char* expectedMultiple[] = {
 		"010-0000-0002",	// B
@@ -998,15 +998,15 @@ void Test_SearchRecordsFromFile_RBT(void)
 
 	verifyContext.expectedPhones = expectedMultiple;
 	verifyContext.index = 0;
-	ContactStore_RBT_Iterate(pResult, VerifyPhoneOrderCallback, &verifyContext);
+	ContactStore_Iterate(pResult, VerifyPhoneOrderCallback, &verifyContext);
 	assert(verifyContext.index == sizeof(expectedMultiple) / sizeof(expectedMultiple[0]));
-	ContactStore_RBT_Destroy(pResult);
+	ContactStore_Destroy(pResult);
 
 	// Case 3: search with operator
-	pResult = ContactStore_RBT_Create();
+	pResult = ContactStore_Create();
 	assert(pResult != NULL);
 
-	assert(SearchRecordsFromFile_RBT(pResult, "10 OR 010-0000-0003", FILE_PATH_TEST) == SEARCH_SUCCESS);
+	assert(SearchRecordsFromFile(pResult, "10 OR 010-0000-0003", FILE_PATH_TEST) == SEARCH_SUCCESS);
 
 	const char* expectedOp[] = {
 		"010-0000-0001",	// A
@@ -1015,13 +1015,13 @@ void Test_SearchRecordsFromFile_RBT(void)
 
 	verifyContext.expectedPhones = expectedOp;
 	verifyContext.index = 0;
-	ContactStore_RBT_Iterate(pResult, VerifyPhoneOrderCallback, &verifyContext);
+	ContactStore_Iterate(pResult, VerifyPhoneOrderCallback, &verifyContext);
 	assert(verifyContext.index == sizeof(expectedOp) / sizeof(expectedOp[0]));
-	ContactStore_RBT_Destroy(pResult);
+	ContactStore_Destroy(pResult);
 
-	printf("PASS: Test_SearchRecordsFromFile_RBT() correctly search single record\n");
-	printf("PASS: Test_SearchRecordsFromFile_RBT() correctly search multiple record\n");
-	printf("PASS: Test_SearchRecordsFromFile_RBT() correctly search multiple record with operator\n");
+	printf("PASS: Test_SearchRecordsFromFile() correctly search single record\n");
+	printf("PASS: Test_SearchRecordsFromFile() correctly search multiple record\n");
+	printf("PASS: Test_SearchRecordsFromFile() correctly search multiple record with operator\n");
 	return;
 }
 
@@ -1174,48 +1174,48 @@ void Test_Contact_SetPhone(void)
 	return;
 }
 
-void Test_ContactStore_RBT_IsEmpty(void)
+void Test_ContactStore_IsEmpty(void)
 {
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	// Initially should be empty
-	assert(ContactStore_RBT_IsEmpty(pStore) == 1);
+	assert(ContactStore_IsEmpty(pStore) == 1);
 
 	// Insert one contact
 	Contact* c1 = Contact_Create(10, "Test", "010-1234-5678");
-	ContactStore_RBT_Insert(pStore, c1);
+	ContactStore_Insert(pStore, c1);
 
 	// Now it shouldn't be empty
-	assert(ContactStore_RBT_IsEmpty(pStore) == 0);
+	assert(ContactStore_IsEmpty(pStore) == 0);
 
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 
-	printf("PASS: Test_RBT_IsEmpty()\n");
+	printf("PASS: Test_IsEmpty()\n");
 }
 
-void Test_ContactStore_RBT_HasPhone(void)
+void Test_ContactStore_HasPhone(void)
 {
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	Contact* c1 = Contact_Create(10, "Alice", "010-1111-1111");
 	Contact* c2 = Contact_Create(20, "Betty", "010-2222-2222");
 
-	ContactStore_RBT_Insert(pStore, c1);
-	ContactStore_RBT_Insert(pStore, c2);
+	ContactStore_Insert(pStore, c1);
+	ContactStore_Insert(pStore, c2);
 
-	assert(ContactStore_RBT_HasPhone(pStore, "010-1111-1111") == 1);
-	assert(ContactStore_RBT_HasPhone(pStore, "010-2222-2222") == 1);
-	assert(ContactStore_RBT_HasPhone(pStore, "010-3333-3333") == 0);
+	assert(ContactStore_HasPhone(pStore, "010-1111-1111") == 1);
+	assert(ContactStore_HasPhone(pStore, "010-2222-2222") == 1);
+	assert(ContactStore_HasPhone(pStore, "010-3333-3333") == 0);
 
-	ContactStore_RBT_Destroy(pStore);
-	printf("PASS: Test_RBT_HasPhone()\n");
+	ContactStore_Destroy(pStore);
+	printf("PASS: Test_HasPhone()\n");
 }
 
-void Test_RBT_Create(void)
+void Test_ContactStore_Create(void)
 {
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 	assert(pStore->root != NULL);
 	assert(pStore->nil != NULL);
@@ -1228,32 +1228,32 @@ void Test_RBT_Create(void)
 
 	// NOTE: Destroy is intentionally omitted to isolate Craete() testing
 	// This test Leaks memory but ensures Create() works independently
-	printf("PASS: Test_RBT_Create() comleted\n");
+	printf("PASS: Test_Create() comleted\n");
 }
 
-void Test_RBT_Destroy(void)
+void Test_ContactStore_Destroy(void)
 {
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 
-	printf("PASS: Test_RBT_Destroy completed without crash\n");
+	printf("PASS: Test_Destroy completed without crash\n");
 	return;
 }
 
-void Test_RBT_Insert(void)
+void Test_ContactStore_Insert(void)
 {
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	Contact* c1 = Contact_Create(10, "Alice", "010-0000-2222");
 	Contact* c2 = Contact_Create(20, "Betty", "010-0000-1111");
 	Contact* c3 = Contact_Create(30, "Charlie", "010-0000-3333");
 
-	ContactStore_RBT_Insert(pStore, c1);
-	ContactStore_RBT_Insert(pStore, c2);
-	ContactStore_RBT_Insert(pStore, c3);
+	ContactStore_Insert(pStore, c1);
+	ContactStore_Insert(pStore, c2);
+	ContactStore_Insert(pStore, c3);
 
 	assert(pStore->root == pStore->root->left->parent);
 	assert(pStore->root == pStore->root->right->parent);
@@ -1261,25 +1261,25 @@ void Test_RBT_Insert(void)
 	assert(strcmp(Contact_GetPhone(pStore->root->left->data), "010-0000-1111") == 0);
 	assert(strcmp(Contact_GetPhone(pStore->root->right->data), "010-0000-3333") == 0);
 
-	printf("PASS: Test_RBT_Insert()\n");
+	printf("PASS: Test_Insert()\n");
 
 	Contact_Destroy(c1);
 	Contact_Destroy(c2);
 	Contact_Destroy(c3);
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 	return;
 }
 
-void Test_ContactStore_RBT_Iterate(void)
+void Test_ContactStore_Iterate(void)
 {
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	Contact* a = Contact_Create(10, "A", "010-0000-0001");
 	Contact* b = Contact_Create(20, "B", "010-0000-0002");
 	Contact* c = Contact_Create(30, "C", "010-0000-0003");
 
-	ContactStore_RBT_Insert(pStore, a);
-	ContactStore_RBT_Insert(pStore, b);
-	ContactStore_RBT_Insert(pStore, c);
+	ContactStore_Insert(pStore, a);
+	ContactStore_Insert(pStore, b);
+	ContactStore_Insert(pStore, c);
 
 	const char* expected[] = {
 		"010-0000-0001",
@@ -1291,35 +1291,35 @@ void Test_ContactStore_RBT_Iterate(void)
 	verifyContext.expectedPhones = expected;
 	verifyContext.index = 0;
 
-	ContactStore_RBT_Iterate(pStore, VerifyPhoneOrderCallback, &verifyContext);
+	ContactStore_Iterate(pStore, VerifyPhoneOrderCallback, &verifyContext);
 
-	printf("PASS: Test_ContactStore_RBT_Iterate()\n");
+	printf("PASS: Test_ContactStore_Iterate()\n");
 
 	Contact_Destroy(a);
 	Contact_Destroy(b);
 	Contact_Destroy(c);
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 }
 
-void Test_ContactStore_RBT_CombineByOp(void)
+void Test_ContactStore_CombineByOp(void)
 {
-	ContactStore_RBT* pResultOR = ContactStore_RBT_Create();
-	ContactStore_RBT* pResultAND = ContactStore_RBT_Create();
-	ContactStore_RBT* pLeft = ContactStore_RBT_Create();
-	ContactStore_RBT* pRight = ContactStore_RBT_Create();
+	ContactStore* pResultOR = ContactStore_Create();
+	ContactStore* pResultAND = ContactStore_Create();
+	ContactStore* pLeft = ContactStore_Create();
+	ContactStore* pRight = ContactStore_Create();
 
 	Contact* c1 = Contact_Create(10, "Alice", "010-0000-1111");
 	Contact* c2 = Contact_Create(20, "Betty", "010-0000-2222");
 	Contact* c3 = Contact_Create(25, "Edward", "010-0000-2222");
 	Contact* c4 = Contact_Create(30, "Kevin", "010-0000-3333");
 
-	ContactStore_RBT_Insert(pLeft, c1);
-	ContactStore_RBT_Insert(pLeft, c2);
-	ContactStore_RBT_Insert(pRight, c3);
-	ContactStore_RBT_Insert(pRight, c4);
+	ContactStore_Insert(pLeft, c1);
+	ContactStore_Insert(pLeft, c2);
+	ContactStore_Insert(pRight, c3);
+	ContactStore_Insert(pRight, c4);
 
-	ContactStore_RBT_CombineByOp(pResultOR, pLeft, pRight, "OR");
-	ContactStore_RBT_CombineByOp(pResultAND, pLeft, pRight, "AND");
+	ContactStore_CombineByOp(pResultOR, pLeft, pRight, "OR");
+	ContactStore_CombineByOp(pResultAND, pLeft, pRight, "AND");
 
 	const char* expectedOR[] = {
 		"010-0000-1111",
@@ -1334,50 +1334,50 @@ void Test_ContactStore_RBT_CombineByOp(void)
 	VerifyContext contextOR = { expectedOR, 0 };
 	VerifyContext contextAND = { expectedAND, 0 };
 
-	ContactStore_RBT_Iterate(pResultOR, VerifyPhoneOrderCallback, &contextOR);
-	ContactStore_RBT_Iterate(pResultAND, VerifyPhoneOrderCallback, &contextAND);
+	ContactStore_Iterate(pResultOR, VerifyPhoneOrderCallback, &contextOR);
+	ContactStore_Iterate(pResultAND, VerifyPhoneOrderCallback, &contextAND);
 	assert(contextOR.index == sizeof(expectedOR) / sizeof(expectedOR[0]));
 	assert(contextAND.index == sizeof(expectedAND) / sizeof(expectedAND[0]));
 
-	printf("PASS: Test_ContactStore_RBT_CombineByOp()\n");
+	printf("PASS: Test_ContactStore_CombineByOp()\n");
 
 	Contact_Destroy(c1);
 	Contact_Destroy(c2);
 	Contact_Destroy(c3);
 	Contact_Destroy(c4);
-	ContactStore_RBT_Destroy(pResultOR);
-	ContactStore_RBT_Destroy(pResultAND);
-	ContactStore_RBT_Destroy(pLeft);
-	ContactStore_RBT_Destroy(pRight);
+	ContactStore_Destroy(pResultOR);
+	ContactStore_Destroy(pResultAND);
+	ContactStore_Destroy(pLeft);
+	ContactStore_Destroy(pRight);
 }
 
-void Test_ContactStore_RBT_FindByPhone(void)
+void Test_ContactStore_FindByPhone(void)
 {
-	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	ContactStore* pStore = ContactStore_Create();
 	assert(pStore != NULL);
 
 	Contact* pContact = Contact_Create(10, "A", "010-0000-0001");
 	assert(pContact != NULL);
-	assert(ContactStore_RBT_Insert(pStore, pContact) == 1);
+	assert(ContactStore_Insert(pStore, pContact) == 1);
 	Contact_Destroy(pContact);
 
 	pContact = Contact_Create(20, "B", "010-0000-0002");
 	assert(pContact != NULL);
-	assert(ContactStore_RBT_Insert(pStore, pContact) == 1);
+	assert(ContactStore_Insert(pStore, pContact) == 1);
 	Contact_Destroy(pContact);
 
 	pContact = Contact_Create(30, "C", "010-0000-0003");
 	assert(pContact != NULL);
-	assert(ContactStore_RBT_Insert(pStore, pContact) == 1);
+	assert(ContactStore_Insert(pStore, pContact) == 1);
 	Contact_Destroy(pContact);
 
-	const Contact* temp = ContactStore_RBT_FindByPhone(pStore, "010-0000-0003");
+	const Contact* temp = ContactStore_FindByPhone(pStore, "010-0000-0003");
 	assert(temp != NULL);
 	assert(Contact_GetAge(temp) == 30);
 	assert(strcmp(Contact_GetName(temp), "C") == 0);
 	assert(strcmp(Contact_GetPhone(temp), "010-0000-0003") == 0);
 
-	printf("PASS: Test_ContactStore_RBT_FindByPhone correctly find expected contact in tree\n");
+	printf("PASS: Test_ContactStore_FindByPhone correctly find expected contact in tree\n");
 
-	ContactStore_RBT_Destroy(pStore);
+	ContactStore_Destroy(pStore);
 }

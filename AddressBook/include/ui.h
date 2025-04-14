@@ -54,7 +54,7 @@ int UI_GetSearchString(char* buffer);
 // UI output functions
 // *******************************************************************
 
-void UI_PrintRBT(ContactStore_RBT* store);
+void UI_PrintRBT(ContactStore* store);
 
 // *******************************************************************
 // UI event loop functions

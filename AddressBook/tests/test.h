@@ -21,17 +21,17 @@ void Test_SplitSearchExpression(void);
 
 int CreateTestDataFile(void);
 void Test_CreateTestDataFile(void);
-void Test_EditRecordAgeFromFile_RBT(void);
-void Test_EditRecordNameFromFile_RBT(void);
-void Test_EditRecordPhoneFromFile_RBT(void);
-void Test_DeleteRecordFromFileByPhone_RBT(void);
+void Test_EditRecordAgeFromFile(void);
+void Test_EditRecordNameFromFile(void);
+void Test_EditRecordPhoneFromFile(void);
+void Test_DeleteRecordFromFileByPhone(void);
 
-void Test_TryInsertContact_RBT(void);
-void Test_LoadRecordsFromFileByPhone_RBT(void);
-void Test_SaveListToFile_RBT(void);
-void Test_LoadRecordsFromFileByName_RBT(void);
-void Test_LoadRecordsFromFileByAge_RBT(void);
-void Test_SearchRecordsFromFile_RBT(void);
+void Test_TryInsertContact(void);
+void Test_LoadRecordsFromFileByPhone(void);
+void Test_SaveListToFile(void);
+void Test_LoadRecordsFromFileByName(void);
+void Test_LoadRecordsFromFileByAge(void);
+void Test_SearchRecordsFromFile(void);
 
 // ContactStore functions *******************************************
 
@@ -41,11 +41,11 @@ void Test_Contact_SetAge(void);
 void Test_Contact_SetName(void);
 void Test_Contact_SetPhone(void);
 
-void Test_ContactStore_RBT_IsEmpty(void);
-void Test_ContactStore_RBT_HasPhone(void);
-void Test_RBT_Create(void);
-void Test_RBT_Destroy(void);
-void Test_RBT_Insert(void);
-void Test_ContactStore_RBT_CombineByOp(void);
-void Test_ContactStore_RBT_Iterate(void);
-void Test_ContactStore_RBT_FindByPhone(void);
+void Test_ContactStore_IsEmpty(void);
+void Test_ContactStore_HasPhone(void);
+void Test_ContactStore_Create(void);
+void Test_ContactStore_Destroy(void);
+void Test_ContactStore_Insert(void);
+void Test_ContactStore_CombineByOp(void);
+void Test_ContactStore_Iterate(void);
+void Test_ContactStore_FindByPhone(void);

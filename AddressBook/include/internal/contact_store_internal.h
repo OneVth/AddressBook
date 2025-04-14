@@ -13,7 +13,7 @@ typedef struct _RBNode {
 	struct _RBNode* right;
 } RBNode;
 
-struct _ContactStore_RBT {
+struct _ContactStore {
 	RBNode* root;
 	RBNode* nil;
 };
