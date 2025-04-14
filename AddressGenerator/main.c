@@ -59,14 +59,14 @@ int main(void)
 	{
 		clock_t start = clock();
 
-		ContactStore* pStore = ContactStore_Create();
+		ContactStore_RBT* pStore = ContactStore_RBT_Create();
 
 		for (int i = 0; i < GENERATE_NUM; i++)
 		{
 			CreateRandomFields(&age, name, phone);
 			Contact* pContact = Contact_Create(age, name, phone);
-			if (ContactStore_HasPhone(pStore, phone) == 0)
-				ContactStore_AddToEnd(pStore, pContact);
+			if (ContactStore_RBT_HasPhone(pStore, phone) == 0)
+				ContactStore_RBT_Insert(pStore, pContact);
 			Contact_Destroy(pContact);
 		}
 
@@ -88,12 +88,12 @@ int main(void)
 		}
 		CloseHandle(hFile);
 
-		if (SaveListToFile(pStore, wPath) == 1)
+		if (SaveListToFile_RBT(pStore, wPath) == 1)
 			wprintf(L"Saved generated addresses to %s\n", wPath);
 		else
 			printf("Failed to save records to file\n");
 
-		ContactStore_Destroy(pStore);
+		ContactStore_RBT_Destroy(pStore);
 
 		clock_t end = clock();
 		if (i == 0)

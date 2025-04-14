@@ -571,7 +571,7 @@ int UI_EditNode(LPCWSTR path)
 		Contact_GetName(pContact),
 		Contact_GetPhone(pContact)
 	);
-	printf("Edit [0] Exit [1] Age [2] Name [3] Phone\n");
+	printf("Edit: [0] Exit [1] Age [2] Name [3] Phone\n");
 	printf("Choose an option: ");
 	char input = getchar();
 	ClearInputBuffer();
