@@ -1597,6 +1597,42 @@ void Test_LoadRecordsFromFileByAge_RBT(void)
 	return;
 }
 
+void Test_EditRecordAgeFromFile_RBT(void)
+{
+	assert(CreateTestDataFile() == 1);
+
+	ContactStore_RBT* pStore = ContactStore_RBT_Create();
+	assert(pStore != NULL);
+
+	// Case 1: valid age
+	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
+	const Contact* pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	assert(pContact != NULL);
+	assert(EditRecordAgeFromFile(pContact, 99, FILE_PATH_TEST) == EDIT_SUCCESS);
+	ContactStore_RBT_Destroy(pStore);
+
+	pStore = ContactStore_RBT_Create();
+	assert(LoadRecordsFromFileByAge_RBT(pStore, 99, FILE_PATH_TEST) == LOAD_SUCCESS);
+	pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	assert(Contact_GetAge(pContact) == 99);
+	assert(strcmp(Contact_GetName(pContact), "A") == 0);
+	assert(strcmp(Contact_GetPhone(pContact), "010-0000-0001") == 0);
+	ContactStore_RBT_Destroy(pStore);
+
+	// Case 2: invalid age
+	pStore = ContactStore_RBT_Create();
+	assert(LoadRecordsFromFileByPhone_RBT(pStore, "010-0000-0001", FILE_PATH_TEST) == LOAD_SUCCESS);
+	pContact = ContactStore_RBT_FindByPhone(pStore, "010-0000-0001");
+	assert(pContact != NULL);
+	assert(EditRecordAgeFromFile(pContact, MAXAGE + 1, FILE_PATH_TEST) == EDIT_ERROR);
+	ContactStore_RBT_Destroy(pStore);
+
+	printf("PASS: Test_EditRecordAgeFromFile_RBT() correctly edit record for valid age\n");
+	printf("PASS: Test_EditRecordAgeFromFile_RBT() correctly return false for invalid age\n");
+	putchar('\n');
+	return;
+}
+
 void Test_SearchRecordsFromFile_RBT(void)
 {
 	assert(CreateTestDataFile() == 1);

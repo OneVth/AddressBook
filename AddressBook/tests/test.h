@@ -27,6 +27,7 @@ void Test_SaveListToFile(void);
 void Test_LoadRecordsFromFileByName(void);
 void Test_LoadRecordsFromFileByAge(void);
 void Test_EditRecordAgeFromFile(void);
+void Test_EditRecordAgeFromFile_RBT(void);
 void Test_EditRecordNameFromFile(void);
 void Test_EditRecordPhoneFromFile(void);
 void Test_DeleteRecordFromFileByPhone(void);
