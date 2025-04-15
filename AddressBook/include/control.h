@@ -31,3 +31,6 @@ EDITRESULT EditRecordPhoneFromFile(const Contact* target, const char* phone, LPC
 DELETERESULT DeleteRecordFromFileByPhone(const char* phone, LPCWSTR path);
 SEARCHRESULT SearchRecordsFromFile(ContactStore* result, const char* input, LPCWSTR path);
 int SaveListToFile(ContactStore* store, LPCWSTR path);
+
+// multithreaded
+SEARCHRESULT SearchRecordsFromFile_MT(ContactStore* result, const char* input, LPCWSTR path);
