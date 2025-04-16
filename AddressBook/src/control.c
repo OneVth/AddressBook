@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <Windows.h>
+#include <process.h>
 #include <PathCch.h>
 #include "common.h"
 #include "control.h"
@@ -11,6 +12,20 @@
 #include "contact.h"
 
 #pragma comment(lib, "Pathcch.lib")
+
+#define SEARCH_THREAD_TIMEOUT_MS 5000
+
+typedef LOADRESULT(*LOAD_FUNC)(ContactStore*, const void*, LPCWSTR);
+
+typedef enum { BY_AGE, BY_NAME, BY_PHONE } SEARCH_TYPE;
+
+typedef struct {
+	const void* keyword;
+	LPCWSTR path;
+	ContactStore* store;
+	LOAD_FUNC* pfLoad;
+	SEARCH_TYPE type;
+} SearchThreadParam;
 
 EDITRESULT EditRecordAgeFromFile(const Contact* target, const int age, LPCWSTR path)
 {
@@ -714,4 +729,168 @@ int SaveListToFile(ContactStore* store, LPCWSTR path)
 	}
 	CloseHandle(hFile);
 	return 1;
+}
+
+// multithreaded
+
+static LOADRESULT LoadWrapper_Age(ContactStore* store, const void* keyword, LPCWSTR path)
+{
+	return LoadRecordsFromFileByAge(store, *(const int*)keyword, path);
+}
+
+static LOADRESULT LoadWrapper_Name(ContactStore* store, const void* keyword, LPCWSTR path)
+{
+	return LoadRecordsFromFileByName(store, (const char*)keyword, path);
+}
+
+static LOADRESULT LoadWrapper_Phone(ContactStore* store, const void* keyword, LPCWSTR path)
+{
+	return LoadRecordsFromFileByPhone(store, (const char*)keyword, path);
+}
+
+static DWORD WINAPI SearchThreadProc(void* param)
+{
+	SearchThreadParam* p = (SearchThreadParam*)param;
+
+	p->pfLoad[p->type](p->store, p->keyword, p->path);
+
+	return 0;
+}
+
+SEARCHRESULT SearchRecordsFromFile_MT(ContactStore* result, const char* input, LPCWSTR path)
+{
+	int age1 = 0;
+	int age2 = 0;
+	char name1[MAX_NAME_LEN] = { 0 };
+	char name2[MAX_NAME_LEN] = { 0 };
+	char phone1[MAX_PHONE_LEN] = { 0 };
+	char phone2[MAX_PHONE_LEN] = { 0 };
+
+	char token1[BUFFSIZE] = { 0 };
+	char token2[BUFFSIZE] = { 0 };
+	char op[BUFFSIZE] = { 0 };
+
+	if (!SplitSearchExpression(input, token1, token2, op))
+		return PARSE_FAILED;
+
+	if (!ClassifyToken(token1, &age1, name1, phone1))
+		return CONVERT_FAILED;
+
+	if (token2[0] != 0)
+	{
+		if (strcmp(op, "AND") != 0 && strcmp(op, "and") != 0 &&
+			strcmp(op, "OR") != 0 && strcmp(op, "or") != 0)
+		{
+			return CONVERT_FAILED;
+		}
+
+		if (!ClassifyToken(token2, &age2, name2, phone2))
+			return CONVERT_FAILED;
+	}
+
+	if (op[0] == 0)
+	{
+		if (age1 != 0)
+		{
+			LoadRecordsFromFileByAge(result, age1, path);
+		}
+		else if (name1[0] != 0)
+		{
+			LoadRecordsFromFileByName(result, name1, path);
+		}
+		else if (phone1[0] != 0)
+		{
+			LoadRecordsFromFileByPhone(result, phone1, path);
+		}
+	}
+	else if (op[0] != 0)	// op is "AND" or "OR"
+	{
+		LOAD_FUNC pfLoadWrapper[3] = {
+			LoadWrapper_Age,
+			LoadWrapper_Name,
+			LoadWrapper_Phone
+		};
+
+		HANDLE handles[2] = { 0 };
+
+		ContactStore* pLeftStore = ContactStore_Create();
+		ContactStore* pRightStore = ContactStore_Create();
+		if (pLeftStore == NULL || pRightStore == NULL)
+			return SEARCH_ERROR;
+
+		SearchThreadParam leftParam = {
+			NULL,
+			path,
+			pLeftStore,
+			pfLoadWrapper,
+			0
+		};
+
+		SearchThreadParam rightParam = {
+			NULL,
+			path,
+			pRightStore,
+			pfLoadWrapper,
+			0
+		};
+
+		leftParam.type =
+			(age1 != 0) ? BY_AGE :
+			(name1[0] != 0) ? BY_NAME :	BY_PHONE;
+
+		rightParam.type =
+			(age2 != 0) ? BY_AGE :
+			(name2[0] != 0) ? BY_NAME : BY_PHONE;
+
+		if (leftParam.type == BY_AGE)
+			leftParam.keyword = &age1;
+		else if (leftParam.type == BY_NAME)
+			leftParam.keyword = name1;
+		else if (leftParam.type == BY_PHONE)
+			leftParam.keyword = phone1;
+
+		if (rightParam.type == BY_AGE)
+			rightParam.keyword = &age2;
+		else if (rightParam.type == BY_NAME)
+			rightParam.keyword = name2;
+		else if (rightParam.type == BY_PHONE)
+			rightParam.keyword = phone2;
+
+		handles[0] = (HANDLE)_beginthreadex(
+			NULL,
+			0,
+			SearchThreadProc,
+			&leftParam,
+			0,
+			NULL
+		);
+
+		handles[1] = (HANDLE)_beginthreadex(
+			NULL,
+			0,
+			SearchThreadProc,
+			&rightParam,
+			0,
+			NULL
+		);
+		if (handles[0] == NULL || handles[1] == NULL)
+			return SEARCH_ERROR;
+		
+		DWORD waitResult = WaitForMultipleObjects(2, handles, TRUE, SEARCH_THREAD_TIMEOUT_MS);
+		if (waitResult == WAIT_TIMEOUT)
+		{
+			printf("ERROR: Search threads did not finish within timeout.\n");
+			return SEARCH_ERROR;
+		}
+
+		ContactStore_CombineByOp(result, pLeftStore, pRightStore, op);
+
+		ContactStore_Destroy(pLeftStore);
+		ContactStore_Destroy(pRightStore);
+	}
+
+	if (!ContactStore_IsEmpty(result))
+		return SEARCH_SUCCESS;
+	else
+		return NO_MATCH;
 }
