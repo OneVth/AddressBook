@@ -880,8 +880,15 @@ SEARCHRESULT SearchRecordsFromFile_MT(ContactStore* result, const char* input, L
 		if (waitResult == WAIT_TIMEOUT)
 		{
 			printf("ERROR: Search threads did not finish within timeout.\n");
+
+			for (int i = 0; i < 2; i++)
+				CloseHandle(handles[i]);
+
 			return SEARCH_ERROR;
 		}
+
+		for (int i = 0; i < 2; i++)
+			CloseHandle(handles[i]);
 
 		ContactStore_CombineByOp(result, pLeftStore, pRightStore, op);
 

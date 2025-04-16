@@ -470,7 +470,7 @@ int UI_DeleteNode(LPCWSTR path)
 			fflush(stdout);
 			dotIndex = (dotIndex + 1) % 4;	// Console animation
 		}
-		CloseHandle((HANDLE)hThread);
+		CloseHandle(hThread);
 
 		if (param->result == DELETE_SUCCESS)
 			printf("Record deleted successfully.\n");
