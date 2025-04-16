@@ -53,11 +53,6 @@ int main(void)
 	Test_Contact_Destroy();
 	Test_ContactStore_Destroy();
 #endif
-	ContactStore* pStore = ContactStore_Create();
-	
-	SearchRecordsFromFile_MT(pStore, "10 OR 20", FILE_PATH_TEST);
-	
-	UI_PrintRBT(pStore);
-	ContactStore_Destroy(pStore);
+	Test_SearchRecordsFromFile_MT();
 	return 0;
 }

@@ -993,6 +993,78 @@ void Test_SearchRecordsFromFile(void)
 	return;
 }
 
+void Test_SearchRecordsFromFile_MT(void)
+{
+	assert(CreateTestDataFile() == 1);
+
+	ContactStore* pResult = ContactStore_Create();
+	if (pResult == NULL)
+	{
+		printf("FAIL: Test_SearchRecordsFromFile_MT() failed to memory allocation\n");
+		return;
+	}
+
+	// Case 1: single result
+	assert(SearchRecordsFromFile_MT(pResult, "10", FILE_PATH_TEST) == SEARCH_SUCCESS);
+
+	const char* expectedSingle[] = {
+		"010-0000-0001",	// A
+	};
+
+	VerifyContext verifyContext = { expectedSingle, 0 };
+	ContactStore_Iterate(pResult, VerifyPhoneOrderCallback, &verifyContext);
+	assert(verifyContext.index == sizeof(expectedSingle) / sizeof(expectedSingle[0]));
+
+	ContactStore_Destroy(pResult);
+
+	// Case 2: multiple result
+	pResult = ContactStore_Create();
+	if (pResult == NULL)
+	{
+		printf("FAIL: Test_SearchRecordsFromFile_MT() failed to memory allocation\n");
+		return;
+	}
+
+	assert(SearchRecordsFromFile_MT(pResult, "20", FILE_PATH_TEST) == SEARCH_SUCCESS);
+
+	const char* expectedMultiple[] = {
+		"010-0000-0002",	// B
+		"010-0000-0022",	// C
+	};
+
+	verifyContext.expectedPhones = expectedMultiple;
+	verifyContext.index = 0;
+	ContactStore_Iterate(pResult, VerifyPhoneOrderCallback, &verifyContext);
+	assert(verifyContext.index == sizeof(expectedMultiple) / sizeof(expectedMultiple[0]));
+	ContactStore_Destroy(pResult);
+
+	// Case 3: search with operator
+	pResult = ContactStore_Create();
+	if (pResult == NULL)
+	{
+		printf("FAIL: Test_SearchRecordsFromFile_MT() failed to memory allocation\n");
+		return;
+	}
+
+	assert(SearchRecordsFromFile_MT(pResult, "10 OR 010-0000-0003", FILE_PATH_TEST) == SEARCH_SUCCESS);
+
+	const char* expectedOp[] = {
+		"010-0000-0001",	// A
+		"010-0000-0003",	// D
+	};
+
+	verifyContext.expectedPhones = expectedOp;
+	verifyContext.index = 0;
+	ContactStore_Iterate(pResult, VerifyPhoneOrderCallback, &verifyContext);
+	assert(verifyContext.index == sizeof(expectedOp) / sizeof(expectedOp[0]));
+	ContactStore_Destroy(pResult);
+
+	printf("PASS: Test_SearchRecordsFromFile_MT() correctly search single record\n");
+	printf("PASS: Test_SearchRecordsFromFile_MT() correctly search multiple record\n");
+	printf("PASS: Test_SearchRecordsFromFile_MT() correctly search multiple record with operator\n");
+	return;
+}
+
 // ***********************************************
 
 void Test_Contact_Destroy(void)

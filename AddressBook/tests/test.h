@@ -33,6 +33,8 @@ void Test_LoadRecordsFromFileByName(void);
 void Test_LoadRecordsFromFileByAge(void);
 void Test_SearchRecordsFromFile(void);
 
+void Test_SearchRecordsFromFile_MT(void);
+
 // ContactStore functions *******************************************
 
 void Test_Contact_Destroy(void);
