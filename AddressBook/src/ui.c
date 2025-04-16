@@ -21,6 +21,11 @@ typedef struct {
 	int pageNum;
 } PrintStoreInfo;
 
+typedef struct {
+	wchar_t path[MAX_PATH];
+	ContactStore* store;
+} SaveParam;
+
 int UI_GetInsertInfo(char* name, int* age, char* phone)
 {
 	while (1)
@@ -385,6 +390,15 @@ int UI_PrintAll(LPCWSTR path)
 	return 0;
 }
 
+static DWORD WINAPI SaveThreadProc(void* param)
+{
+	SaveParam* p = (SaveParam*)param;
+	SaveListToFile(p->store, p->path);
+	ContactStore_Destroy(p->store);
+	free(p);
+	return 0;
+}
+
 int UI_InsertNode(LPCWSTR path)
 {
 	char c = 0;
@@ -411,8 +425,24 @@ int UI_InsertNode(LPCWSTR path)
 			break;
 	}
 	ClearInputBuffer();
-	SaveListToFile(pStore, path);
-	ContactStore_Destroy(pStore);
+
+	SaveParam* saveParam = (SaveParam*)malloc(sizeof(SaveParam));
+	wcscpy_s(saveParam->path, MAX_PATH, path);
+	saveParam->store = pStore;
+
+	HANDLE hThread = (HANDLE)_beginthreadex(
+		NULL,
+		0,
+		SaveThreadProc,
+		saveParam,
+		0,
+		NULL
+	);
+	if (hThread == NULL)
+		return 0;
+
+	WaitForSingleObject(hThread, 5000);
+
 	return 1;
 }
 
