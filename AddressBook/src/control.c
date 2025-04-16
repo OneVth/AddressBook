@@ -13,6 +13,8 @@
 
 #pragma comment(lib, "Pathcch.lib")
 
+#define SEARCH_THREAD_TIMEOUT_MS 5000
+
 typedef LOADRESULT(*LOAD_FUNC)(ContactStore*, const void*, LPCWSTR);
 
 typedef enum { BY_AGE, BY_NAME, BY_PHONE } SEARCH_TYPE;
@@ -874,7 +876,13 @@ SEARCHRESULT SearchRecordsFromFile_MT(ContactStore* result, const char* input, L
 		if (handles[0] == NULL || handles[1] == NULL)
 			return SEARCH_ERROR;
 		
-		WaitForMultipleObjects(2, handles, TRUE, INFINITE);
+		DWORD waitResult = WaitForMultipleObjects(2, handles, TRUE, SEARCH_THREAD_TIMEOUT_MS);
+		if (waitResult == WAIT_TIMEOUT)
+		{
+			printf("ERROR: Search threads did not finish within timeout.\n");
+			return SEARCH_ERROR;
+		}
+
 		ContactStore_CombineByOp(result, pLeftStore, pRightStore, op);
 
 		ContactStore_Destroy(pLeftStore);
