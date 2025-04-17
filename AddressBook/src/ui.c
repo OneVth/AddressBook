@@ -426,9 +426,13 @@ int UI_InsertNode(LPCWSTR path)
 	}
 	ClearInputBuffer();
 
+	// Clone the current store
+	ContactStore* pClone = ContactStore_Clone(pStore);
+	ContactStore_Destroy(pStore);
+
 	SaveParam* saveParam = (SaveParam*)malloc(sizeof(SaveParam));
 	wcscpy_s(saveParam->path, MAX_PATH, path);
-	saveParam->store = pStore;
+	saveParam->store = pClone;
 
 	HANDLE hThread = (HANDLE)_beginthreadex(
 		NULL,
@@ -439,10 +443,20 @@ int UI_InsertNode(LPCWSTR path)
 		NULL
 	);
 	if (hThread == NULL)
+	{
+		free(saveParam);
 		return 0;
+	}
 
-	WaitForSingleObject(hThread, 5000);
-
+	const char* dots[] = { " ", ".", "..", "..." };
+	int dotIndex = 0;
+	while (WaitForSingleObject(hThread, 300) == WAIT_TIMEOUT)
+	{
+		printf("\rSaving%s  ", dots[dotIndex]);
+		fflush(stdout);
+		dotIndex = (dotIndex + 1) % 4;	// Console animation
+	}
+	CloseHandle(hThread);
 	return 1;
 }
 
