@@ -1421,3 +1421,42 @@ void Test_ContactStore_FindByPhone(void)
 
 	ContactStore_Destroy(pStore);
 }
+
+void Test_ContactStore_Clone(void)
+{
+	int ages[] = { 10, 20, 30 };
+	char* names[] = { "A", "B", "C" };
+	char* phones[] = { "010-0000-1111", "010-0000-2222", "010-0000-3333" };
+	int n = sizeof(ages) / sizeof(ages[0]);
+
+	ContactStore* pSrc = ContactStore_Create();
+	ContactStore* pDest = NULL;
+	const Contact* pContact = NULL;
+
+	// prepare a source contact_store
+	for (int i = 0; i < n; i++)
+	{
+		pContact = Contact_Create(ages[i], names[i], phones[i]);
+		ContactStore_Insert(pSrc, pContact);
+		Contact_Destroy(pContact);
+	}
+
+	// clone the store
+	pDest = ContactStore_Clone(pSrc);
+	assert(pDest != NULL);
+	ContactStore_Destroy(pSrc);
+
+	VerifyContext* ctx = (VerifyContext*)malloc(sizeof(VerifyContext));
+	ctx->expectedPhones = phones;
+	ctx->index = 0;
+
+	// NOTE: phone number only is verified 
+	// since other fields are deterministic from Contact_Create()
+	ContactStore_Iterate(pDest, VerifyPhoneOrderCallback, ctx);
+	assert(ctx->index == n);
+
+	ContactStore_Destroy(pDest);
+	free(ctx);
+
+	printf("PASS: Test_ContactStore_Clone() correctly clone the store.\n");
+}

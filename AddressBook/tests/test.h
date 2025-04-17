@@ -51,3 +51,4 @@ void Test_ContactStore_Insert(void);
 void Test_ContactStore_CombineByOp(void);
 void Test_ContactStore_Iterate(void);
 void Test_ContactStore_FindByPhone(void);
+void Test_ContactStore_Clone(void);
