@@ -12,9 +12,9 @@
 
 typedef struct {
 	char phone[MAX_PHONE_LEN];
-	LPCWSTR path;
-	DELETERESULT result;
-} DELETEPARAM;
+	wchar_t path[MAX_PATH];
+	DELETERESULT* result;
+} DeleteParam;
 
 typedef struct {
 	int count;
@@ -468,19 +468,10 @@ int UI_InsertNode(LPCWSTR path)
 
 DWORD WINAPI Thread_DeleteRecord(void* param)
 {
-	DELETEPARAM* params = (DELETEPARAM*)param;
-	if (LoadRecordsFromFileByPhone(NULL, params->phone, params->path) != LOAD_SUCCESS)
-	{
-		return 0;
-	}
-	else
-	{
-		if ((params->result = DeleteRecordFromFileByPhone(params->phone, params->path)) != DELETE_SUCCESS)
-		{
-			return 0;
-		}
-	}
-	return 1;
+	DeleteParam* p = (DeleteParam*)param;
+	*p->result = DeleteRecordFromFileByPhone(p->phone, p->path);
+	free(p);
+	return 0;
 }
 
 int UI_DeleteNode(LPCWSTR path)
@@ -488,18 +479,20 @@ int UI_DeleteNode(LPCWSTR path)
 	int flag = 1;
 	char phone[MAX_PHONE_LEN] = { 0 };
 
-	const char* dots[] = { " ", ".", "..", "..." };
-	int dotIndex = 0;
-	DELETEPARAM* param = (DELETEPARAM*)malloc(sizeof(DELETEPARAM));
-	param->path = path;
+	const char* dots[] = { " ", ".", "..", "..." };	// for console animation
+	
 	do
 	{
 		system("cls");
 		printf("Need the phone number to delete **************\n");
 		UI_GetPhone(phone);
 
-		param->result = -1;
+		DELETERESULT result = 0;
+		DeleteParam* param = (DeleteParam*)malloc(sizeof(DeleteParam));
+		wcscpy_s(param->path, MAX_PATH, path);
 		strcpy_s(param->phone, sizeof(param->phone), phone);
+		param->result = &result;
+
 		HANDLE hThread = (HANDLE)_beginthreadex(
 			NULL,
 			0,
@@ -513,7 +506,8 @@ int UI_DeleteNode(LPCWSTR path)
 			free(param);
 			return 0;
 		}
-
+		
+		int dotIndex = 0;
 		while (WaitForSingleObject(hThread, 300) == WAIT_TIMEOUT)
 		{
 			printf("\rDeleting%s  ", dots[dotIndex]);
@@ -522,10 +516,12 @@ int UI_DeleteNode(LPCWSTR path)
 		}
 		CloseHandle(hThread);
 
-		if (param->result == DELETE_SUCCESS)
+		if (result == DELETE_SUCCESS)
 			printf("Record deleted successfully.\n");
-		else
-			printf("Failed to delete record.\n");
+		else if (result == DELETE_ERROR)
+			printf("File access error occured.\n");
+		else if (result == DELETE_NOT_FOUND)
+			printf("No matching record found.\n");
 
 		char ch = 0;
 		printf("Press any key to continue (or 'q' to exit) : ");
@@ -538,7 +534,6 @@ int UI_DeleteNode(LPCWSTR path)
 		putchar('\n');
 	} while (flag);
 
-	free(param);
 	return 1;
 }
 
