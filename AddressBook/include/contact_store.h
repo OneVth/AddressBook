@@ -32,3 +32,5 @@ int ContactStore_Iterate(const ContactStore* store, ContactCallback callback, vo
 /// - The result store receives a deep copy of each contact.
 /// </summary>
 int ContactStore_CombineByOp(ContactStore* resultStore, ContactStore* leftStore, ContactStore* rightStore, const char* op);
+
+ContactStore* ContactStore_Clone(ContactStore* source);

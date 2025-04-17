@@ -53,6 +53,28 @@ int main(void)
 	Test_Contact_Destroy();
 	Test_ContactStore_Destroy();
 #endif
-	UI_InsertNode(FILE_PATH_TEST);
+	ContactStore* pSrc = ContactStore_Create();
+	ContactStore* pDest = NULL;
+	const Contact* pContact = Contact_Create(10, "Alice", "010-0000-1111");
+
+	ContactStore_Insert(pSrc, pContact);
+	Contact_Destroy(pContact);
+
+	pContact = Contact_Create(20, "Betty", "010-0000-2222");
+	ContactStore_Insert(pSrc, pContact);
+	Contact_Destroy(pContact);
+
+	pContact = Contact_Create(30, "Kevin", "010-0000-3333");
+	ContactStore_Insert(pSrc, pContact);
+	Contact_Destroy(pContact);
+
+	pDest = ContactStore_Clone(pSrc);
+
+	//UI_PrintRBT(pSrc);
+
+	UI_PrintRBT(pDest);
+
+	ContactStore_Destroy(pSrc);
+	ContactStore_Destroy(pDest);
 	return 0;
 }
