@@ -24,6 +24,7 @@ typedef struct {
 typedef struct {
 	wchar_t path[MAX_PATH];
 	ContactStore* store;
+	BOOL* result;
 } SaveParam;
 
 int UI_GetInsertInfo(char* name, int* age, char* phone)
@@ -393,7 +394,7 @@ int UI_PrintAll(LPCWSTR path)
 static DWORD WINAPI SaveThreadProc(void* param)
 {
 	SaveParam* p = (SaveParam*)param;
-	SaveListToFile(p->store, p->path);
+	*(p->result) = (SaveListToFile(p->store, p->path) == 1);
 	ContactStore_Destroy(p->store);
 	free(p);
 	return 0;
@@ -430,9 +431,11 @@ int UI_InsertNode(LPCWSTR path)
 	ContactStore* pClone = ContactStore_Clone(pStore);
 	ContactStore_Destroy(pStore);
 
+	BOOL result = FALSE;
 	SaveParam* saveParam = (SaveParam*)malloc(sizeof(SaveParam));
 	wcscpy_s(saveParam->path, MAX_PATH, path);
 	saveParam->store = pClone;
+	saveParam->result = &result;
 
 	HANDLE hThread = (HANDLE)_beginthreadex(
 		NULL,
@@ -457,6 +460,9 @@ int UI_InsertNode(LPCWSTR path)
 		dotIndex = (dotIndex + 1) % 4;	// Console animation
 	}
 	CloseHandle(hThread);
+
+	if (!result)
+		printf("[ERROR] Failed to save contact to file.\n");
 	return 1;
 }
 
