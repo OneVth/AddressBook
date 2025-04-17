@@ -27,6 +27,13 @@ typedef struct {
 	BOOL* result;
 } SaveParam;
 
+typedef struct {
+	char input[BUFFSIZE];
+	wchar_t path[MAX_PATH];
+	ContactStore* store;
+	SEARCHRESULT* result;
+} SearchParam;
+
 int UI_GetInsertInfo(char* name, int* age, char* phone)
 {
 	while (1)
@@ -537,48 +544,77 @@ int UI_DeleteNode(LPCWSTR path)
 	return 1;
 }
 
+DWORD WINAPI SearchThreadProc(void* param)
+{
+	SearchParam* p = (SearchParam*)param;
+	*p->result = SearchRecordsFromFile_MT(p->store, p->input, p->path);
+	return 0;
+}
+
 int UI_Search(LPCWSTR path)
 {
 	SEARCHRESULT result = SEARCH_ERROR;
-	ContactStore* pResult = ContactStore_Create();
+
+	const char* dots[] = { " ", ".", "..", "..." };	// for console animation
 
 	printf("You can use \"AND\" or \"OR\" to search.\n");
 	char buffer[BUFFSIZE] = { 0 };
 	if (UI_GetSearchString(buffer))
 	{
-		result = SearchRecordsFromFile(pResult, buffer, path);
+		SearchParam* searchParam = (SearchParam*)malloc(sizeof(SearchParam));
+		searchParam->store = ContactStore_Create();
+		strcpy_s(searchParam->input, BUFFSIZE, buffer);
+		wcscpy_s(searchParam->path, MAX_PATH, path);
+		searchParam->result = &result;
+
+		HANDLE hThread = (HANDLE)_beginthreadex(
+			NULL,
+			0,
+			SearchThreadProc,
+			searchParam,
+			0,
+			NULL
+		);
+		if (hThread == NULL)
+		{
+			printf("[ERROR] Failed to create thread.\n");
+			ContactStore_Destroy(searchParam->store);
+			free(searchParam);
+			return 0;
+		}
+
+		int dotIndex = 0;
+		while (WaitForSingleObject(hThread, 300) == WAIT_TIMEOUT)
+		{
+			printf("\rSearching%s  ", dots[dotIndex]);
+			fflush(stdout);
+			dotIndex = (dotIndex + 1) % 4;	// Console animation
+		}
+		CloseHandle(hThread);
+		
 		if (result == SEARCH_SUCCESS)
 		{
 			printf("Search result **********************************\n");
-			UI_PrintRBT(pResult);
+			UI_PrintRBT(searchParam->store);
 		}
 		else if (result == PARSE_FAILED)
 		{
 			printf("Input failed: Input format must be [str] [AND/OR] [str].\n");
-			ContactStore_Destroy(pResult);
-			return 0;
 		}
 		else if (result == CONVERT_FAILED)
 		{
 			printf("Input failed: Allowed max [AGE: %d], [NAME LEN: %d], [PHONE LEN: %d]\n", MAXAGE, MAX_NAME_LEN, MAX_PHONE_LEN);
-			ContactStore_Destroy(pResult);
-			return 0;
 		}
 		else if (result == NO_MATCH)
 		{
 			printf("Search failed: No matching records here.\n");
-			ContactStore_Destroy(pResult);
-			return 0;
 		}
-	}
-	else
-	{
-		ContactStore_Destroy(pResult);
-		return 0;
+		
+		ContactStore_Destroy(searchParam->store);
+		free(searchParam);
 	}
 
-	ContactStore_Destroy(pResult);
-	return 1;
+	return (result == SEARCH_SUCCESS);
 }
 
 int UI_EditNode(LPCWSTR path)
