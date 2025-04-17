@@ -21,6 +21,12 @@ typedef struct {
 	int pageNum;
 } PrintStoreInfo;
 
+typedef struct {
+	wchar_t path[MAX_PATH];
+	ContactStore* store;
+	BOOL* result;
+} SaveParam;
+
 int UI_GetInsertInfo(char* name, int* age, char* phone)
 {
 	while (1)
@@ -385,6 +391,15 @@ int UI_PrintAll(LPCWSTR path)
 	return 0;
 }
 
+static DWORD WINAPI SaveThreadProc(void* param)
+{
+	SaveParam* p = (SaveParam*)param;
+	*(p->result) = (SaveListToFile(p->store, p->path) == 1);
+	ContactStore_Destroy(p->store);
+	free(p);
+	return 0;
+}
+
 int UI_InsertNode(LPCWSTR path)
 {
 	char c = 0;
@@ -411,8 +426,43 @@ int UI_InsertNode(LPCWSTR path)
 			break;
 	}
 	ClearInputBuffer();
-	SaveListToFile(pStore, path);
+
+	// Clone the current store
+	ContactStore* pClone = ContactStore_Clone(pStore);
 	ContactStore_Destroy(pStore);
+
+	BOOL result = FALSE;
+	SaveParam* saveParam = (SaveParam*)malloc(sizeof(SaveParam));
+	wcscpy_s(saveParam->path, MAX_PATH, path);
+	saveParam->store = pClone;
+	saveParam->result = &result;
+
+	HANDLE hThread = (HANDLE)_beginthreadex(
+		NULL,
+		0,
+		SaveThreadProc,
+		saveParam,
+		0,
+		NULL
+	);
+	if (hThread == NULL)
+	{
+		free(saveParam);
+		return 0;
+	}
+
+	const char* dots[] = { " ", ".", "..", "..." };
+	int dotIndex = 0;
+	while (WaitForSingleObject(hThread, 300) == WAIT_TIMEOUT)
+	{
+		printf("\rSaving%s  ", dots[dotIndex]);
+		fflush(stdout);
+		dotIndex = (dotIndex + 1) % 4;	// Console animation
+	}
+	CloseHandle(hThread);
+
+	if (!result)
+		printf("[ERROR] Failed to save contact to file.\n");
 	return 1;
 }
 

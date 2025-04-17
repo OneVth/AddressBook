@@ -338,3 +338,13 @@ int ContactStore_CombineByOp(ContactStore* resultStore, ContactStore* leftStore,
 	}
 	return 1;
 }
+
+ContactStore* ContactStore_Clone(ContactStore* source)
+{
+	ContactStore* clone = ContactStore_Create();
+	if (clone == NULL)
+		return NULL;
+
+	ContactStore_Iterate(source, InsertAllCallback, clone);
+	return clone;
+}
